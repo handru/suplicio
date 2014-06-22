@@ -1,0 +1,256 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 79.45    742.29   742.29       10    74.23    74.23  estela_
+ 14.36    876.45   134.16        1   134.16   134.16  solgauss_
+  3.60    910.12    33.67 248750000     0.00     0.00  segmento_
+  2.14    930.12    20.00       10     2.00     5.37  anillo_
+  0.25    932.50     2.38       10     0.24     0.24  coefin_
+  0.17    934.06     1.56       10     0.16     0.16  veloc_
+  0.02    934.29     0.23        1     0.23   134.39  circulac_
+  0.01    934.37     0.08        1     0.08     0.08  geomest_
+  0.00    934.38     0.01        8     0.00     0.00  puntos1_
+  0.00    934.39     0.01        1     0.01     0.01  velsuper_
+  0.00    934.39     0.00    50899     0.00     0.00  radloc_
+  0.00    934.39     0.00        2     0.00     0.00  ploteo1_
+  0.00    934.39     0.00        2     0.00     0.00  ploteo2_
+  0.00    934.39     0.00        2     0.00     0.00  presion2_
+  0.00    934.39     0.00        1     0.00   934.39  MAIN__
+  0.00    934.39     0.00        1     0.00     0.00  cargas_
+  0.00    934.39     0.00        1     0.00     0.00  circo_
+  0.00    934.39     0.00        1     0.00     0.00  coord3d_
+  0.00    934.39     0.00        1     0.00     0.00  gammas_
+  0.00    934.39     0.00        1     0.00     0.00  hilo_
+  0.00    934.39     0.00        1     0.00     0.00  input_
+  0.00    934.39     0.00        1     0.00     0.00  palas_
+  0.00    934.39     0.00        1     0.00     0.00  panel_
+  0.00    934.39     0.00        1     0.00     0.00  presion1_
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 0.00% of 934.39 seconds
+
+index % time    self  children    called     name
+                0.00  934.39       1/1           main [2]
+[1]    100.0    0.00  934.39       1         MAIN__ [1]
+              742.29    0.00      10/10          estela_ [3]
+                0.23  134.16       1/1           circulac_ [4]
+               20.00   33.67      10/10          anillo_ [6]
+                2.38    0.00      10/10          coefin_ [8]
+                1.56    0.00      10/10          veloc_ [9]
+                0.08    0.00       1/1           geomest_ [10]
+                0.01    0.00       8/8           puntos1_ [11]
+                0.01    0.00       1/1           velsuper_ [12]
+                0.00    0.00       2/2           ploteo1_ [14]
+                0.00    0.00       2/2           ploteo2_ [15]
+                0.00    0.00       2/2           presion2_ [16]
+                0.00    0.00       1/1           input_ [22]
+                0.00    0.00       1/1           coord3d_ [19]
+                0.00    0.00       1/1           palas_ [23]
+                0.00    0.00       1/1           panel_ [24]
+                0.00    0.00       1/1           presion1_ [25]
+                0.00    0.00       1/1           hilo_ [21]
+                0.00    0.00       1/1           cargas_ [17]
+                0.00    0.00       1/1           circo_ [18]
+                0.00    0.00       1/1           gammas_ [20]
+-----------------------------------------------
+                                                 <spontaneous>
+[2]    100.0    0.00  934.39                 main [2]
+                0.00  934.39       1/1           MAIN__ [1]
+-----------------------------------------------
+              742.29    0.00      10/10          MAIN__ [1]
+[3]     79.4  742.29    0.00      10         estela_ [3]
+-----------------------------------------------
+                0.23  134.16       1/1           MAIN__ [1]
+[4]     14.4    0.23  134.16       1         circulac_ [4]
+              134.16    0.00       1/1           solgauss_ [5]
+-----------------------------------------------
+              134.16    0.00       1/1           circulac_ [4]
+[5]     14.4  134.16    0.00       1         solgauss_ [5]
+-----------------------------------------------
+               20.00   33.67      10/10          MAIN__ [1]
+[6]      5.7   20.00   33.67      10         anillo_ [6]
+               33.67    0.00 248750000/248750000     segmento_ [7]
+-----------------------------------------------
+               33.67    0.00 248750000/248750000     anillo_ [6]
+[7]      3.6   33.67    0.00 248750000         segmento_ [7]
+-----------------------------------------------
+                2.38    0.00      10/10          MAIN__ [1]
+[8]      0.3    2.38    0.00      10         coefin_ [8]
+-----------------------------------------------
+                1.56    0.00      10/10          MAIN__ [1]
+[9]      0.2    1.56    0.00      10         veloc_ [9]
+-----------------------------------------------
+                0.08    0.00       1/1           MAIN__ [1]
+[10]     0.0    0.08    0.00       1         geomest_ [10]
+                0.00    0.00   50899/50899       radloc_ [13]
+-----------------------------------------------
+                0.01    0.00       8/8           MAIN__ [1]
+[11]     0.0    0.01    0.00       8         puntos1_ [11]
+-----------------------------------------------
+                0.01    0.00       1/1           MAIN__ [1]
+[12]     0.0    0.01    0.00       1         velsuper_ [12]
+-----------------------------------------------
+                0.00    0.00   50899/50899       geomest_ [10]
+[13]     0.0    0.00    0.00   50899         radloc_ [13]
+-----------------------------------------------
+                0.00    0.00       2/2           MAIN__ [1]
+[14]     0.0    0.00    0.00       2         ploteo1_ [14]
+-----------------------------------------------
+                0.00    0.00       2/2           MAIN__ [1]
+[15]     0.0    0.00    0.00       2         ploteo2_ [15]
+-----------------------------------------------
+                0.00    0.00       2/2           MAIN__ [1]
+[16]     0.0    0.00    0.00       2         presion2_ [16]
+-----------------------------------------------
+                0.00    0.00       1/1           MAIN__ [1]
+[17]     0.0    0.00    0.00       1         cargas_ [17]
+-----------------------------------------------
+                0.00    0.00       1/1           MAIN__ [1]
+[18]     0.0    0.00    0.00       1         circo_ [18]
+-----------------------------------------------
+                0.00    0.00       1/1           MAIN__ [1]
+[19]     0.0    0.00    0.00       1         coord3d_ [19]
+-----------------------------------------------
+                0.00    0.00       1/1           MAIN__ [1]
+[20]     0.0    0.00    0.00       1         gammas_ [20]
+-----------------------------------------------
+                0.00    0.00       1/1           MAIN__ [1]
+[21]     0.0    0.00    0.00       1         hilo_ [21]
+-----------------------------------------------
+                0.00    0.00       1/1           MAIN__ [1]
+[22]     0.0    0.00    0.00       1         input_ [22]
+-----------------------------------------------
+                0.00    0.00       1/1           MAIN__ [1]
+[23]     0.0    0.00    0.00       1         palas_ [23]
+-----------------------------------------------
+                0.00    0.00       1/1           MAIN__ [1]
+[24]     0.0    0.00    0.00       1         panel_ [24]
+-----------------------------------------------
+                0.00    0.00       1/1           MAIN__ [1]
+[25]     0.0    0.00    0.00       1         presion1_ [25]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+
+Index by function name
+
+   [1] MAIN__                 [20] gammas_                [25] presion1_
+   [6] anillo_                [10] geomest_               [16] presion2_
+  [17] cargas_                [21] hilo_                  [11] puntos1_
+  [18] circo_                 [22] input_                 [13] radloc_
+   [4] circulac_              [23] palas_                  [7] segmento_
+   [8] coefin_                [24] panel_                  [5] solgauss_
+  [19] coord3d_               [14] ploteo1_                [9] veloc_
+   [3] estela_                [15] ploteo2_               [12] velsuper_
