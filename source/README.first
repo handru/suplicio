@@ -1,0 +1,8 @@
+ Referencias de archivos:
+ - entvis2f.in = archivo con datos de entrada para el programa.
+ - invisidos2fin.for = fuente para el estela original
+ - invisidos2fin_OMP-origfuncionando.for  =  fuente para estela paralela.
+ 
+ Compilación:
+ original:  $ gfortran -o <ejecutable> invisidos2fin.for
+ paralelo:  $ gfortran -o <ejecutable> -fopenmp invisidos2fin_OMP-origfuncionando.for

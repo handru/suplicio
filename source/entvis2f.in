@@ -1,0 +1,44 @@
+    12.            U(inf) [m/s]    f12.5  (placa de seccion de arco circular)
+    28.            omega  [1/s]    f12.5  
+     0.30          redvel [-]      f12.5  UU = U(1-a)             
+     0.70          coefa  [-]      f12.5  si index1 = 0, a = coefa*UU/w
+     0.125         ch     [m]      f12.5  c constante
+     0.125         ct     [m]      f12.5  c constante       
+     0.25          rh     [m]      f12.5
+     1.50          rt     [m]      f12.5
+     0.            oi     [rad]    f12.5  = 0.0
+     0.            of     [rad]    f12.5  valido para helicoide (index2 = 0)
+     0.002         pf     [m]      f12.5
+     1.000         beta   [-]      f12.5  Transformacion geometrica 1 
+     1.            signo  [-]      f12.5  +1. para extrados, -1. para intrados
+2000               nk              i4     numero PAR divisiones estela (max=2000)
+  1                nb     = 1      i3     numero de palas
+ 50                nr     < 51     i3   
+ 50                no     < 51     i3
+ 01                np     < 11     i3     NP = 4 CB  (np = 0, solo pala)
+  1                npaso           i3 
+  1                index0          i3     si = 0, SOLO calculo total de la pala (Pc + P?)
+ +1                index1          i3     si (>0 a=UU/w, <0 a=U/w)
+ -1                index2          i3     si = 0, helicoide; < 0, arco circular  
+  0                index3          i3     si = 0, inic = 2 (pala = 1)   
+  1                index4          i3     si = 0, no calcula la SEGUNDA PARTE (9)!! =/=0!
+  1                index5          i3     si = 0, solo geometria pala y estela  
+  0                index6          i3     si = 0, Dr = cte  
+  0                index7          i3     si = 0, Dc = cte; < 0 beta; > 0 cos/2 
+  0                index8          i3     si = 0, Dh = cte para CB anterior  
+  1                index9          i3     si = 0, ang.entre UU/Wr y coefa.UU/Wr
+  0                index10         i3     si = 0, Dc = cte para CB superior
+  0                index11         i3     P1 si =1, c/4 si =0, P2 si =2, etc ,i4 =/=0 (00)!
+  0                index12         i3       
+     1.0           alfac  [o]      f12.5  ang.ataque local, medido desde cuerda LINEAL
+     0.0           alfac0 [o]      f12.5  ang.ataque local, medido desde cuerda CONSTANTE
+    20.            factor1[-]      f12.5  zult1 = factor1*rt (R tubo de corr.)
+    40.            factor2[-]      f12.5  zult2 = factor2*rt (lim.superior int.)
+     4.            zlim   [m]      f12.5  maxima longitud hilo estela p/grafic
+     0.0001        C1              f12.5  g(x,z) = C1 + C2~*SQRT(x)/f(z)
+    10.000         Cte2            f12.5  C2~ = cte2*(nu/Uo)^0.5
+     0.020         hc              f12.5  H/c del arco circular (p/index2 < 0)
+     
+------.-----
+123456789012       ENTVIS2.IN      INVISIDos2.F				 h/c = 0.020
+
