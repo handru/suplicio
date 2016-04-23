@@ -2984,15 +2984,12 @@ c
       nhl=ir  
       atesting=npa
 c
-ccc$OMP PARALLEL SHARED(fx,fy,fz,dista,denom) 
 !$OMP PARALLEL DEFAULT(SHARED) 
-c!$OMP DO FIRSTPRIVATE(ir,npa) 
 cc!$OMP DO ORDERED FIRSTPRIVATE(ir,npa) REDUCTION(-: dist2)
 cc!$OMP DO ORDERED PRIVATE(ir,npa,ik,ncapa) 
-!$OMP DO FIRSTPRIVATE(ir,npa) PRIVATE(ik,dist2)
+!$OMP DO FIRSTPRIVATE(ir,npa,ncapa) PRIVATE(dist2)
       do 3 ik=1,kult
 c        
-cccc$OMP ORDERED
       fx(ik)=(pcz(npa,ncapa)-ze(ir,ik))*re(ir,ik)*dcos(fi(ir,ik))-
      &       (pcy(npa,ncapa)-ye(ir,ik))*c0                       
       fy(ik)=(pcx(npa,ncapa)-xe(ir,ik))*c0+
@@ -3000,31 +2997,13 @@ cccc$OMP ORDERED
       fz(ik)=((pcy(npa,ncapa)-ye(ir,ik))*re(ir,ik)*dsin(fi(ir,ik))+
      &       (pcx(npa,ncapa)-xe(ir,ik))*re(ir,ik)*dcos(fi(ir,ik))) 
      &       *(-1.)
-c      p1=OMP_get_thread_num()
-      p1=0
 ccc      fz(ik)=(-1.)*fz(ik)  
-c
-c!$OMP ORDERED
-c      p2=OMP_get_thread_num()
-      p2=0
       dist2=(pcx(npa,ncapa)-xe(ir,ik))**2+
      &      (pcy(npa,ncapa)-ye(ir,ik))**2+
      &      (pcz(npa,ncapa)-ze(ir,ik))**2               
       dista(ik)=dsqrt(dist2)
 cc      denom(ik)=dista(ik)**3                   
       denom(ik)=(dsqrt(dist2))**3                   
-c      if(ik.gt.10 .and. ik.lt.20) write(1337,1338)npa,ir,ik,p1,p2
-c      if(npa.eq.50 .and. ir.eq.50 .and. ik.gt.20)
-c     &   write(1337,1338)npa,ir,ik,p1,p2,fx(ik),fz(ik)
-c      if(ncapa.eq.7 .and. npa.eq.234 .and. ir.eq.33 .and. ik.gt.20)
-c     &   write(1337,1339)npa,ir,ik,fx(ik),fy(ik),fz(ik)
-c      if(ncapa.eq.4 .and. npa.eq.789 .and. ir.eq.20 .and. ik.gt.134)
-c     &   write(1337,1339)npa,ir,ik,dist2,dista(ik),denom(ik)
-c!$OMP END ORDERED
-c 1338 format('npa,ir,ik,valores: ',i3,i3,i3,2x,i3,i3,f12.8,f12.8)
-c 1339 format('npa,ir,ik,val:',i3,i3,i4,1x,f18.13,1x,f19.16,1x,f18.11)
-c
-c!$OMP FLUSH (dista,denom)
     3 continue      
 !$OMP END DO
 !$OMP END PARALLEL 
