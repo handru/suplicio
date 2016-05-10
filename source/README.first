@@ -6,3 +6,5 @@
  Compilación:
  original:  $ gfortran -o <ejecutable> invisidos2fin.for
  paralelo:  $ gfortran -o <ejecutable> -fopenmp invisidos2fin_OMP-origfuncionando.for
+ 
+ Para gprof:  agregar opción de Compilación "-pg"
