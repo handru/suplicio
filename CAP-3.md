@@ -23,13 +23,13 @@ Por el mismo motivo, tampoco se modificó la obtención de los valores de entrad
 
 ### 3.2.1 Análisis de perfilado
 Como paso preliminar de la optimización realizamos análisis de la aplicación con la herramienta de perfilado gprof, para poder comparar los principales puntos de consumo de tiempo con anterioridad a la optimización y luego de la misma. De esta forma se pretende seleccionar una o varias rutinas para la paralelización y observar de qué manera cambia el comportamiento de la aplicación con la optimización.
-Los datos obtenidos por gprof en esta etapa muestran que la rutina estela() resulta ser la que consume el mayor porcentaje (casi un 80%) del tiempo de ejecución de la aplicación. Le sigue la rutina solgauss() con un 14.36%. Estos datos se pueden observar en la figura 3.x
+Los datos obtenidos por gprof en esta etapa muestran que la rutina estela() resulta ser la que consume el mayor porcentaje, 79,83% del tiempo de ejecución de la aplicación. Le sigue la rutina solgauss() con un 14,36%. Estos datos se pueden observar en la figura 3.x
 
                 Agregar imagen 3.x (Dropbox/Tesis/andres_scripts/tesis/oso_fortran/salida.gprof)
                 --explicar los datos y luego apuntar al gráfico y no al reves--
 
 Con estos resultados se pudo inferir en esta primer revisión que estas dos rutinas son las candidatas a ser optimizadas con procesamiento paralelo.
-Para las pruebas se utilizaron dos computadoras de escritorio distintas, ambas con multiprocesadores, siendo una de ellas mas moderna. El primer equipo posee un procesador AMD Phenom II con 4 nucleos y 4Gb de memoria RAM. El segundo equipo consta de un procesador Intel Core i3 con 2 nucleos (2 hilos cada procesador) y 6 Gb de RAM. Las especificaciones completas son provistas en el Capítulo 4 donde se analizan los resultados obtenidos.
+Para las pruebas se utilizaron dos computadoras de escritorio distintas, ambas con multiprocesadores. El primer equipo posee un procesador AMD Phenom II con 4 nucleos y 4Gb de memoria RAM. El segundo equipo consta de un procesador Intel Core i3 con 2 nucleos (2 hilos cada procesador) y 6 Gb de RAM. Las especificaciones completas son provistas en el Capítulo 4 donde se analizan los resultados obtenidos.
 La salida de la imagen 3.x fue obtenida en el primer equipo.
 Realizamos el mismo análisis de perfilado sobre el segundo equipo, y observamos que la mayor porción del tiempo sigue siendo consumida por la rutina estela() seguida por solgauss() casi en los mismos porcentajes, 74,26% y 16,84% respectivamente. También es de notar la mejoría en los tiempos de ejecución. Esto se puede observar en la figura 3.x1:
 
