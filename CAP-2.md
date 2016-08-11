@@ -51,7 +51,7 @@ La fuerza impulsora detrás del procesamiento paralelo es lograr completar un tr
 
 ### Modelos Paralelos
 
-Desde la perspectiva del sistema operativo, hay dos medios importantes de conseguir procesamiento paralelo: múltiples procesos y múltiples hilos. Un proceso es un programa en ejecución bajo control de un sistema operativo con un conjunto de recursos asociados. Estos recursos incluyen, pero no están limitados a, estructuras de datos con información del proceso, un espacio de direcciones virtuales conteniendo las instrucciones del programa y datos, y al menos un hilo de ejecución.  Un hilo es un camino de ejecución o flujo de control independiente dentro de un proceso, compuesto de un contexto (que incluye un conjunto de registros) y una secuencia de instrucciones a ejecutar. %OSO Hay una referencia de estas definiciones?
+Desde la perspectiva del sistema operativo, hay dos medios importantes de conseguir procesamiento paralelo: múltiples procesos y múltiples hilos. Un proceso es un programa en ejecución bajo control de un sistema operativo con un conjunto de recursos asociados. Estos recursos incluyen, pero no están limitados a, estructuras de datos con información del proceso, un espacio de direcciones virtuales conteniendo las instrucciones del programa y datos, y al menos un hilo de ejecución.  Un hilo es un camino de ejecución o flujo de control independiente dentro de un proceso, compuesto de un contexto (que incluye un conjunto de registros) y una secuencia de instrucciones a ejecutar. %OSO Hay una referencia de estas definiciones? %ANDRES está sacado del libro que encontré "software optimization for high performance computing".
 
 En los sistemas de computación actuales existen distintos niveles de paralelismo. Por ejemplo, los procesadores VLIW y los RISC superescalares alcanzan paralelismo en el nivel de instrucción (ejecutando varias instrucciones de bajo nivel al mismo tiempo). Para este trabajo de tesis utilizamos el término **procesamiento paralelo** para indicar que hay más de un hilo de ejecución ejecutándose en un único programa. Esta definición admite la implementación de procesamiento paralelo con más de un proceso. Podemos así considerar el procesamiento paralelo en tres categorías:
 
@@ -385,7 +385,7 @@ Debido a que más de un hilo puede escribir en la misma ubicación de memoria al
 
 
 ####  DEFAULT ( PRIVATE | SHARED | NONE )
-Cuando la mayoría de las variables dentro del alcance de una directiva va a ser privada o compartida, entonces sería engorroso incluir todas ellas en una de las álausulas previas. Para evitar esto, es posible especificar que hará OpenMP cuando no se especifica nada sobre una variable, es posible especificar un comportamiento por defecto. Por ejemplo:
+Cuando la mayoría de las variables dentro del alcance de una directiva va a ser privada o compartida, entonces sería engorroso incluir todas ellas en una de las cláusulas previas. Para evitar esto, es posible especificar que hará OpenMP cuando no se especifica nada sobre una variable, es posible especificar un comportamiento por defecto. Por ejemplo:
 
 	!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(a)
 

@@ -167,26 +167,32 @@ Luego de adaptado esto procedimos a las pruebas en el mismo orden que antes, ver
 ### 4.4.1 Perfilado de aplicación con tamaño 80x80
 Previo a correr las pruebas de tiempo en el equipo PC2 realizamos un nuevo análisis de perfilado con la herramienta gprof sobre la aplicación adaptada a un tamaño distinto de problema, ya que esto puede afectar el comportamiento de las subrutinas.
 Luego de compilar la aplicación con la opción “-pg” activada, la ejecutamos y obtenemos el archivo gmon.out de salida. Con esto podemos generar la información del perfilado, el cual indica que la subrutina estela es la que mas porcentaje del tiempo se ejecuta seguida de solgauss, pero esta vez los porcentajes cambian completamente. Estela se ejecuta 46,42% del tiempo mientras que solgauss ahora ocupa un 43,09%, esto es mucho mas que el 14,36% en PC1 o el 16,84% en PC2 obtenido por solgauss para la versión de 50x50. En la tabla 4.4.1.x se puede ver esta información.
-Esta cambio que se produce en la ejecución al agrandar el tamaño del problema, tendrá impacto en los tiempos de las distintas versiones de la aplicación.
+
+Este cambio que se produce en la ejecución al agrandar el tamaño del problema, tendrá impacto en los tiempos de las distintas versiones de la aplicación.
 
            Agregar figura 4.4.1.x
 
 ### 4.4.2 Versión serial
 La ejecución en el equipo PC2 arrojó un tiempo de ejecución de 225m43.721s, es decir 3h45m43s. El tamaño del problema se incrementa de 2500 paneles a 6400 paneles, un incremento de factor 2.56 veces, pero el tiempo se hace exponencial, en un factor de 9.78.
-El espacio en disco utilizado fue de 4415MB o 4.3GB, siendo los archivos “.tmp” los que ocupaban 4375MB, siete de los ocho archivos pesando 625MB cada uno.
-En memoria RAM observamos que la aplicación llega a ocupar 1293MB o 1.26GB.
+
+El espacio en disco utilizado fue de 4415MB o 4.3GB, siendo los archivos “.tmp” los que ocupaban 4375MB, siete de los ocho archivos pesando 625MB cada uno. En memoria RAM observamos que la aplicación llega a ocupar 1293MB o 1.26GB.
+
 Podemos observar los datos en la imagen 4.4.1.1.
 
         Imagen 4.4.2.1 con todo lo indicado
 
 ### 4.4.3 Versión Optimizada Serialmente
 Los tiempos observados en la versión optimizada del código serial son de 150m45.602s, es decir 2h30m45s. El factor de incremento esta vez es de 8.83 con respecto a la aplicación equivalente en el problema de menor tamaño. Por esto se observa una ganancia de tiempo con respecto a la aplicación serial de 75m aproximadamente, o un factor de 1.5, el cual es mejor que ante el problema de menor tamaño. Esto puede ser adjudicado a la mayor cantidad de datos en disco que utiliza la aplicación con este tamaño de disco, en comparación al tamaño 50x50, que ahora son accedidos en memoria. 
+
 En disco se ve claramente el impacto de no utilizar los archivos “.tmp” al ocupar solo 40MB.
+
 El incremento, como en la versión de menor tamaño, se ve en la memoria. Observamos que en ejecución la aplicación utiliza mientras está en solgauss 3483MB (3.4GB) y 3171 (3.09GB) en el resto de la ejecución. El equipo cuenta con 6GB de memoria RAM por lo que no fue necesario que realizara swapping en disco, lo que hubiera impactado en los tiempos.    
 
 ### 4.4.4 Versión con optimización paralela
 Los tiempos obtenidos en la versión con OpenMP son de 130m39.169s. Se puede observar en las versiones optimizadas, principalmente por el perfilado con gprof ya mencionado y también siguiendo la salida que da el programa por pantalla, que la demora ahora se ubica en la subrutina solgauss. 
-El tiempo obtenido nos da una mejora que no es igual a la observada en la versión de 50x50, esta vez representa solo una mejora en un factor de 1.73 sobre la aplicación original.  
+
+El tiempo obtenido nos da una mejora que no es igual a la observada en la versión de 50x50, esta vez representa solo una mejora en un factor de 1.73 sobre la aplicación original.
+
 Si analizamos el tiempo teniendo en cuenta el resultado de gprof para este tamaño de problema (figura 4.4.1.x) y para gprof para el tamaño menor (imágenes 3.x y 3.x1) podemos ver que la paralelización impacta sobre un 30% menos de tiempo, limitando la mejora obtenida al incrementar el tamaño del problema.
 
 El comportamiento en disco es exactamente el mismo que en la versión optimizada serialmente, con 40MB de archivos. 
