@@ -1,7 +1,7 @@
 # Capitulo 5
 ## Conclusiones y Trabajos Futuros
 
-En este capítulo se presentan las principales conclusiones de esta tesis obtenidas a partir de este trabajo. En la última sección, se discuten las limitaciones del trabajo realizado y se presentan las potenciales líneas futuras de acción que puedan complementar el trabajo desarrollado.
+En este capítulo se presentan las principales conclusiones de esta tesis obtenidas a partir de este trabajo. En la última sección se presentan las potenciales líneas futuras de acción que puedan complementar el trabajo desarrollado.
 
 
 ## 5.1 Conclusiones
