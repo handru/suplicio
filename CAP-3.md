@@ -1,3 +1,5 @@
+%OSO ATENCION - FIJARSE QUE SEA CONSISTENTE LA NOMENCLATURA DE FIGURAS. SE PONE SIEMPRE "Fig. X", no fig X, Fig X, figura X, imagen X, etc.
+
 # CAPITULO 3
 
 Optimización e implementación de multiprocesamiento con OpenMP en Fortran para una aplicación legacy de Dinámica de Fluidos.
@@ -426,29 +428,34 @@ Los cálculos de los tres primeros arrays y del valor dist2 dependen de varios o
 
 En un primer análisis del bloque de código observamos una posible dependencia de datos en las líneas (5) y (8) de la fig. 3.4.2.xx. En la primera, el cálculo de fz(ik) depende de sí mismo y en la segunda el valor de denom(ik) depende del valor de dista(ik) que depende de dist2. Si bien es posible que no surgieran problemas con estos valores, para evitar resultados inesperados, decidimos analizar y modificar si fuera necesario para evitar la dependencia, siempre que el cambio no fuera significativo, como reescribir la estructura de control completa o varias líneas con nuevas instrucciones.
 
-La dependencia de datos en la línea (5) fue posible solucionarla rápida y elegantemente. La línea lo que hace es al valor en fz(ik) multiplicarlo por -1, por lo cual es posible este cálculo agregarlo al final de la línea (4) quedando la línea de la siguiente manera:
+La dependencia de datos en la línea (5) pudo solucionarse rápida y elegantemente. La línea multiplica el valor en fz(ik) por -1, por lo cual es posible agregar este cálculo al final de la línea (4) quedando de la siguiente manera:
 
-        fz(ik)=([calculo con valores de varias matrices])*(-1.)
+        fz(ik)=([cálculo con valores de varias matrices])*(-1.)
 
-En el caso de la línea (8) el análisis es distinto, la dependencia se encuentra en el valor de dista(ik) el cual es calculado en el paso previo y depende del cálculo del valor dist2, además es un cálculo simple con una función interna del lenguaje Fortran. Se podría utilizar un cálculo intermedio y luego asignar el resultado a dista(ik) y denom(ik), por ej:
+En el caso de la línea (8) el análisis es distinto: la dependencia se encuentra en el valor de dista(ik) el cual es calculado en el paso previo y depende del cálculo del valor dist2. Además, se trata de un cálculo simple con una función interna del lenguaje Fortran. Se podría utilizar un cálculo intermedio y luego asignar el resultado a dista(ik) y denom(ik), por ejemplo:
 
     var_aux = dsqrt(dist2)
     dista(ik) = var_aux
     denom(ik) = var_aux**3
 
-Pero enfrentamos la indeterminación del valor inicial de var_aux y como afecta a cada bloque paralelo cuando realicemos la optimización con OpenMP. Se puede resolver llevando un control de la variable en el bloque declarativo de OpenMP e inicializando la variable cada vez que es utilizada, lo que agrega carga de control al bloque de código (tanto en OpenMP como en el código Fortran normal). Si el cálculo a realizar con dist2 fuera de mayor complejidad podría justificarse la utilización de una variable auxiliar intermedia, pero como es un cálculo sencillo que utiliza una función interna de Fortran a la cual se le envía un solo valor, se puede resolver de la siguiente manera:
+Pero enfrentamos la indeterminación del valor inicial de var_aux, y cómo afecta a cada bloque paralelo cuando realicemos la optimización con OpenMP. Esto se puede resolver llevando un control de la variable en el bloque declarativo de OpenMP e inicializando la variable cada vez que es utilizada, lo que agrega carga de control al bloque de código (tanto en OpenMP como en el código Fortran normal). Si el cálculo a realizar con dist2 fuera de mayor complejidad podría justificarse la utilización de una variable auxiliar intermedia, pero como es un cálculo sencillo que utiliza una función interna de Fortran a la cual se le envía un solo valor, se puede resolver de la siguiente manera:
 
     dista(ik) = dsqrt(dist2)
     denom(ik) = (dsqrt(dist2))**3
 
 Se puede entender mejor la dependencia de datos y la necesidad de controlar ciertas variables en los bloques paralelizados al observar un problema importante que surgió durante el trabajo de tesis, el cual incluso no estaba a simple vista. 
-Al realizar la optimización paralela los resultados del programa eran distintos a los de la ejecución normal. Los resultados deben ser iguales, el programa es totalmente determinístico, por lo cual se buscaron muchas formas diferentes con directivas de OpenMP de controlar la ejecución de los threads en este bloque seleccionado para optimización, para que los datos no se contaminaran, pero siempre arribando al mismo resultado erróneo. 
-El problema se encontró en otra porción de código que parecía bastante simple de paralelizar y sin necesidad de control alguno. Al iniciar, la subrutina estela utiliza dos estructuras DO anidadas que inicializan con valor 0 tres arrays (ciex, ciey y ciez), por lo cual con una estructura OMP PARALLEL DO de OpenMP debería bastar para paralelizar el cálculo y obtener una ganancia en performance, mínima pero una ganancia al fin.
+
+Al realizar la optimización paralela los resultados del programa eran distintos a los de la ejecución normal. Los resultados deben ser iguales, dado que el programa es completamente determinístico; por lo cual se buscaron muchas formas diferentes con directivas de OpenMP de controlar la ejecución de los threads en este bloque seleccionado para optimización, para que los datos no se contaminaran, pero siempre arribando al mismo resultado erróneo. 
+
+El problema se encontró en otra porción de código que parecía bastante simple de paralelizar y sin necesidad de control alguno. Al iniciar, la subrutina estela utiliza dos estructuras DO anidadas que inicializan con valor 0 tres arrays (ciex, ciey y ciez), por lo cual con una estructura OMP PARALLEL DO de OpenMP debería bastar para paralelizar el cálculo y obtener una mejora, si bien poco considerable, en performance.
+
 El problema surge porque la inicialización a 0 se realiza a través de una variable llamada “cero” definida en otra parte del código con el valor 0. Al lanzarse los threads de OpenMP dicha variable pasó a tener un valor indeterminado para cada thread, trayendo consigo datos espurios a los cálculos siguientes donde los arrays intervienen. Al comentar las directivas OpenMP que encerraban dichos bloques DO los resultados del programa volvieron a ser correctos.
-Si bien el comportamiento por defecto de OpenMP debería ser compartir entre todos los threads las variables en memoria del programa principal, no ocurre en este caso con la variable “cero”. Investigar estas particularidades, como una implementación del estándar OpenMP difiere de otras y que problemas trae, puede ser motivo de una extensión futura de este trabajo de tesis.
+
+Si bien el comportamiento por defecto de OpenMP debería ser compartir entre todos los threads las variables en memoria del programa principal, no ocurrió en este caso con la variable “cero”, y no se encontró una explicación para este hecho %OSO ESTO ES ASI NOMAS CHE?. Investigar estas particularidades, cómo una implementación del estándar OpenMP difiere de otras, y qué problemas acarrean estas diferencias, puede ser motivo de una extensión futura de este trabajo de tesis.
 
 Con las modificaciones indicadas el bucle ya estaba en condiciones de ser paralelizado con OpenMP.
-Lo primero que realizamos, como vimos en el capitulo 2, es indicar el comienzo de la región paralela y su final:
+
+Lo primero que realizamos, como se planificó en el capítulo 2, es indicar el comienzo de la región paralela y su final:
 
     !$OMP PARALLEL
     [bucle paralelizado]
@@ -464,9 +471,9 @@ Ahora debíamos agregar las directivas para indicar que la región paralela deb�
     !$OMP END DO
     !$OMP END PARALLEL
 
-Al realizar estos cambios en el código para el bloque indicado, conseguimos una gran mejoría en el tiempo empleado, pero los resultados aún no eran correctos. Teniendo en cuenta esto debemos realizar un análisis de que variables son compartidas por los distintos threads del proceso y cual es su alcance para evitar discrepancias en los resultados, ya que como indicamos el programa debía ser totalmente determinístico.
+Al realizar estos cambios en el código para el bloque indicado, conseguimos una gran mejora en el tiempo empleado, pero los resultados aún no eran correctos. Teniendo en cuenta esto debemos considerar qué variables son compartidas por los distintos threads del proceso y cuál es su alcance, para evitar discrepancias en los resultados.
 
-En el bloque de código observamos que para realizar el cálculo de los arrays son necesarios varios otros arrays y variables los que ya poseen valores previos. Podemos ver en la figura 3.4.2.yy cuales son:
+En el bloque de código observamos que para realizar el cálculo de los arrays son necesarios varios otros arrays y variables, los que ya poseen valores previos. Podemos ver en la figura 3.4.2.yy cuales son:
 
     arrays:
     pcx, pcy, pcz, xe, ye, ze, re, fi
@@ -475,11 +482,13 @@ En el bloque de código observamos que para realizar el cálculo de los arrays s
 
 Además utiliza las variables de control ir y npa de los bloques DO exteriores donde está anidado nuestro bloque de código, utilizadas para recorrer los arrays indicados en la figura 3.4.1.yy.
 
-El primer interrogante era saber si los datos se deben compartir entre todos los threads o deben ser privados. Si observamos todos los arrays y variables externos que se utilizan para el cálculo, los threads deben compartir su valor, si los definiéramos como PRIVATE su valor sería indefinido para cada thread, y si fuera como FIRSTPRIVATE por más que los valores fueran correctos, la cantidad de recursos necesarios para la ejecución se multiplicaría por la cantidad de threads que estuvieran en ejecución ya que cada uno tendría una copia de cada variable. 
+El primer interrogante era saber si los datos se deben compartir entre todos los threads o deben ser privados. Si observamos todos los arrays y variables externos que se utilizan para el cálculo, los threads deben compartir su valor; si los definiéramos como PRIVATE su valor sería indefinido para cada thread, y si fuera como FIRSTPRIVATE aun cuando los valores fueran correctos, la cantidad de recursos necesarios para la ejecución se multiplicaría por la cantidad de threads que estuvieran en ejecución, ya que cada uno tendría una copia de cada variable. 
 
 Luego, los arrays modificados dentro del bloque son escritos por cada thread, pero cada thread accede a las posiciones definidas por la variable de control del bloque DO que estamos paralelizando, ik, la cual tendrá un valor para cada thread específico; por ejemplo si dividimos un DO de 100 iteraciones en 2 threads, la variable de control ik tendrá valor inicial de 0 para un thread y 50 para el otro.
-Esto nos lleva a que los arrays modificados dentro del bloque también puedan ser compartidos por todos los threads, ya que solo son accedidos indexados por la variable ik la cual como indicamos será distinta para cada thread, con lo cual cada uno accederá a modificar posiciones de los arrays distintas.
-Por todo esto, concluimos que la gran mayoría de arrays y variables son compartidas por todos los threads, y la dependencia de datos entre estos es inexistente (los arrays escritos no son leidos, los arrays y variables leídas no son modificadas), con lo cual definimos en la instrucción OpenMP de inicio del bloque paralelo como DEFAULT(SHARED) para todas las variables utilizadas dentro (si bien es el comportamiento por defecto que el estándar OpenMP toma, lo dejamos declarado explícitamente, no solo por legibilidad, sino para evitar que una implementación extraña de OpenMP de un compilador genere resultados incorrectos, por ejemplo con la variable “cero” que vimos en el problema explicado previamente en esta misma sección).
+
+Esto nos lleva a que los arrays modificados dentro del bloque también puedan ser compartidos por todos los threads, ya que sólo son accedidos indexados por la variable ik la cual, como indicamos, será distinta para cada thread, con lo cual cada uno accederá a modificar posiciones de los arrays distintas.
+
+Por todo esto, concluimos que la gran mayoría de arrays y variables son compartidas por todos los threads, y la dependencia de datos entre éstos es inexistente (los arrays escritos no son leídos, los arrays y variables leídas no son modificadas), con lo cual definimos en la instrucción OpenMP de inicio del bloque paralelo como DEFAULT(SHARED) %OSO SE ACLARO AL DESCRIBIR OPENMP QUE ES POSIBLE UNA ELECCION DE SHARING DEFAULT? para todas las variables utilizadas dentro. Si bien éste es el comportamiento por defecto que asume el estándar OpenMP, lo dejamos declarado explícitamente, no sólo por legibilidad, sino para evitar que una eventual implementación de OpenMP de un compilador genere resultados incorrectos, por ejemplo como ocurre con la variable “cero” que vimos en el problema explicado previamente en esta misma sección.
 
     !$OMP PARALLEL DEFAULT(SHARED)
     !$OMP DO
@@ -490,9 +499,12 @@ Por todo esto, concluimos que la gran mayoría de arrays y variables son compart
     !$OMP END PARALLEL
 
 Con esta definición tenemos que todas las variables (arrays y variables comunes) serán compartidas por todos los threads. 
-Analizando más fino, vemos que hay variables que necesitan definirse privadas de cada thread, principalmente la variable dist2 que es calculada dentro de cada thread en cada una de las iteraciones. Si fuera una variable compartida todos los threads escribirían en ella en cualquier orden llevando a resultados erróneos. Solo para ejemplificar supongamos que el thread 1 calcula la variable dist2 en una iteración, luego escribe el valor de dista(ik) con dist2, en ese momento el thread 4 calcula y escribe dist2, cuando el thread 1 va a escribir el valor de denom(ik), dist2 ya tiene un valor completamente distinto al que había calculado el thread 1 previamente. Por esto declaramos a dist2 como PRIVATE.
+
+En un siguiente nivel de análisis, vemos que hay variables que necesitan definirse privadas de cada thread, principalmente la variable dist2 que es calculada dentro de cada thread en cada una de las iteraciones. Si fuera una variable compartida, todos los threads escribirían en ella en orden impredecible, llevando a resultados erróneos. Sólo para ejemplificar, supongamos que el thread 1 calcula la variable dist2 en una iteración, luego escribe el valor de dista(ik) con dist2; en ese momento el thread 4 calcula y escribe dist2. Cuando el thread 1 va a escribir el valor de denom(ik), dist2 ya tiene un valor completamente distinto al que había calculado el thread 1 previamente. Por esto declaramos a dist2 como PRIVATE.
+
 Para evitar un problema similar al de la variable “cero” decidimos declarar las variables de control ir y npa, y la variable ncapa como FIRSTPRIVATE, de manera que sean privadas de cada thread y tengan desde el principio su valor original.
-El código queda como vemos en la figura 3.4.2.zz
+
+El código queda como vemos en la Fig. 3.4.2.zz
 
     !$OMP PARALLEL DEFAULT(SHARED)
     !$OMP DO FIRSTPRIVATE(ir,npa,ncapa) PRIVATE(dist2)
@@ -502,5 +514,5 @@ El código queda como vemos en la figura 3.4.2.zz
     !$OMP END DO
     !$OMP END PARALLEL
 
-Luego de estos cambios, la ejecución del nuevo código dio resultados correctos comparados con la ejecución original. De esta manera paralelizamos parte del bloque de código que más tiempo consumía de toda la aplicación. En el capitulo 4 podremos ver la comparativa de tiempos de cada uno de los códigos.
+Luego de estos cambios, la ejecución del nuevo código dio resultados correctos comparados con la ejecución original. De esta manera paralelizamos parte del bloque de código que más tiempo consumía de toda la aplicación. En el capítulo 4 consideraremos la comparación de tiempos obtenidos para cada uno de los códigos.
 
