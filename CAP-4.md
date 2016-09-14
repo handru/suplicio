@@ -5,14 +5,17 @@ Pruebas de ejecución
 ## 4.1 Introducción
 
 En este capitulo se presentan los resultados obtenidos en cada etapa de la optimización, especialmente el speedup de la aplicación pero también mostrando el uso de archivos en disco así como la cantidad de memoria necesaria. Se mostrará también el estado del sistema durante las distintas ejecuciones de la aplicación.
-Como la optimización se realizó en varios pasos se mostraran los resultados iniciales, parciales y finales del proceso. De esta manera es posible ver el impacto de cada parte de la optimización en el código legacy. Como indican Grama-Gupta et Al. [cap 2] la optimización previa del código serial es necesaria para evitar efectos indeseados en las mediciones, y puede representar un factor de speedup de la aplicación de entre 2X y 5X. 
-La aplicación fue modificada lo menos posible en el proceso de optimización por lo cual no toda la ganancia posible en una recodificación es alcanzada, pero como se explicó en el capitulo anterior, se trató de hacer los cambios lo mas transparente posibles al usuario y creador de la aplicación.
-El código de la aplicación objeto de estudio de esta tesis es entregado junto con los resultados generados para dos conjuntos de datos de entrada, uno para un número total de paneles de 50x50 y otra para un número total de 80x80, siendo estos valores definidos en un archivo que sirve de entrada de datos. Para este trabajo de tesis se elige trabajar principalmente con el conjunto de datos resultante del caso de cantidad de paneles 50x50, sin embargo se presentan observaciones obtenidas de una prueba en uno solo de los equipos para el caso de tamaño 80x80. El usuario y creador de la aplicación indicó que la ejecución de la aplicación con el tamaño del problema en 50x50 paneles demoraba en el orden de horas de ejecución, indicando que se dejaba corriendo de un día para el otro. El tamaño de 80x80 podía llegar a durar días. No se tienen datos fehacientes de estas ejecuciones, las cuales eran realizadas en computadoras de principios de la década del 90.
+
+Como la optimización se realizó en varios pasos, se mostrarán los resultados iniciales, parciales y finales del proceso. De esta manera es posible ver el impacto de cada parte de la optimización en el código legacy. Como indican Grama-Gupta et Al. [cap 2] la optimización previa del código serial es necesaria para evitar efectos indeseados en las mediciones, y puede representar un factor de speedup de la aplicación de entre 2X y 5X. 
+
+La aplicación fue modificada lo menos posible en el proceso de optimización, por lo cual no toda la ganancia posible en una recodificación es alcanzada, pero como se explicó en el capitulo anterior, se trató de hacer los cambios lo más transparentes posibles al usuario y creador de la aplicación.
+
+El código de la aplicación objeto de estudio de esta tesis es entregado junto con los resultados generados para dos conjuntos de datos de entrada, uno para un número total de paneles de 50x50 y otra para un número total de 80x80, siendo estos valores definidos en un archivo que sirve de entrada de datos. Para este trabajo de tesis se elige trabajar principalmente con el conjunto de datos resultante del caso de cantidad de paneles 50x50. Sin embargo, se presentan observaciones obtenidas de una prueba en uno solo de los equipos para el caso de tamaño 80x80. El creador de la aplicación indicó que la ejecución con el tamaño del problema en 50x50 paneles demoraba en el orden de horas de ejecución, indicando que se dejaba corriendo de un día para el otro. La corrida para el tamaño de 80x80 podía llegar a durar días. No se tienen datos fehacientes de estas ejecuciones, las cuales eran realizadas en computadoras de principios de la década del 90.
 
 ## 4.2 Equipos/Computadoras/Arquitecturas de prueba
 
 Las pruebas se llevaron a cabo en dos equipos para obtener resultados que permitieran realizar una mejor evaluación del proceso de optimización. 
-Las computadoras utilizadas fueron una PC y una Notebook, ambas multiprocesador y con arquitectura de 64 bits. A continuación podemos ver la descripción de los equipos: 
+Las computadoras utilizadas fueron una PC y una Notebook, ambas multiprocesador y con arquitectura de 64 bits. A continuación la descripción de los equipos: 
 
 * Equipo 1 (PC Clon):
       * Procesador AMD Phenom II x4 955 x86_64
@@ -33,15 +36,15 @@ Las computadoras utilizadas fueron una PC y una Notebook, ambas multiprocesador 
       * HD SATA II 3Gbps.
       * USB 2.0 (480 Mbps)
 
-Nos referiremos de ahora en mas al primer equipo como PC1 y al segundo equipo como PC2.
-Se utilizó una versión Live USB de Slackware Linux como SO de las pruebas. Como disco de almacenamiento sobre el que corría la aplicación se utilizó un Flash Drive USB, en el cual se creaban los archivos durante la ejecución.
-Una nota sobre la arquitectura del procesador de PC2. En este caso el procesador tiene 2 cores, pero al tener 2 hilos de control por core el SO los ve como si tuviera disponible 4 cores. El procesador luego distribuye los recursos disponibles sobre cada hilo de acuerdo a lo solicitado por el SO.
+Nos referiremos en adelante al primer equipo como PC1 y al segundo equipo como PC2.
+Se utilizó una versión Live USB de Slackware Linux como sistema operativo para las pruebas. Como disco de almacenamiento sobre el que corría la aplicación se utilizó un Flash Drive USB, en el cual se crearon los archivos durante la ejecución.
+Una nota sobre la arquitectura del procesador de PC2. En este caso el procesador tiene dos núcleos, pero al ofrecer dos hilos de control por núcleo, el sistema operativo los ve como si tuviera disponibles cuatro núcleos. El procesador luego distribuye los recursos disponibles sobre cada hilo de acuerdo a lo solicitado por el sistema operativo.
 
 ## 4.3 Pruebas de tiempo.
-Para las pruebas de tiempo se utilizó el comando time [ref al man time online?] de manera de poder evaluar el tiempo real consumido por la aplicación en sus diferentes etapas: programa original, optimizado serialmente, optimizado paralelamente. Mostraremos los tiempos en los equipos seleccionados para las pruebas y las mejoras en desempeño que obtuvimos en el programa en cada iteración de la optimización. El tamaño de programa seleccionado para las pruebas generales es de 50x50 paneles, el mas pequeño provisto por el usuario de la aplicación.
+Para las pruebas de tiempo se utilizó el comando time [ref al man time online?] de manera de poder evaluar el tiempo real consumido por la aplicación en sus diferentes etapas: programa original, optimizado serialmente, optimizado paralelamente. Mostraremos los tiempos en los equipos seleccionados para las pruebas y las mejoras en desempeño que obtuvimos en el programa en cada iteración de la optimización. El tamaño de programa seleccionado para las pruebas generales es de 50x50 paneles, el más pequeño provisto por el usuario de la aplicación.
 También se incluyen muestras del estado de los archivos en disco luego de la ejecución del programa, el estado de la memoria y la CPU en plena ejecución del programa, para mostrar los resultados de las optimizaciones realizadas.
 ### 4.3.1 Estado inicial y primeras mediciones
-Como se indicó previamente, solo contamos con el código original y los datos de resultado provistos por el usuario de la aplicación. Lo primero que hicimos fue compilar y ejecutar el programa original para calcular el tiempo inicial de referencia para el resto del trabajo, resguardando de una posible reescritura a los datos originales, que luego utilizaremos para poder verificar la correctitud de las distintas versiones del proceso de optimización. 
+Como se indicó previamente, sólo contamos con el código original y los datos de resultados provistos por el usuario de la aplicación. Lo primero que hicimos fue compilar y ejecutar el programa original para calcular el tiempo inicial de referencia para el resto del trabajo, resguardando de una posible reescritura a los datos originales, que luego utilizaremos para poder verificar la correctitud de las distintas versiones del proceso de optimización. 
 En ambos equipos realizamos la compilación con el siguiente comando:
 
       $ gfortran -o serial invisidos2fin.for
@@ -56,7 +59,7 @@ El equipo PC2 muestra un tiempo de 22m56.392s. Se puede observar esto en la figu
 
      Figura 4.3.1.yy.  Mostrar tiempo en figura.
 
-Podemos observar que con un cambio de procesador y tecnología/arquitectura del mismo (PC1 con 4 cores reales, PC2 con 2 cores y 2 hilos de control por core) se incurre en una demora de 1m8s. Se tomó otra muestra con el equipo PC2 y se obtuvo un resultado similar, 23m1.628s por lo que podríamos indicar que la diferencia persiste y se mantiene dentro de ciertos parámetros. Esta diferencia observada es posible que se deba a la mayor velocidad del procesador en PC1, incluso se podría investigar la jerarquía de memoria, especialmente las cache de ambos procesadores.
+Podemos observar que con un cambio en la arquitecura del procesador (PC1 con 4 cores reales, PC2 con 2 cores y 2 hilos de control por core) se incurre en una demora de 1m8s. Se tomó otra muestra con el equipo PC2 y se obtuvo un resultado similar, 23m1.628s por lo que podríamos indicar que la diferencia persiste y se mantiene dentro de ciertos parámetros. Esta diferencia observada se debe posiblemente a la mayor velocidad del procesador en PC1. Sería de interés investigar el uso de la jerarquía de memoria, especialmente de las caches, en ambos procesadores.
 
 La ejecución genera todos los archivos utilizados para cálculos intermedios y resultados finales así como los temporales con los que el programa trabaja. 
 La ejecución serial del programa original generó en ambos equipos la misma cantidad de archivos, 58 archivos entre los “.txt”, “.plt”, “.out” y los “.tmp”, esto es así por el determinismo del programa. No contamos el archivo ejecutable ni el de datos de ingreso “entvis2f.in”. 
@@ -107,7 +110,7 @@ El tamaño ocupado por los archivos del programa ahora fue de 16 Mb tanto en PC1
 
       Agregar figura 4.3.2.xx (du -sh y ls)
 
-Observando la memoria en esta versión del programa obtenemos que consume 552 Mb mientras está en solgauss y 504MB el resto del tiempo, tanto en PC1 como PC2. Esto significa un incremento en la cantidad de memoria utilizada, en esta versión optimizada serialmente con respecto a la versión serial original, de 297MB cuando el programa está en la subrutina solgauss y de 287MB antes o después de dicha subrutina. Este incremento se debe a los archivos “*.tmp” que ya no utiliza mas en disco y debe llevar en memoria como internal files. 
+Observando la memoria en esta versión del programa obtenemos que consume 552 Mb mientras está en solgauss y 504MB el resto del tiempo, tanto en PC1 como PC2. Esto significa un incremento en la cantidad de memoria utilizada, en esta versión optimizada serialmente con respecto a la versión serial original, de 297MB cuando el programa está en la subrutina solgauss y de 287MB antes o después de dicha subrutina. Este incremento se debe a los archivos “*.tmp” que ya no utiliza más en disco y debe llevar en memoria como internal files. 
 En la tabla 4.3.2.yy odemos observar estos datos.
 
       Agregar tabla 4.3.2.yy
@@ -128,14 +131,14 @@ Nuevamente se ejecutó la aplicación con el comando time, de manera de obtener 
        $ time ./paralelo
 
 Los resultados de time para PC1 indicaron un tiempo de ejecución de 6m5.294s. Al comparar con los 21m48.109s que tomó en su versión original podemos observar 15m42s de mejora aproximada, obteniendo un factor de 3.58 de mejora en el desempeño, lo cual es muy superior a la ganancia inicial con la optimización serial.
-En PC2 obtuvimos 8m50.822s de tiempo de ejecución, mientras el programa original tomó 22m56.392s, es decir aproximadamente 14m6s mas rápida la versión paralela, obteniendo un factor de 2.59 de mejora en el desempeño. Podemos observar los tiempos en la tabla 4.3.3.1
+En PC2 obtuvimos 8m50.822s de tiempo de ejecución, mientras el programa original tomó 22m56.392s, es decir aproximadamente 14m6s más rápida la versión paralela, obteniendo un factor de 2.59 de mejora en el desempeño. Podemos observar los tiempos en la tabla 4.3.3.1
 La diferencia de tiempo de ejecución entre la aplicación optimizada paralelamente en PC1 y PC2 es de 2m45s, observandose esta vez una diferencia de tiempo considerable.
 Se podría investigar la incidencia de los 4 cores reales del procesador AMD en PC1 contra los 2 cores reales y 2 hilos de control por core en el procesador Intel de PC2. Ambos procesadores brindan a OpenMP cuatro hilos, pero los recursos son asignados de manera diferente.
 
        Agregar tabla 4.3.3.1
 
 En el consumo de CPU esta vez podemos observar diferencia entre los programas seriales y uno paralelizado. Se han activado todos los cores disponibles en el equipo al momento de entrar en la zona de la subrutina estela, ya sean cores reales (PC1) o virtuales (PC2). Podemos observar esto en la figura 4.3.3.zz. 
-Como ya indicamos, la activación de los cores no fue administrada de manera directa con directivas OpenMP por lo cual todos los cores disponibles fueron utilizados, pero como se indicaba en el capitulo 2 hay mas directivas que pueden ser estudiadas de OpenMP que podrían ser utilizadas para disminuir o incrementar la cantidad de hilos generados en una región paralela y estudiar el impacto y la utilización de los recursos en el multiprocesador.
+Como ya indicamos, la activación de los cores no fue administrada de manera directa con directivas OpenMP por lo cual todos los cores disponibles fueron utilizados, pero como se indicaba en el capitulo 2 hay más directivas que pueden ser estudiadas de OpenMP que podrían ser utilizadas para disminuir o incrementar la cantidad de hilos generados en una región paralela y estudiar el impacto y la utilización de los recursos en el multiprocesador.
 
        Agregar figura 4.3.3.zz
 
@@ -161,12 +164,12 @@ Como indicamos en el capítulo 3, el archivo con los datos de entrada para la ej
        Para el caso 80x80
        parameter (maxir=81,maxio=81,…
 
-Como indicamos en el capítulo 3, maxir y maxio son lo mismo que nr+1 o no+1, lo cual sería una manera mas simple de definirlo. Debido a que está hardcodeado en todo el código como observamos, es que para las optimizaciones, serial y paralela, de la aplicación con tamaño de problema 80x80 se debe cambiar en todo el código estas definiciones de maxir y maxio.
+Como indicamos en el capítulo 3, maxir y maxio son lo mismo que nr+1 o no+1, lo cual sería una manera más simple de definirlo. Debido a que está hardcodeado en todo el código como observamos, es que para las optimizaciones, serial y paralela, de la aplicación con tamaño de problema 80x80 se debe cambiar en todo el código estas definiciones de maxir y maxio.
 Luego de adaptado esto procedimos a las pruebas en el mismo orden que antes, versión serial, versión optimizada serialmente, versión optimizada con OpenMP.
 
 ### 4.4.1 Perfilado de aplicación con tamaño 80x80
 Previo a correr las pruebas de tiempo en el equipo PC2 realizamos un nuevo análisis de perfilado con la herramienta gprof sobre la aplicación adaptada a un tamaño distinto de problema, ya que esto puede afectar el comportamiento de las subrutinas.
-Luego de compilar la aplicación con la opción “-pg” activada, la ejecutamos y obtenemos el archivo gmon.out de salida. Con esto podemos generar la información del perfilado, el cual indica que la subrutina estela es la que mas porcentaje del tiempo se ejecuta seguida de solgauss, pero esta vez los porcentajes cambian completamente. Estela se ejecuta 46,42% del tiempo mientras que solgauss ahora ocupa un 43,09%, esto es mucho mas que el 14,36% en PC1 o el 16,84% en PC2 obtenido por solgauss para la versión de 50x50. En la tabla 4.4.1.x se puede ver esta información.
+Luego de compilar la aplicación con la opción “-pg” activada, la ejecutamos y obtenemos el archivo gmon.out de salida. Con esto podemos generar la información del perfilado, el cual indica que la subrutina estela es la que más porcentaje del tiempo se ejecuta seguida de solgauss, pero esta vez los porcentajes cambian completamente. Estela se ejecuta 46,42% del tiempo mientras que solgauss ahora ocupa un 43,09%, esto es mucho más que el 14,36% en PC1 o el 16,84% en PC2 obtenido por solgauss para la versión de 50x50. En la tabla 4.4.1.x se puede ver esta información.
 
 Este cambio que se produce en la ejecución al agrandar el tamaño del problema, tendrá impacto en los tiempos de las distintas versiones de la aplicación.
 
@@ -200,7 +203,7 @@ En memoria ocurre igual que en la aplicación con tamaño 50x50, ocupando menos 
 
 
 ## 4.6 Conclusión  
-En este capítulo hemos presentado distintas pruebas de ejecución de la aplicación objeto de estudio de esta tesis durante el proceso de optimización de la misma, distinguiendo tres etapas: aplicación original, aplicación optimizada serialmente, aplicación optimizada paralelamente. 
+En este capítulo hemos presentado distintas pruebas de ejecución de la aplicación bajo estudio durante el proceso de su optimización, distinguiendo tres etapas: aplicación original, aplicación optimizada serialmente, aplicación optimizada paralelamente. 
 Además se utilizaron dos plataformas de hardware distintas para dar mayor amplitud a la prueba y poder observar el comportamiento de la aplicación con distinto hardware. 
 También se realizó una prueba con un tamaño de problema mayor para ver el impacto de la paralelización y se pudo ver el impacto en la memoria RAM, además de encontrar un perfilado distinto que en la versión de tamaño de problema menor.
 Se han podido tomar mediciones de tiempo y de recursos para presentar conclusiones en el siguiente capítulo del trabajo realizado.
