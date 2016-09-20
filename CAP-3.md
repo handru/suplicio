@@ -94,8 +94,8 @@ Como la latencia de los accesos a disco magnético es, normalmente, al menos cin
 
 ### 3.3.2 Optimización por adaptación de archivos externos a internos
 
-La primera decisión tomada para la optimización del código es reducir el impacto de los accesos a archivos en disco que son leídos y además escritos por la aplicación. No efectuaremos ninguna modificación %OSO POR QUE? %HANDRU por lo indicado mas adelante, ocupar mas memoria con mas archivos% sobre los archivos que son únicamente escritos por las subrutinas, con dos excepciones: los archivos salida2.out, que guarda resultados de la ejecución a medida que avanza, y subr.out, que recoge lo mostrado en salida estándar.
-Estos archivos se guardarán en objetos de tipo Internal File de Fortran y su escritura se demorará hasta la finalización del programa.
+La primera decisión tomada para la optimización del código es reducir el impacto de los accesos a archivos en disco que son leídos y además escritos por la aplicación. No efectuaremos ninguna modificación %OSO POR QUE? %HANDRU por lo indicado mas adelante, ocupar mas memoria con mas archivos% sobre los archivos que son únicamente escritos por las subrutinas, con cuatro excepciones: la escritura de los archivos integ1.txt e integ2.txt en la subrutina estela, retrasada hasta el final de la misma, y los archivos salida2.out, que guarda resultados de la ejecución a medida que avanza, y subr.out, que recoge lo mostrado en salida estándar.
+Estos archivos se guardarán en objetos de tipo Internal File de Fortran y su escritura se demorará hasta la finalización del programa. Esta elección es para evitar recargar más la memoria con la cantidad de archivos utilizados por la aplicación.
 
 Luego, todo archivo o External File que sea escrito y leído durante la ejecución de la aplicación será mantenido por un Internal File. La única modificación necesaria al código será el cambio de las referencias a los archivos en las sentencias “write”, “read” y “rewind”. En la Fig. 3.xxx se muestra un ejemplo de código previo a la modificación, y en la Fig. 3.xxy el código ya modificado.
 

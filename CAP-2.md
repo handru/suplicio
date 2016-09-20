@@ -196,7 +196,11 @@ El lenguaje utilizado en el programa de estudio de este trabajo de tesis está b
 
 #### Manejo de archivos  
 (voy a explicarlo mejor, en parrafos onda subsecciones, por ahora lo dejo así)
-
+Fortran implementa operaciones básicas para el manejo de los archivos, ya sean internos o externos. Dichas ordenes son ``open'', ``write'', ``read'' y ``close''.
+La definición de las mismas es:
+-lstlisting fortran
+open([UNIT=]<nro_unidad>,[FILE=]<nombre_archivo>)
+Donde las palabras unit y file son optativas, nro_unidad indica un número entero para identificar al archivo dentro del programa, y nombre_archivo es el archivo que se quiere abrir. Open abre el archivo indicado y le asigna el identificador (descriptor de archivo) indicado por el entero nro_unidad.
 * open(lista de especificadores): En nuestro caso nos interesan los siguientes especificadores
      * [unit=]u
          * “unit=” es opcional
