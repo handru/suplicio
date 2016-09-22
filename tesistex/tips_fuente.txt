@@ -1,0 +1,9 @@
+latex.
+
+reemplazo de:
+acentos = \'vocal
+ñ = \~n
+“ =''
+” =''
+_ = \_
+... = \ldots

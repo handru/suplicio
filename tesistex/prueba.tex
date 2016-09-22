@@ -1,0 +1,80 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{times}
+
+\usepackage{color}
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+
+\usepackage{listings}
+\lstset{ frame=Ltb,
+framerule=0pt,
+aboveskip=0.5cm,
+framextopmargin=3pt,
+framexbottommargin=3pt,
+framexleftmargin=0.4cm,
+framesep=0pt,
+rulesep=.4pt,
+backgroundcolor=\color{gray97},
+rulesepcolor=\color{black},
+%
+stringstyle=\ttfamily,
+showstringspaces = false,
+basicstyle=\small\ttfamily,
+commentstyle=\color{gray45},
+keywordstyle=\bfseries,
+%
+numbers=left,
+numbersep=15pt,
+numberstyle=\tiny,
+numberfirstline = false,
+breaklines=true,
+%inputencoding=utf8,
+extendedchars=true,
+escapeinside=~',
+}
+
+% minimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+{\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+
+\lstdefinestyle{consola}
+{basicstyle=\scriptsize\bf\ttfamily,
+backgroundcolor=\color{gray75},
+}
+
+\lstdefinestyle{C}
+{language=PHP,
+}
+
+\begin{document}
+
+\noindent
+Escribe el siguiente código en un fichero llamado \texttt{hello.c}:
+
+\begin{lstlisting}[style=C]
+function myfunc($arg){
+// c~á'lculo de algo
+return 0
+}
+\end{lstlisting}
+
+\noindent
+Ahora compila usando \texttt{gcc}:
+
+\begin{listing}[style=consola, numbers=none]
+$ gcc  -o hello hello.c
+\end{listing}
+
+\begin{verbatim}
+function myfunc($arg){
+// cálculo de algo
+return 0
+}
+\end{verbatim}
+
+\end{document}

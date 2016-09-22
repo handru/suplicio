@@ -1,0 +1,69 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{CJvdP08}
+
+\bibitem[BS95]{Brod}
+M.~L. Brodie and M.~Stonebraker.
+\newblock {\em Migrating Legacy Systems}.
+\newblock Morgan Kaufmann Publishers, 1995.
+
+\bibitem[CJvdP08]{Chap}
+Barbara Chapman, Gabriele Jost, and Ruud van~der Pas.
+\newblock {\em Using OpenMP}.
+\newblock The MIT Press, 2008.
+
+\bibitem[For12]{mpi}
+Message Passing~Interface Forum.
+\newblock Mpi: A message-passing interface standard.
+\newblock \url{https://www.mpi-forum.org/docs/mpi-3.0/mpi30-report.pdf}, 2012.
+
+\bibitem[GG{\etalchar{+}}03]{Grama}
+Ananth Grama, Anshul Gupta, et~al.
+\newblock {\em Introduction to Parallel Computing, Second Edition}.
+\newblock Addison-Wesley, 2003.
+
+\bibitem[Gol98]{Gold}
+N.~E. Gold.
+\newblock The meaning of legacy systems.
+\newblock Technical report, Univ. of Durham, Dept. of Computer Science, 1998.
+
+\bibitem[Gre13]{Gregg}
+Brendan Gregg.
+\newblock {\em Systems Performance: Enterprise and the Cloud}.
+\newblock Prentice Hall, 2013.
+
+\bibitem[GS01]{Garg}
+Rajat~P. Garg and Ilya Sharapov.
+\newblock {\em Techniques for Optimizing Applications: High Performance
+  Computing}.
+\newblock Prentice-Hall PTR, 2001.
+
+\bibitem[Her02]{Her}
+Miguel Hermmans.
+\newblock Parallel programming in fortran 95 using openmp.
+\newblock Technical report, Universidad Polite\'ecnica de Madrid, Departamento
+  de Motopropulsi\'on y Termofluidodin\'amica, School of Aeronautical
+  Engineering, Abril 2002.
+
+\bibitem[MT12]{MMen}
+Mariano M\'endez and Fernando~G. Tinetti.
+\newblock A gpu approach to fortran legacy systems.
+\newblock Technical report, Universidad Nacional de La Plata, Facultad de
+  Inform\'atica, Agosto 2012.
+
+\bibitem[Ope13]{openmp}
+Architecture Review~Board OpenMP.
+\newblock Openmp application program interface.
+\newblock \url{http://openmp.org/wp/openmp-specifications/}, 2013.
+
+\bibitem[Pra07]{Prado}
+Ricardo~A. Prado.
+\newblock {\em Desarrollo de un c\'odigo de interacci\'on viscosa-inv\'iscida
+  orientado a turbomaquinaria}.
+\newblock PhD thesis, Universidad de Buenos Aires, Mayo 2007.
+
+\bibitem[WC00]{Wad}
+Kevin~R. Wadleigh and Isom~L. Crawford.
+\newblock {\em Software Optimization for High Performance Computing}.
+\newblock Prentice-Hall PTR, 2000.
+
+\end{thebibliography}

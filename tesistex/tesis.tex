@@ -1,0 +1,126 @@
+\documentclass[11pt,a4paper,spanish]{book}
+\usepackage[a4paper,left=3cm,right=2cm,top=3cm,bottom=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+%\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{natbib}
+%
+%===== para figuras con código
+\usepackage{fancyvrb}
+%
+%===== para multiples lineas en tabla
+\usepackage{multirow}
+\usepackage{hhline}
+%===== para utilizar subfiguras
+\usepackage{subcaption}
+%=================================
+%lstlisting para bloques de codigo
+%
+\usepackage{color}
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+
+\usepackage{listings}
+\lstset{ frame=Ltb,
+framerule=0pt,
+aboveskip=0.5cm,
+framextopmargin=3pt,
+framexbottommargin=3pt,
+framexleftmargin=0.4cm,
+framesep=0pt,
+rulesep=.4pt,
+backgroundcolor=\color{gray97},
+rulesepcolor=\color{black},
+%
+stringstyle=\ttfamily,
+showstringspaces = false,
+basicstyle=\small\ttfamily,
+commentstyle=\color{gray45},
+keywordstyle=\bfseries,
+%
+numbers=left,
+numbersep=15pt,
+numberstyle=\tiny,
+numberfirstline = false,
+breaklines=true,
+%inputencoding=utf8,
+extendedchars=true,
+escapeinside=\%?,
+}
+% minimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+{\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+
+\lstdefinestyle{consola}
+{basicstyle=\scriptsize\bf\ttfamily,
+backgroundcolor=\color{gray75},
+}
+
+\lstdefinestyle{consola1}
+{basicstyle=\scriptsize\bf\ttfamily,
+backgroundcolor=\color{gray75},
+xleftmargin=.2\textwidth,
+xrightmargin=.2\textwidth,
+}
+\lstdefinestyle{For}
+{language=Fortran,
+xleftmargin=.1\textwidth,
+}
+%===============================
+% --- Para acentos y otras cosas en urls
+\usepackage[hidelinks]{hyperref}
+% --- Para nros en subsubsections
+\setcounter{secnumdepth}{3}
+
+\begin{document}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\listtablename}{Índice de tablas}
+
+%Empieza la numeración en números romanos
+\frontmatter
+% Incluimos la carátula
+\input{caratula}
+
+% Incluimos la página de prefacio.
+\input{prefacio}
+
+% Incluimos la página de dedicatorias. Esta página es opcional.
+% Si la página no quiere ser incluida anteponga el símbolo "%" al comienzo de la siguiente línea
+\input{dedicatoria}
+
+
+% Incluimos la página de agradecimientos. Esta página es opcional.
+% Si la página no quiere ser incluida anteponga el símbolo "%" al comienzo de la siguiente línea
+\input{agradecimiento}
+
+% Incluimos la página de resumen
+\input{resumen}
+
+% Incluimos la página de resumen en inglés
+\input{abstract}
+
+% Tabla de contenido o Indice del contenido
+\tableofcontents{}
+
+% Lista de figuras o Indice de figuras
+\listoffigures
+
+% Lista de tablas o Indice de Tablas
+\listoftables
+
+%Empieza la numeración en números arábigos
+\mainmatter
+\input{cap1}
+\input{cap2}
+\input{cap3}
+\input{cap4}
+\input{cap5}
+\vfill
+\pagebreak
+\bibliography{biblio1}
+\bibliographystyle{alpha}
+
+\end{document}

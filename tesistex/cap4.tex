@@ -1,0 +1,500 @@
+\label{pagcap4}
+\chapter{Pruebas de ejecuci\'on}
+
+\section{Introducción}
+
+En este capitulo se presentan los resultados obtenidos en cada etapa de la optimizaci\'on, especialmente el speedup de la aplicaci\'on pero tambi\'en mostrando el uso de archivos en disco as\'i como la cantidad de memoria necesaria. Se mostrar\'a tambi\'en el estado del sistema durante las distintas ejecuciones de la aplicaci\'on.
+Como la optimizaci\'on se realiz\'o en varios pasos se mostraran los resultados iniciales, parciales y finales del proceso. De esta manera es posible ver el impacto de cada parte de la optimizaci\'on en el c\'odigo legacy. Como indican \citep[Cap. 2]{Grama} la optimizaci\'on previa del c\'odigo serial es necesaria para evitar efectos indeseados en las mediciones, y puede representar un factor de speedup de la aplicaci\'on de entre 2X y 5X. 
+La aplicaci\'on fue modificada lo menos posible en el proceso de optimizaci\'on por lo cual no toda la ganancia posible en una recodificaci\'on es alcanzada, pero como se explic\'o en el capitulo anterior, se trat\'o de hacer los cambios lo mas transparente posibles al usuario y creador de la aplicaci\'on.
+El c\'odigo de la aplicaci\'on objeto de estudio de esta tesis es entregado junto con los resultados generados para dos conjuntos de datos de entrada, uno para un n\'umero total de paneles de 50x50 y otra para un n\'umero total de 80x80, siendo estos valores definidos en un archivo que sirve de entrada de datos. Para este trabajo de tesis se elige trabajar principalmente con el conjunto de datos resultante del caso de cantidad de paneles 50x50, sin embargo se presentan observaciones obtenidas de una prueba en uno solo de los equipos para el caso de tama\~no 80x80. El usuario y creador de la aplicaci\'on indic\'o que la ejecuci\'on de la aplicaci\'on con el tama\~no del problema en 50x50 paneles demoraba en el orden de horas de ejecuci\'on, indicando que se dejaba corriendo de un d\'ia para el otro. El tama\~no de 80x80 pod\'ia llegar a durar d\'ias. No se tienen datos fehacientes de estas ejecuciones, las cuales eran realizadas en computadoras de mediados de la d\'ecada del 90.
+
+\section{Equipos/Computadoras/Arquitecturas de prueba}
+
+Las pruebas se llevaron a cabo en dos equipos para obtener resultados que permitieran realizar una mejor evaluaci\'on del proceso de optimizaci\'on. 
+Las computadoras utilizadas fueron una PC y una Notebook, ambas multiprocesador y con arquitectura de 64 bits. A continuaci\'on la descripci\'on de los equipos: 
+\begin{itemize}
+\item Equipo 1 (PC Clon):
+     \begin{itemize}
+      \item Procesador AMD Phenom II x4 955 x86\_64
+            \begin{itemize}
+             \item 4 cores reales.
+             \item Frecuencia m\'axima de 3.2 Ghz.
+             \item Release date: Abril del 2009.
+            \end{itemize}
+      \item Mother ASUS M4A785TD-V EVO
+      \item 4Gb RAM DDR3 1333Mhz.
+      \item HD SATA II 3Gbps.
+      \item USB 2.0 (480 Mbps)
+     \end{itemize}
+\end{itemize}
+\begin{itemize}
+\item Equipo 2 (Notebook):
+      \begin{itemize}      
+      \item Procesador Intel Core i3-370M x86\_64
+             \begin{itemize}
+             \item 2 cores reales + 2 hilos de control por core.
+             \item Frecuencia m\'axima de 2.4 Ghz
+             \item Release date: Junio del 2010.
+             \end{itemize}
+      \item Mother Dell 0PJTXT-A11.
+      \item 6Gb RAM DDR3 1333Mhz.
+      \item HD SATA II 3Gbps.
+      \item USB 2.0 (480 Mbps)
+      \end{itemize}
+\end{itemize}
+
+Nos referiremos en adelante al primer equipo como PC1 y al segundo equipo como PC2.
+Se utiliz\'o una versi\'on Live USB de Slackware Linux como sistema operativo para las pruebas. Como disco de almacenamiento sobre el que corr\'ia la aplicaci\'on se utiliz\'o un Flash Drive USB, en el cual se crearon los archivos durante la ejecuci\'on.
+Una nota sobre la arquitectura del procesador de PC2. En este caso el procesador tiene dos n\'ucleos, pero al ofrecer dos hilos de control por n\'ucleo, el sistema operativo los ve como si tuviera disponibles cuatro n\'ucleos. El procesador luego distribuye los recursos disponibles sobre cada hilo de acuerdo a lo solicitado por el sistema operativo.
+
+\section{Pruebas de tiempo}
+Para las pruebas de tiempo se utiliz\'o el comando \emph{time}\footnote{Para una referencia del comando en GNU/Linux ver su manpage: ``man 1 time''.} de manera de poder evaluar el tiempo real consumido por la aplicaci\'on en sus diferentes etapas: programa original, optimizado serialmente, optimizado paralelamente. Mostraremos los tiempos en los equipos seleccionados para las pruebas y las mejoras en desempe\~no que obtuvimos en el programa en cada iteraci\'on de la optimizaci\'on. El tama\~no de programa seleccionado para las pruebas generales es de 50x50 paneles, el mas peque\~no provisto por el usuario de la aplicaci\'on.
+Tambi\'en se incluyen muestras del estado de los archivos en disco luego de la ejecuci\'on del programa, el estado de la memoria y la CPU en plena ejecuci\'on del programa, para mostrar los resultados de las optimizaciones realizadas.
+\subsection{Estado inicial y primeras mediciones}
+Como se indic\'o previamente, s\'olo contamos con el c\'odigo original y los datos de resultados provistos por el usuario de la aplicaci\'on. Lo primero que hicimos fue compilar y ejecutar el programa original para calcular el tiempo inicial de referencia para el resto del trabajo, resguardando de una posible reescritura a los datos originales, que luego utilizaremos para poder verificar la correctitud de las distintas versiones del proceso de optimizaci\'on. 
+En ambos equipos realizamos la compilaci\'on con el siguiente comando:
+\begin{lstlisting}[style=consola, numbers=none]
+   $ gfortran -o serial invisidos2fin.for
+\end{lstlisting}
+Esto crea un archivo ejecutable llamado ``serial''.
+Para poder lanzar el ejecutable y poder verificar el tiempo lo realizamos con el comando:
+\begin{lstlisting}[style=consola, numbers=none]
+   $ time ./original
+\end{lstlisting}
+El tiempo resultante calculado por el comando ``time'' (Fig. \ref{figTSerial}) arroja para la linea ``real'' (tiempo real/total de ejecuci\'on) 21m48.109s para el equipo PC1. El equipo PC2 muestra un tiempo de 22m56.392s. 
+
+Podemos observar que con un cambio en la arquitecura del procesador (PC1 con 4 cores reales, PC2 con 2 cores y 2 hilos de control por core) se incurre en una demora de 1m8s. Se tom\'o otra muestra con el equipo PC2 y se obtuvo un resultado similar, 23m1.628s por lo que podr\'iamos indicar que la diferencia persiste y se mantiene dentro de ciertos par\'ametros. Esta diferencia observada se debe posiblemente a la mayor velocidad del procesador en PC1. Ser\'ia de inter\'es investigar el uso de la jerarqu\'ia de memoria, especialmente de las caches, en ambos procesadores.
+\begin{figure}[t!]
+ \centering
+    \begin{subfigure}[t]{0.4\linewidth}
+    \centering
+		\begin{lstlisting}[style=consola, numbers=none]
+    real    21m48.109s 
+    user    19m3.067s
+    sys     0m29.685s
+    live@PC1 $ 
+		\end{lstlisting}
+	\caption{Equipo PC1}
+	\end{subfigure}%
+	\hspace{.5cm}%
+    \begin{subfigure}[t]{0.4\linewidth}
+    \centering
+		\begin{lstlisting}[style=consola, numbers=none]
+    real    22m56.392s 
+    user    20m7.858s
+    sys     0m32.917s
+    live@PC2 $ 
+		\end{lstlisting}
+	\caption{Equipo PC2}
+	\end{subfigure}
+\caption{Tiempo de la versión serial original.}
+\label{figTSerial}
+\end{figure}
+
+La ejecuci\'on genera todos los archivos utilizados para c\'alculos intermedios y resultados finales as\'i como los temporales con los que el programa trabaja. 
+La ejecuci\'on serial del programa original gener\'o en ambos equipos la misma cantidad de archivos, 58 archivos (Fig. \ref{figListS}) entre los ``.txt'', ``.plt'', ``.out'' y los ``.tmp'', esto es as\'i por el determinismo del programa. No contamos el archivo ejecutable ni el de datos de ingreso ``entvis2f.in''. 
+El tama\~no en disco ocupado tanto en PC1 como en PC2 por los archivos fue de 684 Mb (Fig. \ref{figListS}), donde el mayor tama\~no era ocupado por los ocho archivos ``.tmp'', de los cuales siete ocupan 96 Mb cada uno para un total de 672 Mb. 
+\begin{figure}[htb]%[htp]
+\centering
+  \begin{subfigure}[t]{1\linewidth}
+  \centering
+  \includegraphics[width=0.80\textwidth]{figuras/clon-serial-arch-du.png} \\
+  \caption{PC1}
+  \end{subfigure}
+  \begin{subfigure}[b]{1\linewidth}
+  \centering
+  \includegraphics[width=0.80\textwidth]{figuras/dell-serial-arch-du.png} \\
+  \caption{PC2}
+  \end{subfigure}
+\caption{Original: List. de archivos y tamaño del directorio por equipo.} 
+\label{figListS}
+\end{figure}
+
+La cantidad de memoria consumida por el programa al iniciar en cada equipo es de 217 MB en PC1 y lo mismo en PC2. Cuando durante la ejecuci\'on la aplicaci\'on ingresa en la subrutina solgauss la memoria se incrementa a 255 MB. Y al salir de esta subrutina la memoria baja a 217 MB. Esto nuevamente en ambos equipos. La salida por pantalla de la aplicaci\'on nos permite saber en que subrutina se encuentra, por ello en tiempo de ejecuci\'on podemos determinar estos estados de la memoria. Justamente la rutina solgauss representa un pico en la cantidad de memoria consumida por la aplicaci\'on.
+Estos datos se obtienen del comando \emph{pmap}\footnote{Para una referencia del comando en GNU/Linux ver su manpage: ``man 1 pmap''.} aplicado sobre el proceso en ejecuci\'on, por ejemplo si la aplicaci\'on tiene PID 2228:
+\begin{lstlisting}[style=consola, numbers=none]
+   $ pmap -x 2228
+\end{lstlisting}
+
+\emph{Pmap} reporta información del mapa de memoria de un proceso, dando en su última línea un total en Kbytes de la memoria utilizada (Fig. \ref{figPmap}), importandonos la primer columna donde indica el total de memoria utilizada por el proceso. Por ejemplo en la Fig. \ref{figPmap} vemos el resultado para cada equipo mientras se ejecutaba la aplicación original. El comando ``top'' tambi\'en permite observar el mismo valor que indica ``pmap'' en su columna VIRT.
+
+\begin{figure}[htb]
+    \begin{subfigure}[t]{0.5\linewidth}
+    \centering
+	\begin{lstlisting}[style=consola, numbers=none]
+[datos de la aplicación]
+------------- ------- ------- -------
+total kB      222212  157080  154368
+	\end{lstlisting}
+	\caption{Equipo PC1}
+	\end{subfigure}%
+	\hspace{.5cm}%
+    \begin{subfigure}[t]{0.5\linewidth}
+    \centering
+	\begin{lstlisting}[style=consola, numbers=none]
+[datos de la aplicación]
+------------- ------- ------- -------
+total kB      222472  209160  206240
+	\end{lstlisting}
+	\caption{Equipo PC2}
+	\end{subfigure}
+\caption{Información del comando \emph{pmap} en cada equipo.}
+\label{figPmap}
+\end{figure}
+
+Por \'ultimo la CPU utilizada siempre fue una sola de las disponibles, ya que el programa es serial. Como ejemplo vemos en la Fig. \ref{figTopS} una captura del comando \emph{top} de PC1 durante la ejecución de la aplicación original.
+
+\begin{figure}[htb]%[htp]
+  \centering
+  \includegraphics[width=0.80\textwidth]{figuras/clon-top-serial.png} \\
+  \caption{Comando \emph{top}: Aplicación original en subrutina ``estla''.} 
+   \label{figTopS}
+\end{figure}
+
+Los datos vistos hasta el momento en el trabajo de tesis (Tabla \ref{tab:tabDataSerial}), son de la ejecuci\'on del programa original, las dos subsecciones siguientes mostraran como evolucion\'o con la optimizaci\'on, teniendo como base los tiempos y tama\~nos obtenidos en esta primer etapa. 
+
+\begin{table}[htb]
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline 
+\rule[-1ex]{0pt}{2.5ex}  & PC1 & PC2 \\ 
+\hline 
+\hline
+\rule[-1ex]{0pt}{2.5ex} Archivos generados & 58 & 58 \\
+\hline
+\rule[-1ex]{0pt}{2.5ex} Esp. en disco utilizado & 684Mb & 684Mb \\
+\hline
+\rule[-1ex]{0pt}{2.5ex} \multirow{2}{1cm}{Memoria} & Ejecución en \emph{solgauss}: 255Mb & 255Mb \\ \cline{2-3}
+& Resto de la ejecución: 217Mb & 217Mb \\ \cline{2-3}
+\hline
+\rule[-1ex]{0pt}{2.5ex} CPUs utilizadas & 1 & 1 \\
+\hline
+\rule[-1ex]{0pt}{2.5ex} Tiempo total de ejecución & 21m48s & 22m56s \\
+\hline
+\end{tabular} 
+\caption {Datos de ejecución original en ambos equipos.}
+\label{tab:tabDataSerial}
+\end{center}
+\end{table}
+
+\subsection{Optimizaci\'on serial y mediciones intermedias}
+Luego de realizar la optimizaci\'on serial se tomaron nuevamente mediciones. La compilaci\'on se realiz\'o con el mismo comando ya que en esta etapa a\'un no tenemos la adici\'on de ninguna optimizaci\'on paralela.
+\begin{lstlisting}[style=consola, numbers=none]
+      $ gfortran -o optserial invisidos2fin_optSerial.for
+\end{lstlisting}
+Y nuevamente para medir el tiempo del programa ejecutamos la aplicaci\'on con la instrucci\'on time.
+\begin{lstlisting}[style=consola, numbers=none]
+      $ time ./optserial
+\end{lstlisting}
+El tiempo obtenido en PC1 fue de 16m2.124s, lo que representa una ganancia de 5m36s aproximadamente sobre la versi\'on serial original de la aplicaci\'on en el mismo equipo, teniendo entonces un factor de 1.35 de mejora en el tiempo.
+En la computadora PC2 los tiempos obtenidos fueron de 17min 4.161seg. Se observa una mejora sobre la versi\'on serial original de 5m 52s aproximadamente, o un factor de 1.34 de mejora en el tiempo (Fig. \ref{figTIfiles}).
+
+\begin{figure}[t!]
+ \centering
+    \begin{subfigure}[t]{0.4\linewidth}
+    \centering
+		\begin{lstlisting}[style=consola, numbers=none]
+    real    16m2.124s
+    user    16m0.894s
+    sys     0m0.259s
+    live@PC1 $ 
+		\end{lstlisting}
+	\caption{Equipo PC1}
+	\end{subfigure}%
+	\hspace{.5cm}%
+    \begin{subfigure}[t]{0.4\linewidth}
+    \centering
+		\begin{lstlisting}[style=consola, numbers=none]
+    real    17m4.161s
+    user    17m2.631s
+    sys     0m0.428s
+    live@PC2 $ 
+		\end{lstlisting}
+	\caption{Equipo PC2}
+	\end{subfigure}
+\caption{Tiempo de la versión optimizada serialmente.}
+\label{figTIfiles}
+\end{figure}
+
+Se puede ver que el factor de mejora alcanzado entre el original serial y el optimizado es muy similar entre ambos equipos, con una diferencia de solo 0.01, y que es levemente mejor en PC1.
+Estrictamente hablando de los tiempos de ejecución del c\'odigo optimizado serialmente, entre los equipos la diferencia observada es de 1m2s, nuevamente a favor de PC1.
+
+Al observar el directorio donde se ejecuta la aplicaci\'on, observamos que luego de la optimizaci\'on serial han desaparecido los archivos ``.tmp'' (Fig. \ref{figListI}), ya que ahora lleva los c\'alculos intermedios en la memoria para poder mejorar los tiempos de acceso. El resto de archivos (50 en total) siguen creandose, pero al demorar la escritura de los archivos utilizados para ir mostrando y almacenando la salida por pantalla, tanto como los que son leidos y escritos y obtienen resultados finales, se logra evitar el acceso constante al disco a trav\'es de la ejecuci\'on de la aplicaci\'on, para tener solo que hacerlo una vez por archivo al finalizar la ejecuci\'on del programa o una subrutina en particular.
+El tama\~no ocupado por los archivos del programa ahora fue de 17 Mb tanto en PC1 como en PC2 (Fig. \ref{figListI}), observando nuevamente el impacto de no generar los archivos ``.tmp''. 
+
+\begin{figure}[h]%[htp]
+  \centering
+  \begin{subfigure}[t]{1\linewidth}
+  \centering
+  \includegraphics[width=0.80\textwidth]{figuras/clon-ifiles-arch-du.png} \\
+  \caption{PC1}
+  \end{subfigure}
+  \begin{subfigure}[b]{1\linewidth}
+  \centering
+  \includegraphics[width=0.80\textwidth]{figuras/dell-ifiles-arch-du.png} \\
+  \caption{PC2}
+  \end{subfigure}
+\caption{Opt. Serial: List. de archivos y tamaño del directorio por equipo.} 
+\label{figListI}
+\end{figure}
+
+Observando la memoria en esta versi\'on del programa obtenemos que consume 552 Mb mientras est\'a en solgauss y 504MB el resto del tiempo, tanto en PC1 como PC2 (Fig. \ref{figPmapI}). Esto significa un incremento en la cantidad de memoria utilizada, en esta versi\'on optimizada serialmente con respecto a la versi\'on serial original, de 297MB cuando el programa est\'a en la subrutina solgauss y de 287MB antes o despu\'es de dicha subrutina. Este incremento se debe a los archivos ``.tmp'' que ya no utiliza mas en disco y debe llevar en memoria como internal files. 
+
+\begin{figure}[htb]
+    \begin{subfigure}[t]{0.5\linewidth}
+    \centering
+	\begin{lstlisting}[style=consola, numbers=none]
+[datos de la aplicación]
+------------- ------- ------- -------
+total kB      516392  504060  501276
+	\end{lstlisting}
+	\caption{Equipo PC1}
+	\end{subfigure}%
+	\hspace{.5cm}%
+    \begin{subfigure}[t]{0.5\linewidth}
+    \centering
+	\begin{lstlisting}[style=consola, numbers=none]
+[datos de la aplicación]
+------------- ------- ------- -------
+total kB      516524  504308  501332
+	\end{lstlisting}
+	\caption{Equipo PC2}
+	\end{subfigure}
+\caption{Comando \emph{pmap} con la aplicación optimizada serialmente (fuera de ``solgauss'').}
+\label{figPmapI}
+\end{figure}
+
+\begin{table}[htb]
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline 
+\rule[-1ex]{0pt}{2.5ex}  & PC1 & PC2 \\ 
+\hline 
+\hline
+\rule[-1ex]{0pt}{2.5ex} Archivos generados & 50 & 50 \\
+\hline
+\rule[-1ex]{0pt}{2.5ex} Esp. en disco utilizado & 17Mb & 17Mb \\
+\hline
+\rule[-1ex]{0pt}{2.5ex} \multirow{2}{1cm}{Memoria} & Ejecución en \emph{solgauss}: 552Mb & 552Mb \\ \cline{2-3}
+& Resto de la ejecución: 504Mb & 504Mb \\ \cline{2-3}
+\hline
+\rule[-1ex]{0pt}{2.5ex} CPUs utilizadas & 1 & 1 \\
+\hline
+\rule[-1ex]{0pt}{2.5ex} Tiempo total de ejecución & 16m02s & 17m04s \\
+\hline
+\end{tabular} 
+\caption {Datos de ejecución aplicación optimizada serialmente.}
+\label{tab:tabDataIfiles}
+\end{center}
+\end{table}
+
+Nuevamente en el caso de la CPU podemos observar que un solo procesador es el encargado de realizar la tarea ya que a\'un no se optimiza paralelamente. En la Fig. \ref{figTopI} podemos observar como ejemplo, la ejecuci\'on de la aplicaci\'on optimizada serialmente en PC1, en el momento que est\'a dentro de la subrutina estela.
+
+\begin{figure}[htb]%[htp]
+  \centering
+  \includegraphics[width=0.80\textwidth]{figuras/clon-top-omp.png} \\
+  \caption{Comando \emph{top}: Aplicación opt. serialmente en subrutina ``estela''.} 
+   \label{figTopI}
+\end{figure}
+
+La Tabla \ref{tab:tabDataIfiles} resume la información obtenida de la optimización serial de la aplicación. En la siguiente sección se ven los resultados de la optimización paralela mediante OpenMP.
+
+\subsection{Optimizaci\'on Paralela y mediciones finales}
+
+Finalmente realizamos las pruebas con la versi\'on optimizada paralelamente del programa. Para esta prueba cambiamos la forma de compilar el programa ya que se debe indicar que aprovechar\'a las directivas de OpenMP, esto lo realizamos pasando el par\'ametro ``-fopenmp'' al comando de compilaci\'on, de la siguiente manera:
+\begin{lstlisting}[style=consola, numbers=none]
+   $ gfortran -fopenmp -o paralelo invisidos2fin_optOMP.for
+\end{lstlisting}
+Al terminar tenemos un ejecutable listo para aprovechar la paralelizaci\'on que brinda OpenMP. 
+Nuevamente se ejecut\'o la aplicaci\'on con el comando time, de manera de obtener el tiempo de ejecuci\'on. La ejecuci\'on se hizo sin limitar la cantidad de threads creados en OpenMP, es decir que la aplicaci\'on se ejecut\'o aprovechando todos los threads disponibles por defecto, es decir uno por cada core disponible (cuatro threads en cada equipo). 
+\begin{lstlisting}[style=consola, numbers=none]
+   $ time ./paralelo
+\end{lstlisting}
+
+Un contratiempo que ocurri\'o en este paso fue que al ingresar en la parte paralelizada, la aplicaci\'on incurri\'o en un error de ``segmentation fault''. El problema ocurre por el tama\~no m\'aximo definido en el kernel Linux de la pila para un proceso, el cual por defecto es de 8192Kb. La soluci\'on es previo a la ejecuci\'on de la aplicaci\'on definir el tama\~no m\'aximo de la pila en ``unlimited'' con el siguiente comando:
+\begin{lstlisting}[style=consola, numbers=none]
+   $ ulimit -s unlimited
+\end{lstlisting}
+Luego de establecido el parametro, la ejecuci\'on de la aplicaci\'on es correcta.
+ 
+Los resultados de ``time'' para PC1 indicaron un tiempo de ejecuci\'on de 6m5.294s (Fig. \ref{figTOmp}). Al comparar con los 21m48.109s que tom\'o en su versi\'on original podemos observar 15m42s de mejora aproximada, obteniendo un factor de 3.58 de mejora en el desempe\~no, lo cual es muy superior a la ganancia inicial con la optimizaci\'on serial.
+En PC2 obtuvimos 8m50.822s de tiempo de ejecuci\'on (Fig. \ref{figTOmp}), mientras el programa original tom\'o 22m56.392s, es decir aproximadamente 14m6s m\'as r\'apida la versi\'on paralela, obteniendo un factor de 2.59 de mejora en el desempe\~no.
+La diferencia de tiempo de ejecuci\'on entre la aplicaci\'on optimizada paralelamente en PC1 y PC2 es de 2m45s, observandose esta vez una diferencia de tiempo considerable.
+Se podr\'ia investigar la incidencia de los 4 cores reales del procesador AMD en PC1 contra los 2 cores reales y 2 hilos de control por core en el procesador Intel de PC2. Ambos procesadores brindan a OpenMP cuatro hilos, pero los recursos son asignados de manera diferente.
+
+\begin{figure}[htb]
+ \centering
+    \begin{subfigure}[t]{0.4\linewidth}
+    \centering
+		\begin{lstlisting}[style=consola, numbers=none]
+    real    6m5.294s
+    user    17m38.896s
+    sys     0m0.872s
+    live@PC1 $ 
+		\end{lstlisting}
+	\caption{Equipo PC1}
+	\end{subfigure}%
+	\hspace{.5cm}%
+    \begin{subfigure}[t]{0.4\linewidth}
+    \centering
+		\begin{lstlisting}[style=consola, numbers=none]
+    real    8m50.822s
+    user    28m21.227s
+    sys     0m4.812s
+    live@PC2 $ 
+		\end{lstlisting}
+	\caption{Equipo PC2}
+	\end{subfigure}
+\caption{Tiempo de la versión optimizada paralelamente con OpenMP.}
+\label{figTOmp}
+\end{figure}
+
+En el consumo de CPU esta vez podemos observar diferencia entre los programas seriales y uno paralelizado. Se han activado todos los cores disponibles en el equipo al momento de entrar en la zona de la subrutina estela (Fig. \ref{figTopO}), ya sean cores reales (PC1) o virtuales (PC2). 
+Como ya indicamos, la activaci\'on de los cores no fue administrada de manera directa con directivas OpenMP por lo cual todos los cores disponibles fueron utilizados, pero como se indicaba en el capitulo 2 hay m\'as directivas que pueden ser estudiadas de OpenMP que podr\'ian ser utilizadas para disminuir o incrementar la cantidad de hilos generados en una regi\'on paralela y estudiar el impacto y la utilizaci\'on de los recursos en el multiprocesador.
+
+\begin{figure}[htb]%[htp]
+  \centering
+  \includegraphics[width=0.80\textwidth]{figuras/clon-top-ifiles.png} \\
+  \caption{Comando \emph{top}: Aplicación optimizada con OpenMP en subrutina ``estela''.} 
+   \label{figTopO}
+\end{figure}
+
+El directorio de ejecuci\'on del programa queda igual que en la versi\'on optimizada serialmente (Ver Fig. \ref{figListI}) ya que en esta nueva versi\'on se han agregado las directivas OpenMP utilizadas y no se ha tocado el c\'odigo serial ni el tratamiento de los archivos. Lo mismo ocurre con el tama\~no ocupado por los archivos en disco (17MB). 
+
+\begin{figure}[htb]
+    \begin{subfigure}[t]{0.5\linewidth}
+    \centering
+	\begin{lstlisting}[style=consola, numbers=none]
+[datos de la aplicación]
+------------- ------- ------- -------
+total kB      480008  455704  452516
+	\end{lstlisting}
+	\caption{Equipo PC1}
+	\end{subfigure}%
+	\hspace{.5cm}%
+    \begin{subfigure}[t]{0.5\linewidth}
+    \centering
+	\begin{lstlisting}[style=consola, numbers=none]
+[datos de la aplicación]
+------------- ------- ------- -------
+total kB      480144  455828  452576
+	\end{lstlisting}
+	\caption{Equipo PC2}
+	\end{subfigure}
+\caption{Comando \emph{pmap} sobre aplicación optimizada con OpenMP (fuera de ``solgauss'').}
+\label{figPmapO}
+\end{figure}
+
+Observando la memoria el programa consume 516MB de RAM durante la subrutina solgauss y 468MB en el resto de su ejecuci\'on en ambos equipos (Fig. \ref{figPmapO}). Con respecto al original esto indica un incremento de 261MB de memoria mientras est\'a en solgauss y 251MB en el resto de la ejecuci\'on. Al comparar con la aplicaci\'on optimizada serialmente se observ\'o que el consumo de memoria es menor en la versi\'on con OpenMP. Ocupa 36MB menos durante la ejecuci\'on, tanto si se ejecuta en solgauss como en el resto del tiempo. 
+Podr\'ia investigarse esta diferencias en la memoria en la optimizaci\'on que realiza el compilador en el c\'odigo para utilizar las directivas de OpenMP. 
+
+Finalmente podemos ver en la Fig. \ref{figDataTotal} los datos resumidos de las tres versiones de la aplicación.
+
+\begin{figure}[htb]%[htp]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figuras/tabla-data-final1.png} \\
+  \caption{Resumen datos totales de las aplicaciones.} 
+   \label{figDataTotal}
+\end{figure}
+
+\section{Pruebas con 80x80 paneles}
+Para determinar la escalabilidad de la soluci\'on aplicada y como impacta en un equipo el cambio del tama\~no de los datos para el c\'alculo, se realizaron en PC2 pruebas con el segundo tama\~no de prueba provisto por el autor/usuario de la aplicaci\'on, 80x80 paneles.
+Solo tenemos los resultados de salida de la ejecuci\'on del original utilizado por el usuario y se utilizaron para verificar los resultados de salida de las versiones utilizadas para la prueba, arrojando que todas dan una salida correcta de los datos.
+Como indicamos en el cap\'itulo 3, el archivo con los datos de entrada para la ejecuci\'on de la aplicaci\'on (entvis2f.in) posee una \'unica modificaci\'on con respecto al de 50x50 y que es  nr = no = 80. Luego mediante el an\'alisis de las diferencias entre los c\'odigos de la versi\'on de tama\~no 50x50 contra la de 80x80, observamos que el c\'odigo en los bloques ``common'' de Fortran indica lo siguiente:
+
+\noindent Para el caso 50x50
+\begin{lstlisting}[style=For, numbers=none]
+   parameter (maxir=51,maxio=51,...
+\end{lstlisting}
+Para el caso 80x80
+\begin{lstlisting}[style=For, numbers=none]
+   parameter (maxir=81,maxio=81,...
+\end{lstlisting}
+Como indicamos en el cap\'itulo 3, maxir y maxio son lo mismo que nr+1 o no+1, lo cual ser\'ia una manera m\'as simple de definirlo. Debido a que est\'a hardcodeado en todo el c\'odigo como observamos, es que para las optimizaciones, serial y paralela, de la aplicaci\'on con tama\~no de problema 80x80 se debe cambiar en todo el c\'odigo estas definiciones de maxir y maxio.
+Luego de adaptado esto procedimos a las pruebas en el mismo orden que antes, versión original, versi\'on optimizada serialmente, versi\'on optimizada con OpenMP.
+
+\subsection{Perfilado de aplicaci\'on con tama\~no 80x80}
+Previo a correr las pruebas de tiempo en el equipo PC2 realizamos un nuevo an\'alisis de perfilado con la herramienta gprof sobre la aplicaci\'on adaptada a un tama\~no distinto de problema, ya que esto puede afectar el comportamiento de las subrutinas.
+Luego de compilar la aplicaci\'on con la opci\'on ``-pg'' activada, la ejecutamos y obtenemos el archivo gmon.out de salida. Con esto podemos generar la informaci\'on del perfilado, el cual indica que la subrutina estela es la que m\'as porcentaje del tiempo se ejecuta seguida de solgauss, pero esta vez los porcentajes cambian completamente. Estela se ejecuta 46,42\% del tiempo mientras que solgauss ahora ocupa un 43,09\% (Fig. \ref{figGprof4}), esto es mucho m\'as que el 14,36\% en PC1 o el 16,84\% en PC2 obtenido por solgauss para la versi\'on de 50x50.
+\begin{figure}[htb]%[htp]
+  \centering
+  \includegraphics[width=0.60\textwidth]{figuras/gprof4.png} \\
+  \caption{Salida de \emph{gprof} para tamaño 80x80.} %
+   \label{figGprof4}
+\end{figure}
+
+Este cambio que se produce en la ejecuci\'on al agrandar el tama\~no del problema, tendr\'a impacto en los tiempos de las distintas versiones de la aplicaci\'on.
+
+\subsection{Versi\'on serial}
+La ejecuci\'on en el equipo PC2 arroj\'o un tiempo de ejecuci\'on de 225m43.721s, es decir 3h45m43s (Fig. \ref{figTS80}). El tama\~no del problema se incrementa de 2500 paneles a 6400 paneles, un incremento de factor 2.56 veces, pero el tiempo se hace exponencial, en un factor de 9.78.
+
+\begin{figure}[htb]
+ \centering
+	\begin{lstlisting}[style=consola1, numbers=none]
+    real    225m43.721s
+    user    174m29.803s
+    sys     3m11.953s
+    live@PC1 $ 
+	\end{lstlisting}
+\caption{Tiempo de la versión original con tamaño 80x80.}
+\label{figTS80}
+\end{figure}
+
+El espacio en disco utilizado fue de 4415MB o 4.3GB, siendo los archivos ``.tmp'' los que ocupaban 4375MB, siete de los ocho archivos pesando 625MB cada uno. En memoria RAM observamos que la aplicaci\'on llega a ocupar 1293MB o 1.26GB fuera de la subrutina ``solgauss'' y 1581Mb dentro de la subrutina.
+
+\subsection{Versi\'on Optimizada Serialmente}
+Los tiempos observados en la versi\'on optimizada del c\'odigo serial son de 150m45.602s, es decir 2h30m45s (Fig. \ref{figTI80}). El factor de incremento esta vez es de 8.83 con respecto a la aplicaci\'on equivalente en el problema de menor tama\~no. Por esto se observa una ganancia de tiempo con respecto a la aplicaci\'on serial de 75m aproximadamente, o un factor de 1.5, el cual es mejor que ante el problema de menor tama\~no. Esto puede ser adjudicado a la mayor cantidad de datos en disco que utiliza la aplicaci\'on con este tama\~no de problema, en comparaci\'on al tama\~no 50x50, que ahora son accedidos en memoria. 
+
+\begin{figure}[htb]
+ \centering
+	\begin{lstlisting}[style=consola1,numbers=none]
+    real    150m45.602s
+    user    150m36.178s
+    sys     0m3.413s
+    live@PC1 $ 
+	\end{lstlisting}
+\caption{Tiempo de la versión optimizada serialmente con tamaño 80x80.}
+\label{figTI80}
+\end{figure}
+
+En disco se ve claramente el impacto de no utilizar los archivos ``.tmp'' al ocupar solo 40MB.
+
+El incremento, como en la versi\'on de menor tama\~no, se ve en la memoria. Observamos que en ejecuci\'on la aplicaci\'on utiliza mientras est\'a en solgauss 3483MB (3.4GB) y 3171 (3.09GB) en el resto de la ejecuci\'on. El equipo cuenta con 6GB de memoria RAM por lo que no fue necesario que realizara swapping en disco, lo que hubiera impactado en los tiempos.    
+
+\subsection{Versi\'on con optimizaci\'on paralela}
+Los tiempos obtenidos en la versi\'on con OpenMP son de 130m39.169s (Fig. \ref{figTOmp80}) o 2h10m39s. Se puede observar en las versiones optimizadas, principalmente por el perfilado con gprof ya mencionado y tambi\'en siguiendo la salida que da el programa por pantalla, que la demora ahora se ubica en la subrutina solgauss. 
+
+\begin{figure}[htb]
+ \centering
+	\begin{lstlisting}[style=consola1, numbers=none]
+    real    130m39.169s
+    user    253m34.730s
+    sys     0m15.825s
+    live@PC1 $ 
+	\end{lstlisting}
+\caption{Tiempo de la versión optimizada paralelamente con tamaño 80x80.}
+\label{figTOmp80}
+\end{figure}
+
+El tiempo obtenido nos da una mejora que no es igual a la observada en la versi\'on de 50x50, esta vez representa solo una mejora en un factor de 1.73 sobre la aplicaci\'on original.
+
+Si analizamos el tiempo teniendo en cuenta el resultado de gprof para este tama\~no de problema (Fig. \ref{figGprof4}) y para gprof para el tama\~no menor (Fig. \ref{figGprof1} y \ref{figGprof2}) podemos ver que la paralelizaci\'on impacta sobre un 30\% menos de tiempo, limitando la mejora obtenida al incrementar el tama\~no del problema. Esto ocurre porque solo se paraleliza la subrutina ``estela'', siendo que la subrutina ``solgauss'' ahora consume ese 30\% de tiempo. La paralelización de ``solgauss'' es un posible trabajo futuro.
+
+El comportamiento en disco es exactamente el mismo que en la versi\'on optimizada serialmente, con 40MB de archivos. 
+En memoria ocurre igual que en la aplicaci\'on con tama\~no 50x50, ocupando menos que en la versi\'on optimizada serialmente, 3184MB (3.1GB) mientras est\'a en solgauss y 2864MB (2.79GB) en el resto de la ejecuci\'on.
+
+El resúmen de los datos totales obtenidos con el tamaño de problema de 80x80 pueden verse en la Fig. \ref{figDataTotal80}.
+
+\begin{figure}[htb]%[htp]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figuras/tabla-data80-final1.png} \\
+  \caption{Resumen datos totales de ejecución 80x80.} 
+   \label{figDataTotal80}
+\end{figure}
+
+\section{Conclusi\'on}
+En este cap\'itulo hemos presentado distintas pruebas de ejecuci\'on de la aplicaci\'on bajo estudio durante el proceso de su optimizaci\'on, distinguiendo tres etapas: aplicaci\'on original, aplicaci\'on optimizada serialmente, aplicaci\'on optimizada paralelamente. 
+Adem\'as se utilizaron dos plataformas de hardware distintas para dar mayor amplitud a la prueba y poder observar el comportamiento de la aplicaci\'on con distinto hardware. 
+Tambi\'en se realiz\'o una prueba con un tama\~no de problema mayor para ver el impacto de la paralelizaci\'on y se pudo ver el impacto en la memoria RAM, adem\'as de encontrar un perfilado distinto que en la versi\'on de tama\~no de problema menor.
+Se han podido tomar mediciones de tiempo y de recursos para presentar conclusiones en el siguiente cap\'itulo del trabajo realizado.
+
