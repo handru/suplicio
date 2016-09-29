@@ -1,8 +1,8 @@
 \chapter{Referencia del Lenguaje Fortran}\label{apen1}
 
-En este anexo se presenta una referencia resumida del lenguaje Fortran en su estándar 77, el cual es utilizado en la aplicación objeto de estudio de este trabajo de tesis. Particularmente se detallan las sentencias mas utilizadas en la aplicación en cuestión. Para mayor referencia se puede ampliar consultando \citep{Ques} o la definición del estándar, que puede consultarse en \url{https://www.fortran.com/F77_std/f77_std.html}.
+En este anexo se presenta una referencia resumida del lenguaje Fortran en su estándar 77, el cual es utilizado en la aplicación objeto de estudio de este trabajo de tesis. Particularmente se detallan las sentencias mas utilizadas en la aplicación en cuestión. Para mayor referencia se puede ampliar consultando \citep{Ques}, \citep{GarRec} o la definición del estándar, que puede consultarse en \url{https://www.fortran.com/F77_std/f77_std.html}.
 
-\section{Estructuas de Especificación}
+\section{Estructuras de Especificación}
 \subsection{COMMON}
 Define una o más áreas contiguas de memoria, o bloques. También define el orden en el que las variables, arrays y records aparecen en un bloque común.
 Dentro de un programa, puede haber un bloque COMMON sin nombre, pero si existen más, se les ha de asignar un nombre. Esta instrucción, seguida por una serie de instrucciones de especificación, asigna valores iniciales a entidades de bloques comunes con nombre y a la vez, establece y define estos bloques.\\
@@ -41,8 +41,8 @@ La instrucción terminal no puede ser:\\
 \ \\
 El número de ejecuciones del rango de una DO, llamado contador de iteraciones viene dado por:\\
 MAX(INT($(e2 - e1 + e3 )/e3$), 0)\\
-donde INT(x) representa la funcio?n parte entera de x.
-Y las etapas seguidas en la ejecucio?n son las siguientes:
+donde INT(x) representa la función parte entera de x.
+Y las etapas seguidas en la ejecución son las siguientes:
 \begin{enumerate}[1.]
  \item Se evalúa el contador = INT($(e2 - e1 + e3)/e3$)
  \item Se hace v = e1
@@ -82,7 +82,7 @@ donde:\\
 \textbf{s1, s2, s3} son etiquetas de instrucciones ejecutables de la misma unidad de programa.
 \begin{itemize}
 \item las tres etiquetas \textbf{s1, s2, s3} son obligatorias, aunque no tienen que ser distintas.
-\item se evalu?a la expresio?n \textbf{e} y se transfiere el control a una de las tres etiquetas como se ve en la tabla \ref{tab:tabIFar}.
+\item se evalúa la expresión \textbf{e} y se transfiere el control a una de las tres etiquetas como se ve en la tabla \ref{tab:tabIFar}.
 \end{itemize}
 
 \begin{table}[htb]
@@ -119,10 +119,10 @@ donde:\\
 
 \section{Entrada Salida y Manejo de Archivos}
 
-En Fortran el término archivo se usa para cualquier cosa que se pueda manejar con READ o WRITE: el término cubre no solo los ficheros de datos alamacenados en disco o cinta sino también periféricos tales como impresoras o terminales.
+En Fortran el término archivo se usa para cualquier cosa que se pueda manejar con READ o WRITE: el término cubre no solo los ficheros de datos almacenados en disco o cinta sino también periféricos tales como impresoras o terminales.
 
-Antes de que pueda ser usado, un Archivo externo se ha de conectar via una instrucción OPEN a una unidad de I/O (valores entre 1 y 99).\\ Existen unidades preconectadas con valores por defecto, como 5=teclado y 6=pantalla.
-Los archivos son referenciados via sus números de unidad.
+Antes de que pueda ser usado, un Archivo externo se ha de conectar vía una instrucción OPEN a una unidad de I/O (valores entre 1 y 99).\\ Existen unidades preconectadas con valores por defecto, como 5=teclado y 6=pantalla.
+Los archivos son referenciados vía sus números de unidad.
 \begin{lstlisting}[style=For, numbers=none]
 OPEN(UNIT=1, FILE=?B:INPUT.DAT?, STATUS=?OLD?)
 OPEN(UNIT=9, FILE=?PRINTOUT?, STATUS=?NEW?)
@@ -144,7 +144,7 @@ label  format(fmt1,fmt2,...,fmtn)
 \end{lstlisting}
 donde:\\
 \textbf{label} es una etiqueta que referencia a la sentencia format.\\
-\textbf{fmt1, fmt2 hasta fmtn} son expresiones de formato que pueden indicar un tipo de dato ó ser una cadena de caracteres. Por ejemplo para dar formato a la salida que imprime un resultado, podría utilizarse la siguiente sentencia:
+\textbf{fmt1, fmt2 hasta fmtn} son expresiones de formato que pueden indicar un tipo de dato o ser una cadena de caracteres. Por ejemplo para dar formato a la salida que imprime un resultado, podría utilizarse la siguiente sentencia:
 \begin{lstlisting}[style=For, numbers=none]
 157  format('El total es = ', I10)
 \end{lstlisting}
@@ -153,7 +153,7 @@ En el ejemplo lo que está entre ' ' es una cadena de caracteres y la expresión d
 Se establece que:
 \begin{itemize}
 \item La sentencia FORMAT debe tener etiqueta (ej. 157). FORMAT puede estar en cualquier lugar en la unidad de programación (pero después de PROGRAM, SUBROUTINE o FUNCTION y antes de END). No es ejecutable. 
-\item En FORMAT, El caracter X indica dejar un espacio (uso: 1X, 2X, etc, pero no X sin número delante). El caracter / pasa una línea (// pasa dos l ??neas, etc).
+\item En FORMAT, El caracter X indica dejar un espacio (uso: 1X, 2X, etc, pero no X sin número delante). El caracter / pasa una línea (// pasa dos líneas, etc).
 \item Tipos de datos (los números son simplemente ejemplos):\\ 
 \begin{table}[h]
 %\begin{center}
@@ -162,9 +162,9 @@ Se establece que:
 \\
 \rule[-1ex]{0pt}{2.5ex} F13.6 & Datos tipo REAL y REAL*8\\
 \\
-\rule[-1ex]{0pt}{2.5ex} E13.6 ó D13.6 & Datos tipo REAL y REAL*8. Escribe con exponente: -0.320E-04\\
+\rule[-1ex]{0pt}{2.5ex} E13.6 o D13.6 & Datos tipo REAL y REAL*8. Escribe con exponente: -0.320E-04\\
 \\
-\rule[-1ex]{0pt}{2.5ex} G13.6 & El compilador elige escribir como F13.6 ó como E13.6 (ó D13.6).\\
+\rule[-1ex]{0pt}{2.5ex} G13.6 & El compilador elige escribir como F13.6 o como E13.6 (o D13.6).\\
 \\
 \rule[-1ex]{0pt}{2.5ex} \multirow{2}{*}{L5} & Datos tipo LOGICAL. En escritura produce T o F,\\
 & en lectura acepta T, F, .TRUE. y .FALSE.\\

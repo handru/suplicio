@@ -31,6 +31,12 @@ Brendan Gregg.
 \newblock {\em Systems Performance: Enterprise and the Cloud}.
 \newblock Prentice Hall, 2013.
 
+\bibitem[GRS15]{GarRec}
+C.~García-Recio and L.~L. Salcedo.
+\newblock Notas de fortran 77.
+\newblock Technical report, Univ. de Granada, Departamento de Física Atómica,
+  Molecular y Nuclear, 2015.
+
 \bibitem[GS01]{Garg}
 Rajat~P. Garg and Ilya Sharapov.
 \newblock {\em Techniques for Optimizing Applications: High Performance
