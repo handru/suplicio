@@ -63,5 +63,123 @@ GOTO s
 \ \\
 donde \textbf{s} es la etiqueta de una instrucción ejecutable que está en la misma unidad de programa de la instrucción GOTO.
 
+\subsection{Sentencias IF}
+Transfieren el control condicionalmente, o bien ejecutan condicionalmente una instrucción o bloque de instrucciones. Nos interesan dos tipos:
+\begin{itemize}
+\item IF aritmético
+\item IF lógico
+\end{itemize}
+
+La decisión de transferir el control o ejecutar la sentencia o bloque de sentencias está basada en la evaluación de una expresión en la instrucción IF.
+
+\subsubsection{IF aritmético}
+Transfiere el control condicionalmente a una de tres sentencias, según sea el valor de la expresión que aparece en la instrucción IF . Tiene la forma:
+\begin{lstlisting}[style=For, numbers=none]
+IF (e) s1 ,s2 ,s3
+\end{lstlisting}
+donde:\\
+\textbf{e} es una expresión aritmética (de cualquier tipo salvo compleja, lógica o caracter).\\
+\textbf{s1, s2, s3} son etiquetas de instrucciones ejecutables de la misma unidad de programa.
+\begin{itemize}
+\item las tres etiquetas \textbf{s1, s2, s3} son obligatorias, aunque no tienen que ser distintas.
+\item se evalu?a la expresio?n \textbf{e} y se transfiere el control a una de las tres etiquetas como se ve en la tabla \ref{tab:tabIFar}.
+\end{itemize}
+
+\begin{table}[htb]
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline 
+\rule[-1ex]{0pt}{2.5ex} \emph{Si el valor de e es} & El control pasa a \\ 
+\hline 
+%\hline
+\rule[-1ex]{0pt}{2.5ex} menor que cero & etiqueta s1 \\
+%\hline
+\rule[-1ex]{0pt}{2.5ex} igual a cero & etiqueta s2 \\
+%\hline
+\rule[-1ex]{0pt}{2.5ex} mayor a cero & etiqueta s3 \\
+\hline
+\end{tabular} 
+\caption {Evaluación de IF aritmético.}
+\label{tab:tabIFar}
+\end{center}
+\end{table}
+
+\subsubsection{IF lógico}
+Ejecuta condicionalmente una única sentencia dependiendo del valor de la expresión lógica que aparece en la instrucción IF. Tiene la forma:
+\begin{lstlisting}[style=For, numbers=none]
+IF (e) sentencia
+\end{lstlisting}
+donde:\\
+\textbf{e} es una expresión lógica.\\
+\textbf{sentencia} es una sentencia Fortran completa, ejecutable, excepto una instrucción DO, END DO, bloque IF u otro IF lógico.
+\begin{itemize}
+\item Se evalúa la expresión lógica \textbf{e}. Si su valor es verdadero,se ejecuta ``sentencia''.\\ Si es falso, se transfiere el control a la siguiente instrucción ejecutable después del IF, sin ejecutarse ``sentencia''.
+\end{itemize}
+
 
 \section{Entrada Salida y Manejo de Archivos}
+
+En Fortran el término archivo se usa para cualquier cosa que se pueda manejar con READ o WRITE: el término cubre no solo los ficheros de datos alamacenados en disco o cinta sino también periféricos tales como impresoras o terminales.
+
+Antes de que pueda ser usado, un Archivo externo se ha de conectar via una instrucción OPEN a una unidad de I/O (valores entre 1 y 99).\\ Existen unidades preconectadas con valores por defecto, como 5=teclado y 6=pantalla.
+Los archivos son referenciados via sus números de unidad.
+\begin{lstlisting}[style=For, numbers=none]
+OPEN(UNIT=1, FILE=?B:INPUT.DAT?, STATUS=?OLD?)
+OPEN(UNIT=9, FILE=?PRINTOUT?, STATUS=?NEW?)
+\end{lstlisting}
+
+Se debe tener en cuenta que la conexión entre un fichero y una unidad persiste hasta que:
+\begin{itemize}
+\item el programa termina (STOP,END).
+\item otra instrucción OPEN conecta otro archivo a la misma unidad.
+\item se ejecuta una instrucción CLOSE para esa unidad.
+\end{itemize}
+
+Las unidades de E/S son un recurso global que puede ser utilizado por cualquier unidad de programa, que usarán todas el mismo número de unidad (se le puede pasar a un procedimiento como un argumento).
+
+\subsection{Formato}
+El programador puede establecer un formato específico para manejar la entrada/salida a través de la instrucción FORMAT, contrario a la manera libre o sin formato como READ(*,*). La instrucción tiene la forma:
+\begin{lstlisting}[style=For, numbers=none]
+label  format(fmt1,fmt2,...,fmtn)
+\end{lstlisting}
+donde:\\
+\textbf{label} es una etiqueta que referencia a la sentencia format.\\
+\textbf{fmt1, fmt2 hasta fmtn} son expresiones de formato que pueden indicar un tipo de dato ó ser una cadena de caracteres. Por ejemplo para dar formato a la salida que imprime un resultado, podría utilizarse la siguiente sentencia:
+\begin{lstlisting}[style=For, numbers=none]
+157  format('El total es = ', I10)
+\end{lstlisting}
+En el ejemplo lo que está entre ' ' es una cadena de caracteres y la expresión de formato es I10.\\
+\bigskip
+Se establece que:
+\begin{itemize}
+\item La sentencia FORMAT debe tener etiqueta (ej. 157). FORMAT puede estar en cualquier lugar en la unidad de programación (pero después de PROGRAM, SUBROUTINE o FUNCTION y antes de END). No es ejecutable. 
+\item En FORMAT, El caracter X indica dejar un espacio (uso: 1X, 2X, etc, pero no X sin número delante). El caracter / pasa una línea (// pasa dos l ??neas, etc).
+\item Tipos de datos (los números son simplemente ejemplos):\\ 
+\begin{table}[h]
+%\begin{center}
+\begin{tabular}{ll}
+\rule[-1ex]{0pt}{2.5ex} I6 & Datos tipo INTEGER\\
+\\
+\rule[-1ex]{0pt}{2.5ex} F13.6 & Datos tipo REAL y REAL*8\\
+\\
+\rule[-1ex]{0pt}{2.5ex} E13.6 ó D13.6 & Datos tipo REAL y REAL*8. Escribe con exponente: -0.320E-04\\
+\\
+\rule[-1ex]{0pt}{2.5ex} G13.6 & El compilador elige escribir como F13.6 ó como E13.6 (ó D13.6).\\
+\\
+\rule[-1ex]{0pt}{2.5ex} \multirow{2}{*}{L5} & Datos tipo LOGICAL. En escritura produce T o F,\\
+& en lectura acepta T, F, .TRUE. y .FALSE.\\
+\\
+\rule[-1ex]{0pt}{2.5ex} A & Datos tipo CHARACTER \\
+\\
+\rule[-1ex]{0pt}{2.5ex} \multirow{2}{*}{A5} & En lectura, lee los 5 últimos caracteres (es decir, los que están a la derecha).\\
+& En escritura, escribe los 5 primeros caracteres.\\
+\end{tabular} 
+\label{tab:tabFormat}
+%\end{center}
+\end{table}
+\item Los paréntesis dentro de formatos indican repetición de esa parte del formato:\\
+\begin{lstlisting}[style=For, numbers=none]
+           WRITE(*,15) (I,A(I),B(I),I=1,10)\\
+      15   FORMAT(I10,/,2(1X,E20.16))
+\end{lstlisting}
+\end{itemize}

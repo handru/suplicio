@@ -80,4 +80,8 @@
 \contentsline {section}{\numberline {A.2}Estructuras de Control}{63}{section.Alph1.2}
 \contentsline {subsection}{\numberline {A.2.1}DO indexado}{63}{subsection.Alph1.2.1}
 \contentsline {subsection}{\numberline {A.2.2}GOTO incondicional}{64}{subsection.Alph1.2.2}
-\contentsline {section}{\numberline {A.3}Entrada Salida y Manejo de Archivos}{64}{section.Alph1.3}
+\contentsline {subsection}{\numberline {A.2.3}Sentencias IF}{64}{subsection.Alph1.2.3}
+\contentsline {subsubsection}{\numberline {A.2.3.1}IF aritm\'etico}{65}{subsubsection.Alph1.2.3.1}
+\contentsline {subsubsection}{\numberline {A.2.3.2}IF l\'ogico}{65}{subsubsection.Alph1.2.3.2}
+\contentsline {section}{\numberline {A.3}Entrada Salida y Manejo de Archivos}{65}{section.Alph1.3}
+\contentsline {subsection}{\numberline {A.3.1}Formato}{66}{subsection.Alph1.3.1}

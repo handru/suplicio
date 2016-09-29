@@ -58,4 +58,6 @@
 \BOOKMARK [1][-]{section.Alph1.2}{Estructuras de Control}{appendix.Alph1}% 58
 \BOOKMARK [2][-]{subsection.Alph1.2.1}{DO indexado}{section.Alph1.2}% 59
 \BOOKMARK [2][-]{subsection.Alph1.2.2}{GOTO incondicional}{section.Alph1.2}% 60
-\BOOKMARK [1][-]{section.Alph1.3}{Entrada Salida y Manejo de Archivos}{appendix.Alph1}% 61
+\BOOKMARK [2][-]{subsection.Alph1.2.3}{Sentencias IF}{section.Alph1.2}% 61
+\BOOKMARK [1][-]{section.Alph1.3}{Entrada Salida y Manejo de Archivos}{appendix.Alph1}% 62
+\BOOKMARK [2][-]{subsection.Alph1.3.1}{Formato}{section.Alph1.3}% 63
