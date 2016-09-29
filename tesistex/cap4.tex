@@ -17,7 +17,7 @@ Las computadoras utilizadas fueron una PC y una Notebook, ambas multiprocesador 
      \begin{itemize}
       \item Procesador AMD Phenom II x4 955 x86\_64
             \begin{itemize}
-             \item 4 cores reales.
+             \item 4 núcleos reales.
              \item Frecuencia m\'axima de 3.2 Ghz.
              \item Release date: Abril del 2009.
             \end{itemize}
@@ -32,7 +32,7 @@ Las computadoras utilizadas fueron una PC y una Notebook, ambas multiprocesador 
       \begin{itemize}      
       \item Procesador Intel Core i3-370M x86\_64
              \begin{itemize}
-             \item 2 cores reales + 2 hilos de control por core.
+             \item 2 núcleos reales + 2 hilos de control por núcleo.
              \item Frecuencia m\'axima de 2.4 Ghz
              \item Release date: Junio del 2010.
              \end{itemize}
@@ -63,7 +63,7 @@ Para poder lanzar el ejecutable y poder verificar el tiempo lo realizamos con el
 \end{lstlisting}
 El tiempo resultante calculado por el comando ``time'' (Fig. \ref{figTSerial}) arroja para la linea ``real'' (tiempo real/total de ejecuci\'on) 21m48.109s para el equipo PC1. El equipo PC2 muestra un tiempo de 22m56.392s. 
 
-Podemos observar que con un cambio en la arquitecura del procesador (PC1 con 4 cores reales, PC2 con 2 cores y 2 hilos de control por core) se incurre en una demora de 1m8s. Se tom\'o otra muestra con el equipo PC2 y se obtuvo un resultado similar, 23m1.628s por lo que podr\'iamos indicar que la diferencia persiste y se mantiene dentro de ciertos par\'ametros. Esta diferencia observada se debe posiblemente a la mayor velocidad del procesador en PC1. Ser\'ia de inter\'es investigar el uso de la jerarqu\'ia de memoria, especialmente de las caches, en ambos procesadores.
+Podemos observar que con un cambio en la arquitecura del procesador (PC1 con 4 núcleos reales, PC2 con 2 núcleos y 2 hilos de control por núcleo) se incurre en una demora de 1m8s. Se tom\'o otra muestra con el equipo PC2 y se obtuvo un resultado similar, 23m1.628s por lo que podr\'iamos indicar que la diferencia persiste y se mantiene dentro de ciertos par\'ametros. Esta diferencia observada se debe posiblemente a la mayor velocidad del procesador en PC1. Ser\'ia de inter\'es investigar el uso de la jerarqu\'ia de memoria, especialmente de las caches, en ambos procesadores.
 \begin{figure}[t!]
  \centering
     \begin{subfigure}[t]{0.4\linewidth}
@@ -172,7 +172,7 @@ Los datos vistos hasta el momento en el trabajo de tesis (Tabla \ref{tab:tabData
 \rule[-1ex]{0pt}{2.5ex} Tiempo total de ejecución & 21m48s & 22m56s \\
 \hline
 \end{tabular} 
-\caption {Datos de ejecución original en ambos equipos.}
+\caption {Datos de ejecución de la aplicación original en ambos equipos.}
 \label{tab:tabDataSerial}
 \end{center}
 \end{table}
@@ -283,7 +283,7 @@ total kB      516524  504308  501332
 \rule[-1ex]{0pt}{2.5ex} Tiempo total de ejecución & 16m02s & 17m04s \\
 \hline
 \end{tabular} 
-\caption {Datos de ejecución aplicación optimizada serialmente.}
+\caption {Datos de ejecución de la aplicación optimizada serialmente.}
 \label{tab:tabDataIfiles}
 \end{center}
 \end{table}
@@ -306,7 +306,7 @@ Finalmente realizamos las pruebas con la versi\'on optimizada paralelamente del 
    $ gfortran -fopenmp -o paralelo invisidos2fin_optOMP.for
 \end{lstlisting}
 Al terminar tenemos un ejecutable listo para aprovechar la paralelizaci\'on que brinda OpenMP. 
-Nuevamente se ejecut\'o la aplicaci\'on con el comando time, de manera de obtener el tiempo de ejecuci\'on. La ejecuci\'on se hizo sin limitar la cantidad de threads creados en OpenMP, es decir que la aplicaci\'on se ejecut\'o aprovechando todos los threads disponibles por defecto, es decir uno por cada core disponible (cuatro threads en cada equipo). 
+Nuevamente se ejecut\'o la aplicaci\'on con el comando time, de manera de obtener el tiempo de ejecuci\'on. La ejecuci\'on se hizo sin limitar la cantidad de threads creados en OpenMP, es decir que la aplicaci\'on se ejecut\'o aprovechando todos los threads disponibles por defecto, es decir uno por cada núcleo disponible (cuatro threads en cada equipo). 
 \begin{lstlisting}[style=consola, numbers=none]
    $ time ./paralelo
 \end{lstlisting}
@@ -320,7 +320,7 @@ Luego de establecido el parametro, la ejecuci\'on de la aplicaci\'on es correcta
 Los resultados de ``time'' para PC1 indicaron un tiempo de ejecuci\'on de 6m5.294s (Fig. \ref{figTOmp}). Al comparar con los 21m48.109s que tom\'o en su versi\'on original podemos observar 15m42s de mejora aproximada, obteniendo un factor de 3.58 de mejora en el desempe\~no, lo cual es muy superior a la ganancia inicial con la optimizaci\'on serial.
 En PC2 obtuvimos 8m50.822s de tiempo de ejecuci\'on (Fig. \ref{figTOmp}), mientras el programa original tom\'o 22m56.392s, es decir aproximadamente 14m6s m\'as r\'apida la versi\'on paralela, obteniendo un factor de 2.59 de mejora en el desempe\~no.
 La diferencia de tiempo de ejecuci\'on entre la aplicaci\'on optimizada paralelamente en PC1 y PC2 es de 2m45s, observandose esta vez una diferencia de tiempo considerable.
-Se podr\'ia investigar la incidencia de los 4 cores reales del procesador AMD en PC1 contra los 2 cores reales y 2 hilos de control por core en el procesador Intel de PC2. Ambos procesadores brindan a OpenMP cuatro hilos, pero los recursos son asignados de manera diferente.
+Se podr\'ia investigar la incidencia de los 4 núcleos reales del procesador AMD en PC1 contra los 2 núcleos reales y 2 hilos de control por núcleo en el procesador Intel de PC2. Ambos procesadores brindan a OpenMP cuatro hilos, pero los recursos son asignados de manera diferente.
 
 \begin{figure}[htb]
  \centering
@@ -349,8 +349,8 @@ Se podr\'ia investigar la incidencia de los 4 cores reales del procesador AMD en
 \label{figTOmp}
 \end{figure}
 
-En el consumo de CPU esta vez podemos observar diferencia entre los programas seriales y uno paralelizado. Se han activado todos los cores disponibles en el equipo al momento de entrar en la zona de la subrutina estela (Fig. \ref{figTopO}), ya sean cores reales (PC1) o virtuales (PC2). 
-Como ya indicamos, la activaci\'on de los cores no fue administrada de manera directa con directivas OpenMP por lo cual todos los cores disponibles fueron utilizados, pero como se indicaba en el capitulo 2 hay m\'as directivas que pueden ser estudiadas de OpenMP que podr\'ian ser utilizadas para disminuir o incrementar la cantidad de hilos generados en una regi\'on paralela y estudiar el impacto y la utilizaci\'on de los recursos en el multiprocesador.
+En el consumo de CPU esta vez podemos observar diferencia entre los programas seriales y uno paralelizado. Se han activado todos los núcleos disponibles en el equipo al momento de entrar en la zona de la subrutina estela (Fig. \ref{figTopO}), ya sean núcleos reales (PC1) o virtuales (PC2). 
+Como ya indicamos, la activaci\'on de los núcleos no fue administrada de manera directa con directivas OpenMP por lo cual todos los núcleos disponibles fueron utilizados, pero como se indicaba en el capitulo 2 hay m\'as directivas que pueden ser estudiadas de OpenMP que podr\'ian ser utilizadas para disminuir o incrementar la cantidad de hilos generados en una regi\'on paralela y estudiar el impacto y la utilizaci\'on de los recursos en el multiprocesador.
 
 \begin{figure}[htb]%[htp]
   \centering
@@ -410,7 +410,7 @@ Para el caso 80x80
 \begin{lstlisting}[style=For, numbers=none]
    parameter (maxir=81,maxio=81,...
 \end{lstlisting}
-Como indicamos en el cap\'itulo 3, maxir y maxio son lo mismo que nr+1 o no+1, lo cual ser\'ia una manera m\'as simple de definirlo. Debido a que est\'a hardcodeado en todo el c\'odigo como observamos, es que para las optimizaciones, serial y paralela, de la aplicaci\'on con tama\~no de problema 80x80 se debe cambiar en todo el c\'odigo estas definiciones de maxir y maxio.
+Como indicamos en el cap\'itulo 3, maxir y maxio son lo mismo que nr+1 o no+1, lo cual ser\'ia una manera m\'as simple de definirlo. Debido a que la definición de estos valores está fija, literalmente, en cada bloque common de todo el c\'odigo, es que para las optimizaciones, serial y paralela, de la aplicaci\'on con tama\~no de problema 80x80, se debe cambiar en todo el c\'odigo cada una de las definiciones de maxir y maxio.
 Luego de adaptado esto procedimos a las pruebas en el mismo orden que antes, versión original, versi\'on optimizada serialmente, versi\'on optimizada con OpenMP.
 
 \subsection{Perfilado de aplicaci\'on con tama\~no 80x80}
@@ -495,6 +495,8 @@ El resúmen de los datos totales obtenidos con el tamaño de problema de 80x80 pue
 \section{Conclusi\'on}
 En este cap\'itulo hemos presentado distintas pruebas de ejecuci\'on de la aplicaci\'on bajo estudio durante el proceso de su optimizaci\'on, distinguiendo tres etapas: aplicaci\'on original, aplicaci\'on optimizada serialmente, aplicaci\'on optimizada paralelamente. 
 Adem\'as se utilizaron dos plataformas de hardware distintas para dar mayor amplitud a la prueba y poder observar el comportamiento de la aplicaci\'on con distinto hardware. 
-Tambi\'en se realiz\'o una prueba con un tama\~no de problema mayor para ver el impacto de la paralelizaci\'on y se pudo ver el impacto en la memoria RAM, adem\'as de encontrar un perfilado distinto que en la versi\'on de tama\~no de problema menor.
+Tambi\'en se realiz\'o una prueba con un tama\~no de problema mayor para ver el impacto de la paralelizaci\'on y se pudo ver el impacto en la memoria RAM, adem\'as de encontrar un perfilado distinto que en la versi\'on de tama\~no de problema menor.\\
 Se han podido tomar mediciones de tiempo y de recursos para presentar conclusiones en el siguiente cap\'itulo del trabajo realizado.
+
+Para finalizar se puede afirmar que la aplicación desde su versión original hasta la versión optimizada y paralelizada resultante de este trabajo de tesis, ha obtenido una mejora en su velocidad de ejecución en un factor de 1.73 en el tamaño de problema mayor (80x80 paneles), y entre 2.59 y 3.58 en su versión de menor tamaño (50x50 paneles).
 

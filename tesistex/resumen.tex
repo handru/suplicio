@@ -4,14 +4,13 @@
 \noindent{\LARGE \sc Resumen}\\
 \ \\
 \ \\
+Denominamos ``legacy Software'', o ``Software Heredado'', a programas  vigentes tras 20, 30 y hasta 40 años. Generalmente son programas grandes, complejos, que desempeñan una tarea crucial en la organización a la que pertenecen. Particularmente en las áreas científicas, con problemas de cálculo intensivo, una vez que un programa arroja resultados correctos, no suelen existir modificaciones al código. Uno de los lenguajes de programación mas ampliamente adoptados por la comunidad científica es Fortran y justamente en este lenguaje están programados gran cantidad de los problemas de cómputo intensivo que han devenido en sistemas legacy. 
 
-\ \\
+Las aplicaciones legacy, o heredadas, debido al paso de una cierta cantidad de tiempo, enfrentan finalmente la problemática de dar respuesta a cambios ambientales, donde deben ser modernizadas o considerar terminar su ciclo de vida. El trabajo de modernizar un sistema legacy puede tener una envergadura variable, dependiendo de la complejidad del sistema y del nuevo ambiente donde vaya a funcionar. La modernización de una aplicación legacy puede verse como un proceso de optimización de la aplicación, sólo que para una plataforma diferente de aquella para la cual fue construida.
 
-\ \\
-\ \\
-Descripci\'on de la tesis de hasta 500 palabras.\\
+Esta tesis presenta la modernización de una aplicación científica del campo de la Dinámica de Fluídos, la cual se encuentra dentro de las aplicaciones de Computo de Altas Prestaciones (HPC en ingles), desarrollada entre mediados y fines de la decada de 1990, escrita en lenguaje Fortran para una plataforma de computación con recursos limitados. Se describe el proceso de optimización de la aplicación, pasando en primer instancia por una optimización serial y luego por una optimización paralela, de manera que pueda aprovechar recursos que no estaban contemplados en su diseño original. La implementación de multiprocesamiento se realiza con la interfaz de programación paralela OpenMP. Se modifica el código lo menos posible para evitar que el autor y usuario de la aplicación pueda seguir manteniendola.
 
- Deberá contener mínimamente motivación,  objetivo, resultado y conclusiones. 
+El proceso de optimización e implementación de multiprocesamiento se ilustra con pruebas de ejecución de las distintas versiones de la aplicación: versión original, versión optimizada serialmente y versión optimizada paralelamente, observando la mejora en los tiempos de ejecución y el impacto en la utilización de los recursos computacionales con distintos tamaños de problema.
 
 \vfill
 \pagebreak

@@ -61,6 +61,12 @@ Ricardo~A. Prado.
   orientado a turbomaquinaria}.
 \newblock PhD thesis, Universidad de Buenos Aires, Mayo 2007.
 
+\bibitem[Que00]{Ques}
+Jesús~García Quesada.
+\newblock Manual de fortran 77.
+\newblock Technical report, Univ. de Las Palmas de Gran Canaria, Edificio de
+  Informática y Matemáticas, 2000.
+
 \bibitem[WC00]{Wad}
 Kevin~R. Wadleigh and Isom~L. Crawford.
 \newblock {\em Software Optimization for High Performance Computing}.

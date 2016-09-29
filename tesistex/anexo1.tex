@@ -1,0 +1,67 @@
+\chapter{Referencia del Lenguaje Fortran}\label{apen1}
+
+En este anexo se presenta una referencia resumida del lenguaje Fortran en su estándar 77, el cual es utilizado en la aplicación objeto de estudio de este trabajo de tesis. Particularmente se detallan las sentencias mas utilizadas en la aplicación en cuestión. Para mayor referencia se puede ampliar consultando \citep{Ques} o la definición del estándar, que puede consultarse en \url{https://www.fortran.com/F77_std/f77_std.html}.
+
+\section{Estructuas de Especificación}
+\subsection{COMMON}
+Define una o más áreas contiguas de memoria, o bloques. También define el orden en el que las variables, arrays y records aparecen en un bloque común.
+Dentro de un programa, puede haber un bloque COMMON sin nombre, pero si existen más, se les ha de asignar un nombre. Esta instrucción, seguida por una serie de instrucciones de especificación, asigna valores iniciales a entidades de bloques comunes con nombre y a la vez, establece y define estos bloques.\\
+
+La sintaxis es:
+\begin{lstlisting}[style=For, numbers=none]
+COMMON [/nomb/] list [[,]/[nomb1]/list1] . . .
+\end{lstlisting}
+\ \\
+donde:\\
+\textbf{nomb} es un nombre simbólico.\\
+\textbf{list} es una lista de nombres de variables, nombres de arrays y declaradores de array.\\
+Cuando se declaran bloques comunes con el mismo nombre en diferentes unidades de programa, estos comparten la misma área de memoria cuando se combinan en un programa ejecutable.
+
+\section{Estructuras de Control}
+\subsection{DO indexado}
+Controla el procesamiento iterativo, o sea, las instrucciones de su rango se ejecutan un número especificado de veces. Tiene la forma:
+\begin{lstlisting}[style=For, numbers=none]
+DO [s[,]] v = e1 , e2 [,e3 ]
+\end{lstlisting}
+\ \\
+donde:\\
+\textbf{s} es la etiqueta de una instrucción ejecutable, que ha de estar en la misma unidad de
+programa.\\
+\textbf{v} es una variable entera o real, que controla el bucle (índice).\\
+\textbf{e1 ,e2 ,e3} son expresiones aritméticas.\\
+La variable \textbf{v} es la variable de control, \textbf{e1} es el valor inicial que toma \textbf{v}, \textbf{e2} es el valor final y \textbf{e3} es el incremento o paso, que no puede ser cero. Si se omite \textbf{e3}, su valor por defecto es 1.
+El rango de una DO incluye todas las instrucciones que siguen a la misma DO hasta la instrucción terminal, la última del rango.\\
+La instrucción terminal no puede ser:\\
+\begin{itemize}
+\item una GOTO incondicional o asignada.
+\item un IF aritmético.
+\item un bloque IF.
+\item ELSE , ELSE IF , END IF , RETURN , STOP, END , otra DO.
+\end{itemize}
+\ \\
+El número de ejecuciones del rango de una DO, llamado contador de iteraciones viene dado por:\\
+MAX(INT($(e2 - e1 + e3 )/e3$), 0)\\
+donde INT(x) representa la funcio?n parte entera de x.
+Y las etapas seguidas en la ejecucio?n son las siguientes:
+\begin{enumerate}[1.]
+ \item Se evalúa el contador = INT($(e2 - e1 + e3)/e3$)
+ \item Se hace v = e1
+ \item Si contador es mayor que cero, entonces:
+  \begin{enumerate}[a)]
+   \item Ejecutar las instrucciones del rango del bucle
+   \item Asignar v = v + e3
+   \item Decrementar el contador (contador=contador-1). Si contador es mayor que cero, repetir el bucle.  
+  \end{enumerate}
+\end{enumerate}
+
+\subsection{GOTO incondicional}
+Las instrucciones GOTO transfieren el control dentro de una unidad de programa. Dependiendo del valor de una expresión, el control se transfiere, bien a la misma instrucción siempre, o bien a una de un determinado conjunto de instrucciones.
+En el caso del GOTO incondicional, transfiere el control a la misma instrucción cada vez que se ejecuta. Tiene la forma:
+\begin{lstlisting}[style=For, numbers=none]
+GOTO s
+\end{lstlisting}
+\ \\
+donde \textbf{s} es la etiqueta de una instrucción ejecutable que está en la misma unidad de programa de la instrucción GOTO.
+
+
+\section{Entrada Salida y Manejo de Archivos}

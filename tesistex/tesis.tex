@@ -7,6 +7,7 @@
 \usepackage[spanish]{babel}
 \usepackage{natbib}
 %
+\usepackage{enumerate}
 %===== para figuras con código
 \usepackage{fancyvrb}
 %
@@ -48,7 +49,7 @@ numberfirstline = false,
 breaklines=true,
 %inputencoding=utf8,
 extendedchars=true,
-escapeinside=\%?,
+%escapeinside=\%?,
 }
 % minimizar fragmentado de listados
 \lstnewenvironment{listing}[1][]
@@ -118,6 +119,10 @@ xleftmargin=.1\textwidth,
 \input{cap3}
 \input{cap4}
 \input{cap5}
+\vfill
+\pagebreak
+\appendix
+\input{anexo1}
 \vfill
 \pagebreak
 \bibliography{biblio1}
