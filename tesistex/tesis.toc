@@ -40,8 +40,8 @@
 \contentsline {subsubsection}{\numberline {2.6.4.4}FIRSTPRIVATE(lista)}{21}{subsubsection.2.6.4.4}
 \contentsline {subsection}{\numberline {2.6.5}Otras Construcciones y Cl\'ausulas}{22}{subsection.2.6.5}
 \contentsline {section}{\numberline {2.7}Proceso de optimizaci\'on}{22}{section.2.7}
-\contentsline {subsection}{\numberline {2.7.1}Optimizaci\'on Serial}{23}{subsection.2.7.1}
-\contentsline {subsubsection}{\numberline {2.7.1.1}Metodolog\IeC {\'\i }a de medici\'on}{24}{subsubsection.2.7.1.1}
+\contentsline {subsection}{\numberline {2.7.1}Optimizaci\'on Serial}{22}{subsection.2.7.1}
+\contentsline {subsubsection}{\numberline {2.7.1.1}Metodolog\IeC {\'\i }a de medici\'on}{23}{subsubsection.2.7.1.1}
 \contentsline {subsubsection}{\numberline {2.7.1.2}Herramientas de medici\'on}{25}{subsubsection.2.7.1.2}
 \contentsline {subsubsection}{\numberline {2.7.1.3}Herramientas de medici\'on de tiempo}{25}{subsubsection.2.7.1.3}
 \contentsline {subsubsection}{\numberline {2.7.1.4}Herramientas de perfilado de programa}{26}{subsubsection.2.7.1.4}
