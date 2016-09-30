@@ -169,12 +169,19 @@ Se establece que:
 \rule[-1ex]{0pt}{2.5ex} \multirow{2}{*}{L5} & Datos tipo LOGICAL. En escritura produce T o F,\\
 & en lectura acepta T, F, .TRUE. y .FALSE.\\
 \\
+\end{tabular} 
+\label{tab:tabFormat1}
+%\end{center}
+\end{table}
+\begin{table}[h]
+%\begin{center}
+\begin{tabular}{ll}
 \rule[-1ex]{0pt}{2.5ex} A & Datos tipo CHARACTER \\
 \\
 \rule[-1ex]{0pt}{2.5ex} \multirow{2}{*}{A5} & En lectura, lee los 5 últimos caracteres (es decir, los que están a la derecha).\\
 & En escritura, escribe los 5 primeros caracteres.\\
 \end{tabular} 
-\label{tab:tabFormat}
+\label{tab:tabFormat2}
 %\end{center}
 \end{table}
 \item Los paréntesis dentro de formatos indican repetición de esa parte del formato:\\

@@ -166,7 +166,9 @@ Estos archivos se guardarán en objetos de tipo Internal File de Fortran y su esc
 
 Un caso especial es el Internal File \emph{outstd} que lleva lo impreso en salida estándar dentro de algunas subrutinas(estela, geomest, etc), y es mostrado por pantalla al retornar dichas subrutinas al programa principal.
 
-Luego, todo archivo o External File que sea escrito y leído durante la ejecución de la aplicación será mantenido por un Internal File. La única modificación necesaria al código será el cambio de las referencias a los archivos en las sentencias ``write'', ``read'' y ``rewind''. En la Fig. \ref{codSinMod} se muestra un ejemplo de código previo a la modificación, y en la Fig. \ref{codModif} el código ya modificado.\\
+Luego, todo archivo o External File que sea escrito y leído durante la ejecución de la aplicación será mantenido por un Internal File. La única modificación necesaria al código será el cambio de las referencias a los archivos en las sentencias ``write'', ``read'' y ``rewind''. En la Fig. \ref{codSinMod} se muestra un ejemplo de código previo a la modificación, y en la Fig. \ref{codModif} el código ya modificado.
+
+Como se ve, reemplazamos el archivo ``subr.out'' representado por el identificador de unidad 15 por el Internal File denominado subrout.
 
 \begin{figure}[htb]%[htp]
 %  \begin{lstlisting}[style=For, numbers=none]
@@ -181,8 +183,6 @@ Luego, todo archivo o External File que sea escrito y leído durante la ejecución
   \label{codSinMod}
 \end{figure}
 
-
-Como se ve, reemplazamos el archivo ``subr.out'' representado por el identificador de unidad 15 por el Internal File denominado subrout.
 
 \begin{figure}[htb]%[htp]
 %  \begin{lstlisting}[style=For, numbers=none]

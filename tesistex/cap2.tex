@@ -267,7 +267,7 @@ Al comienzo de la región paralela es posible imponer cláusulas que fijan ciertos
 \begin{lstlisting}[style=For, numbers=none]
 	!$OMP PARALLEL  clause1 clause2 ...
 	...
-	!\$OMP END PARALLEL
+	!$OMP END PARALLEL
 \end{lstlisting}
 Las cláusulas permitidas en la directiva de apertura !\$OMP PARALLEL son las siguientes:
 \begin{itemize}
@@ -373,7 +373,7 @@ Debido a que más de un hilo puede escribir en la misma ubicación de memoria al m
 \subsubsection{DEFAULT ( PRIVATE \textbar SHARED \textbar NONE )}
 Cuando la mayoría de las variables dentro del alcance de una directiva va a ser privada o compartida, entonces sería engorroso incluir todas ellas en una de las cláusulas previas. Para evitar esto, es posible especificar que hará OpenMP cuando no se especifica nada sobre una variable, i.e. un comportamiento por defecto. Por ejemplo:
 \begin{lstlisting}[style=For, numbers=none]
-      !\$OMP PARALLEL DEFAULT(PRIVATE) SHARED(a)
+      !$OMP PARALLEL DEFAULT(PRIVATE) SHARED(a)
 \end{lstlisting}
 \noindent indica que todas las variables excepto ``a'' van a ser privadas, mientras que ``a'' será compartida por todos los hilos dentro del alcance de la región paralela. Si no se especifica ninguna cláusula DEFAULT, el comportamiento por defecto es como si DEFAULT(SHARED) fuera especificado. Como veremos en el capitulo 3 de este trabajo de tesis, esto puede variar en implementaciones y debe ser investigado más a fondo.
 A las opciones PRIVATE y SHARED se le agrega una tercera: NONE. Especificando DEFAULT(NONE) requiere que cada variable en el alcance de la directiva debe ser explícitamente listada en una de las cláusulas PRIVATE o SHARED al principio del alcance de la directiva (exceptuando variables declaradas THREADPRIVATE o los contadores de los bucles).
@@ -427,7 +427,7 @@ La Optimización Serial es un proceso iterativo que involucra medir repetidamente
 
 \begin{figure}[h!]%[htp]
   \centering
-  \includegraphics[width=0.60\textwidth]{figuras/g-and-s-serial1.png} \\
+  \includegraphics[width=0.65\textwidth]{figuras/g-and-s-serial1.png} \\
   \caption{Proceso de Optimización Serial.} %
   \label{figGySSerial}
 \end{figure}
@@ -499,7 +499,7 @@ El comando siendo medido realiza su ejecución normalmente. Al finalizar su ejecu
 El perfilado muestra cuales funciones son las más costosas en las ejecuciones de una aplicación. Es necesario utilizar para la medición casos de test representativos y múltiples, de manera de obtener resultados significativos.
 En GNU/Linux se cuenta con la herramienta ``gprof'' para realizar perfilado de aplicaciones. Para utilizarla, un programa debe estar compilado con la opción ``-pg''. Luego se ejecuta el programa una vez y genera un archivo llamado gmon.out en el directorio de ejecución el cual es utilizado por el comando gprof para generar el reporte de perfilado para esa ejecución. La sintaxis de gprof es:
 \begin{lstlisting}[style=For, numbers=none]
-	$ gprof  <programa_ejecutable>  [<ruta_a_gmon.out>]
+    $ gprof  <programa_ejecutable>  [<ruta_a_gmon.out>]
 \end{lstlisting}
 Si no se le pasa la ruta a gmon.out, por defecto utiliza el directorio desde donde es invocado gprof. Un ejemplo de este proceso puede verse a continuación: 
 
@@ -515,7 +515,7 @@ Luego de que la aplicación está optimizada para procesamiento secuencial, su tie
 
 \begin{figure}[h!]%[htp]
   \centering
-  \includegraphics[width=0.65\textwidth]{figuras/g-and-s-paralel1.png} \\
+  \includegraphics[width=0.7\textwidth]{figuras/g-and-s-paralel1.png} \\
   \caption{Proceso de Optimización Paralela.} %
   \label{figGySParalel}
 \end{figure}
