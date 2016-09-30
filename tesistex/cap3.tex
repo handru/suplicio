@@ -6,9 +6,9 @@ En los capítulos anteriores presentamos la problemática por la cual surge la ide
 
 Con Fortran como base, y teniendo en cuenta la estructura del programa con un análisis inicial del mismo, debido a las características de programa estructurado, monolítico y no modularizado, se elige orientar la solución a aplicar concurrencia en un entorno de Memoria Compartida y dejar habilitada la ejecución paralela en un equipo multiprocesador.
 
-La aplicación bajo estudio utiliza archivos de datos en disco para guardar resultados, tanto parciales como finales. Esta actividad de entrada/salida introduce importantes demoras en el tiempo de respuesta, que necesitamos considerar. En este capítulo describiremos el proceso seguido para la optimización del código Fortran en lo relacionado con el manejo de los archivos. Esta primera fase de optimización permitirá la paralelización de segmentos de código.
+La aplicación bajo estudio utiliza archivos de datos en disco para guardar resultados, tanto parciales como finales. Esta actividad de entrada/salida introduce importantes demoras en el tiempo de respuesta que necesitamos considerar. En este capítulo describiremos el proceso seguido para la optimización del código Fortran en lo relacionado con el manejo de los archivos. Esta primera fase de optimización permitirá la paralelización de segmentos de código.
 
-También realizaremos un análisis del perfil de ejecución de la aplicación con una herramienta de perfilado  que permitirá identificar qué subrutinas son las que más tiempo consumen y cuáles son las más indicadas para aplicar la paralelización.
+También realizaremos un análisis del perfil de ejecución de la aplicación, con una herramienta de perfilado  que permitirá identificar qué subrutinas son las que más tiempo consumen y cuáles son las más indicadas para aplicar la paralelización.
 
 Por último veremos la forma como se ha aplicado OpenMP a las partes seleccionadas de la aplicación. Explicaremos por qué han sido seleccionadas ciertas construcciones específicas del código y las razones de modificar algunas estructuras de control para hacer más eficiente la utilización de la memoria y de la CPU.
 
@@ -163,7 +163,7 @@ Como la latencia de los accesos a disco magnético es, normalmente, al menos cinc
 \subsection{Optimización por adaptación de archivos externos a internos}
 La primera decisión tomada para la optimización del código es reducir el impacto de los accesos a archivos en disco que son leídos y además escritos por la aplicación. No efectuaremos ninguna modificación sobre los archivos que son únicamente escritos por las subrutinas, con cuatro excepciones: la escritura de los archivos integ1.txt e integ2.txt en la subrutina estela, retrasada hasta el final de la misma, y los archivos salida2.out, que guarda resultados de la ejecución a medida que avanza, y subr.out, que recoge lo mostrado en salida estándar. 
 Estos archivos se guardarán en objetos de tipo Internal File de Fortran y su escritura se demorará hasta la finalización del programa. La elección de no pasar más archivos a Internal Files es para evitar un incremento elevado en la cantidad de memoria utilizada por la aplicación.
-%OSO POR QUE? %HANDRU por lo indicado más adelante, ocupar más memoria con más archivos
+
 Un caso especial es el Internal File \emph{outstd} que lleva lo impreso en salida estándar dentro de algunas subrutinas(estela, geomest, etc), y es mostrado por pantalla al retornar dichas subrutinas al programa principal.
 
 Luego, todo archivo o External File que sea escrito y leído durante la ejecución de la aplicación será mantenido por un Internal File. La única modificación necesaria al código será el cambio de las referencias a los archivos en las sentencias ``write'', ``read'' y ``rewind''. En la Fig. \ref{codSinMod} se muestra un ejemplo de código previo a la modificación, y en la Fig. \ref{codModif} el código ya modificado.\\
@@ -404,7 +404,7 @@ El código en el programa optimizado es:
 \end{lstlisting}
 Aquí referenciamos primero la definición del archivo interno cix1tmp, y no se define un tipo por defecto, por lo que, como explicamos en párrafos anteriores, toma el tipo implicito real*8 definido en el bloque ``common'' de cada subrutina. 
 
-El tamaño del archivo interno (maxro * maxro) es definido por el mismo bucle que lo genera, que itera desde 1 a ``npan'' dentro de otro bucle que itera la misma cantidad de veces, i.e., genera npan*npan elementos en cix1tmp. La variable maxro definida ``common'' y con valor previamente asignado es equivalente a npan, y maxro es preferida a esta ya que en el bloque de definición npan aún no tiene asignado su valor.  
+El tamaño del archivo interno (maxro * maxro) es definido por el mismo bucle que lo genera, que itera desde 1 a ``npan'' dentro de otro bucle que itera la misma cantidad de veces, i.e., genera npan*npan elementos en cix1tmp. La variable maxro definida ``common'' y con valor previamente asignado es equivalente a npan, y maxro es preferida a ésta ya que en el bloque de definición npan aún no tiene asignado su valor.  
 
 Por último la variable ``kon'' oficia de contador de posiciones para el archivo interno.
 
@@ -478,7 +478,7 @@ Una vez realizados los cambios indicados, verificamos que los resultados siguier
 Con el primer paso de optimización realizado es posible llevar a cabo la optimización paralela del código con el modelo de programación paralela seleccionado.
 
 Como vimos en la sección \ref{ssec:perfilado}, de acuerdo al resultado de la herramienta gprof, el código candidato para ser optimizado en ese primer momento era principalmente la subrutina ``estela'', seguida de ``solgauss''.
-Si compilamos nuestro programa nuevamente con el profiler de GNU (gprof), pero con la optimización de los archivos internos, obtenemos que la subrutina ``estela'' sigue siendo la mayor peso en la ejecución, seguida de solgauss, incluso en porcentajes bastante aproximados a los obtenidos para el programa original. Esto lo podemos observar en la Fig. \ref{figGprofInt}. 
+Si compilamos nuestro programa nuevamente con el profiler de GNU (gprof), pero con la optimización de los archivos internos, obtenemos que la subrutina ``estela'' sigue siendo la de  mayor peso en la ejecución, seguida de solgauss, incluso en porcentajes bastante aproximados a los obtenidos para el programa original. Esto lo podemos observar en la Fig. \ref{figGprofInt}. 
 
 \begin{figure}[h!]%[htp]
   \centering
@@ -577,9 +577,9 @@ Por otra parte, el cálculo de coeficientes se hace sobre los valores valx, valy 
 
 Por ejemplo, al dividir los datos en porciones de 100 elementos, el thread que calcula los valores 101 a 200 de un bucle necesita conocer el valor de la sumatoria en el valor 100 para poder iniciar con valores correctos su cálculo, y dicho valor 100 puede no existir aún en el momento en que se lo necesita (porque el thread encargado de su cálculo puede no haber finalizado o siquiera iniciado).
 
-En el cálculo de los términos pares e impares se presenta el mismo problema de dependencias de datos que aparece en el cálculo de coeficientes. Cuando calculamos, por ejemplo, six, necesitamos conocer el valor previo de six en ese momento.
+En el cálculo de los términos pares e impares se presenta el mismo problema de dependencia de datos que aparece en el cálculo de coeficientes. Cuando calculamos, por ejemplo, six, necesitamos conocer el valor previo de six en ese momento.
 
-Existen técnicas y formas de transformar el código que permiten en algunos casos poder reprogramar una porción de código para que pueda ser paralelizable a pesar de tener estas dependencias de datos. Debido al potencial gran cambio necesario en el código para subsanar el problema de la dependencia de datos, y al requisito de no modificar el código de maneras que puedan volverlo ilegible para el usuario, es que no se avanzó sobre estas áreas de la subrutina. La solución a este problema puede ser motivo de un trabajo futuro que se pondrá a consideración en el capítulo 5.
+Existen técnicas y formas de transformar el código que permiten en algunos casos poder reprogramar una porción del mismo para que pueda ser paralelizable a pesar de tener esta dependencia de dato. Debido al potencial gran cambio necesario en el código para subsanar el problema de la dependencia, y al requisito de no modificar el código de maneras que puedan volverlo ilegible para el usuario, es que no se avanzó sobre estas áreas de la subrutina. La solución a este problema puede ser motivo de un trabajo futuro que se pondrá a consideración en el capítulo 5.
 
 Luego de descartar estos puntos como las zonas a paralelizar en la subrutina ``estela'' nos quedamos con el bucle de la Fig. \ref{codEstela} que genera los arrays fx, fy, fz, denom y dista (lineas 17 a 19), ya que cada valor generado de estos arrays no depende de otros previos dentro de los arrays.
 

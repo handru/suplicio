@@ -4,7 +4,7 @@
 \section{Introducción}
 
 En este capitulo se presentan los resultados obtenidos en cada etapa de la optimización, especialmente el speedup de la aplicación pero también mostrando el uso de archivos en disco así como la cantidad de memoria necesaria. Se mostrará también el estado del sistema durante las distintas ejecuciones de la aplicación.
-Como la optimización se realizó en varios pasos se mostraran los resultados iniciales, parciales y finales del proceso. De esta manera es posible ver el impacto de cada parte de la optimización en el código legacy. Como indican \citep[Cap. 2]{Grama} la optimización previa del código serial es necesaria para evitar efectos indeseados en las mediciones, y puede representar un factor de speedup de la aplicación de entre 2X y 5X. 
+Como la optimización se realizó en varios pasos se mostrarán los resultados iniciales, parciales y finales del proceso. De esta manera es posible ver el impacto de cada parte de la optimización en el código legacy. Como indican \citep[Cap. 2]{Grama} la optimización previa del código serial es necesaria para evitar efectos indeseados en las mediciones, y puede representar un factor de speedup de la aplicación de entre 2X y 5X. 
 La aplicación fue modificada lo menos posible en el proceso de optimización por lo cual no toda la ganancia posible en una recodificación es alcanzada, pero como se explicó en el capitulo anterior, se trató de hacer los cambios lo mas transparente posibles al usuario y creador de la aplicación.
 El código de la aplicación objeto de estudio de esta tesis es entregado junto con los resultados generados para dos conjuntos de datos de entrada, uno para un número total de paneles de 50x50 y otra para un número total de 80x80, siendo estos valores definidos en un archivo que sirve de entrada de datos. Para este trabajo de tesis se elige trabajar principalmente con el conjunto de datos resultante del caso de cantidad de paneles 50x50, sin embargo se presentan observaciones obtenidas de una prueba en uno solo de los equipos para el caso de tamaño 80x80. El usuario y creador de la aplicación indicó que la ejecución de la aplicación con el tamaño del problema en 50x50 paneles demoraba en el orden de horas de ejecución, indicando que se dejaba corriendo de un día para el otro. El tamaño de 80x80 podía llegar a durar días. No se tienen datos fehacientes de estas ejecuciones, las cuales eran realizadas en computadoras de mediados de la década del 90.
 
@@ -151,7 +151,7 @@ Por último la CPU utilizada siempre fue una sola de las disponibles, ya que el p
    \label{figTopS}
 \end{figure}
 
-Los datos vistos hasta el momento en el trabajo de tesis (Tabla \ref{tab:tabDataSerial}), son de la ejecución del programa original, las dos subsecciones siguientes mostraran como evolucionó con la optimización, teniendo como base los tiempos y tamaños obtenidos en esta primer etapa. 
+Los datos vistos hasta el momento en el trabajo de tesis (Tabla \ref{tab:tabDataSerial}), son de la ejecución del programa original, las dos subsecciones siguientes mostrarán como evolucionó con la optimización, teniendo como base los tiempos y tamaños obtenidos en esta primer etapa. 
 
 \begin{table}[htb]
 \begin{center}
@@ -219,7 +219,7 @@ En la computadora PC2 los tiempos obtenidos fueron de 17min 4.161seg. Se observa
 Se puede ver que el factor de mejora alcanzado entre el original serial y el optimizado es muy similar entre ambos equipos, con una diferencia de solo 0.01, y que es levemente mejor en PC1.
 Estrictamente hablando de los tiempos de ejecución del código optimizado serialmente, entre los equipos la diferencia observada es de 1m2s, nuevamente a favor de PC1.
 
-Al observar el directorio donde se ejecuta la aplicación, observamos que luego de la optimización serial han desaparecido los archivos ``.tmp'' (Fig. \ref{figListI}), ya que ahora lleva los cálculos intermedios en la memoria para poder mejorar los tiempos de acceso. El resto de archivos (50 en total) siguen creándose, pero al demorar la escritura de los archivos utilizados para ir mostrando y almacenando la salida por pantalla, tanto como los que son leidos y escritos y obtienen resultados finales, se logra evitar el acceso constante al disco a través de la ejecución de la aplicación, para tener solo que hacerlo una vez por archivo al finalizar la ejecución del programa o una subrutina en particular.
+Al observar el directorio donde se ejecuta la aplicación, observamos que luego de la optimización serial han desaparecido los archivos ``.tmp'' (Fig. \ref{figListI}), ya que ahora lleva los cálculos intermedios en la memoria para poder mejorar los tiempos de acceso. El resto de archivos (50 en total) siguen creándose, pero al demorar la escritura de los archivos utilizados para ir mostrando y almacenando la salida por pantalla, tanto como los que son leidos y escritos y obtienen resultados finales, se logra evitar el acceso constante al disco a través de la ejecución de la aplicación, para tener sólo que hacerlo una vez por archivo al finalizar la ejecución del programa o una subrutina en particular.
 El tamaño ocupado por los archivos del programa ahora fue de 17 Mb tanto en PC1 como en PC2 (Fig. \ref{figListI}), observando nuevamente el impacto de no generar los archivos ``.tmp''. 
 
 \begin{figure}[h]%[htp]
@@ -311,7 +311,7 @@ Nuevamente se ejecutó la aplicación con el comando time, de manera de obtener el
    $ time ./paralelo
 \end{lstlisting}
 
-Un contratiempo que ocurrió en este paso fue que al ingresar en la parte paralelizada, la aplicación incurrió en un error de ``segmentation fault''. El problema ocurre por el tamaño máximo definido en el kernel Linux de la pila para un proceso, el cual por defecto es de 8192Kb. La solución es previo a la ejecución de la aplicación definir el tamaño máximo de la pila en ``unlimited'' con el siguiente comando:
+Un contratiempo que ocurrió en este paso fue que al ingresar en la parte paralelizada, la aplicación incurrió en un error de ``segmentation fault''. El problema ocurre por el tamaño máximo definido en el kernel Linux de la pila para un proceso, el cual por defecto es de 8192Kb. La solución es previo a la ejecución de la aplicación, definir el tamaño máximo de la pila en ``unlimited'' con el siguiente comando:
 \begin{lstlisting}[style=consola, numbers=none]
    $ ulimit -s unlimited
 \end{lstlisting}
@@ -350,7 +350,7 @@ Se podría investigar la incidencia de los 4 núcleos reales del procesador AMD en
 \end{figure}
 
 En el consumo de CPU esta vez podemos observar diferencia entre los programas seriales y uno paralelizado. Se han activado todos los núcleos disponibles en el equipo al momento de entrar en la zona de la subrutina estela (Fig. \ref{figTopO}), ya sean núcleos reales (PC1) o virtuales (PC2). 
-Como ya indicamos, la activación de los núcleos no fue administrada de manera directa con directivas OpenMP por lo cual todos los núcleos disponibles fueron utilizados, pero como se indicaba en el capitulo 2 hay más directivas que pueden ser estudiadas de OpenMP que podrían ser utilizadas para disminuir o incrementar la cantidad de hilos generados en una región paralela y estudiar el impacto y la utilización de los recursos en el multiprocesador.
+Como ya indicamos, la activación de los núcleos no fue administrada de manera directa con directivas OpenMP por lo cual todos los núcleos disponibles fueron utilizados, pero como se indicaba en el capitulo 2, hay más directivas que pueden ser estudiadas de OpenMP que podrían ser utilizadas para disminuir o incrementar la cantidad de hilos generados en una región paralela y estudiar el impacto y la utilización de los recursos en el multiprocesador.
 
 \begin{figure}[htb]%[htp]
   \centering
@@ -398,7 +398,7 @@ Finalmente podemos ver en la Fig. \ref{figDataTotal} los datos resumidos de las 
 \end{figure}
 
 \section{Pruebas con 80x80 paneles}
-Para determinar la escalabilidad de la solución aplicada y como impacta en un equipo el cambio del tamaño de los datos para el cálculo, se realizaron en PC2 pruebas con el segundo tamaño de prueba provisto por el autor/usuario de la aplicación, 80x80 paneles.
+Para determinar la escalabilidad de la solución aplicada y cómo impacta en un equipo el cambio del tamaño de los datos para el cálculo, se realizaron en PC2 testeos con el segundo tamaño de prueba provisto por el autor/usuario de la aplicación, 80x80 paneles.
 Solo tenemos los resultados de salida de la ejecución del original utilizado por el usuario y se utilizaron para verificar los resultados de salida de las versiones utilizadas para la prueba, arrojando que todas dan una salida correcta de los datos.
 Como indicamos en el capítulo 3, el archivo con los datos de entrada para la ejecución de la aplicación (entvis2f.in) posee una única modificación con respecto al de 50x50 y que es  nr = no = 80. Luego mediante el análisis de las diferencias entre los códigos de la versión de tamaño 50x50 contra la de 80x80, observamos que el código en los bloques ``common'' de Fortran indica lo siguiente:
 
@@ -478,7 +478,7 @@ Los tiempos obtenidos en la versión con OpenMP son de 130m39.169s (Fig. \ref{fig
 
 El tiempo obtenido nos da una mejora que no es igual a la observada en la versión de 50x50, esta vez representa solo una mejora en un factor de 1.73 sobre la aplicación original.
 
-Si analizamos el tiempo teniendo en cuenta el resultado de gprof para este tamaño de problema (Fig. \ref{figGprof4}) y para gprof para el tamaño menor (Fig. \ref{figGprof1} y \ref{figGprof2}) podemos ver que la paralelización impacta sobre un 30\% menos de tiempo, limitando la mejora obtenida al incrementar el tamaño del problema. Esto ocurre porque solo se paraleliza la subrutina ``estela'', siendo que la subrutina ``solgauss'' ahora consume ese 30\% de tiempo. La paralelización de ``solgauss'' es un posible trabajo futuro.
+Si analizamos el tiempo teniendo en cuenta el resultado de gprof para este tamaño de problema (Fig. \ref{figGprof4}) y para gprof para el tamaño menor (Fig. \ref{figGprof1} y \ref{figGprof2}) podemos ver que la paralelización impacta sobre un 30\% menos de tiempo, limitando la mejora obtenida al incrementar el tamaño del problema. Esto ocurre porque sólo se paraleliza la subrutina ``estela'', siendo que la subrutina ``solgauss'' ahora consume ese 30\% de tiempo. La paralelización de ``solgauss'' es un posible trabajo futuro.
 
 El comportamiento en disco es exactamente el mismo que en la versión optimizada serialmente, con 40MB de archivos. 
 En memoria ocurre igual que en la aplicación con tamaño 50x50, ocupando menos que en la versión optimizada serialmente, 3184MB (3.1GB) mientras está en solgauss y 2864MB (2.79GB) en el resto de la ejecución.
@@ -493,7 +493,7 @@ El resumen de los datos totales obtenidos con el tamaño de problema de 80x80 pue
 \end{figure}
 
 \section{Conclusión}
-En este capítulo hemos presentado distintas pruebas de ejecución de la aplicación bajo estudio durante el proceso de su optimización, distinguiendo tres etapas: aplicación original, aplicación optimizada serialmente, aplicación optimizada paralelamente. 
+En este capítulo hemos presentado distintas pruebas de ejecución de la aplicación bajo estudio durante el proceso de su optimización, distinguiendo tres etapas: aplicación original, aplicación optimizada serialmente y aplicación optimizada paralelamente. 
 Además se utilizaron dos plataformas de hardware distintas para dar mayor amplitud a la prueba y poder observar el comportamiento de la aplicación con distinto hardware. 
 También se realizó una prueba con un tamaño de problema mayor para ver el impacto de la paralelización y se pudo ver el impacto en la memoria RAM, además de encontrar un perfilado distinto que en la versión de tamaño de problema menor.\\
 Se han podido tomar mediciones de tiempo y de recursos para presentar conclusiones en el siguiente capítulo del trabajo realizado.

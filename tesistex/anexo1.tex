@@ -1,6 +1,6 @@
 \chapter{Referencia del Lenguaje Fortran}\label{apen1}
 
-En este anexo se presenta una referencia resumida del lenguaje Fortran en su estándar 77, el cual es utilizado en la aplicación objeto de estudio de este trabajo de tesis. Particularmente se detallan las sentencias mas utilizadas en la aplicación en cuestión. Para mayor referencia se puede ampliar consultando \citep{Ques}, \citep{GarRec} o la definición del estándar, que puede consultarse en \url{https://www.fortran.com/F77_std/f77_std.html}.
+En este anexo se presenta una referencia resumida del lenguaje Fortran en su estándar 77, el cual es utilizado en la aplicación objeto de estudio de este trabajo de tesis. Particularmente se detallan las sentencias más utilizadas en la aplicación en cuestión. Para mayor referencia se puede ampliar consultando \citep{Ques}, \citep{GarRec} o la definición del estándar, que puede consultarse en \url{https://www.fortran.com/F77_std/f77_std.html}.
 
 \section{Estructuras de Especificación}
 \subsection{COMMON}
@@ -113,13 +113,13 @@ donde:\\
 \textbf{e} es una expresión lógica.\\
 \textbf{sentencia} es una sentencia Fortran completa, ejecutable, excepto una instrucción DO, END DO, bloque IF u otro IF lógico.
 \begin{itemize}
-\item Se evalúa la expresión lógica \textbf{e}. Si su valor es verdadero,se ejecuta ``sentencia''.\\ Si es falso, se transfiere el control a la siguiente instrucción ejecutable después del IF, sin ejecutarse ``sentencia''.
+\item Se evalúa la expresión lógica \textbf{e}. Si su valor es verdadero, se ejecuta ``sentencia''.\\ Si es falso, se transfiere el control a la siguiente instrucción ejecutable después del IF, sin ejecutarse ``sentencia''.
 \end{itemize}
 
 
 \section{Entrada Salida y Manejo de Archivos}
 
-En Fortran el término archivo se usa para cualquier cosa que se pueda manejar con READ o WRITE: el término cubre no solo los ficheros de datos almacenados en disco o cinta sino también periféricos tales como impresoras o terminales.
+En Fortran el término archivo se usa para cualquier cosa que se pueda manejar con READ o WRITE: el término cubre no sólo los ficheros de datos almacenados en disco o cinta sino también periféricos tales como impresoras o terminales.
 
 Antes de que pueda ser usado, un Archivo externo se ha de conectar vía una instrucción OPEN a una unidad de I/O (valores entre 1 y 99).\\ Existen unidades preconectadas con valores por defecto, como 5=teclado y 6=pantalla.
 Los archivos son referenciados vía sus números de unidad.

@@ -54,8 +54,8 @@
 \contentsline {section}{\numberline {3.3}Optimizaci\'on Serial del c\'odigo Fortran}{31}{section.3.3}
 \contentsline {subsection}{\numberline {3.3.1}An\'alisis del acceso a datos de la aplicaci\'on}{32}{subsection.3.3.1}
 \contentsline {subsection}{\numberline {3.3.2}Optimizaci\'on por adaptaci\'on de archivos externos a internos}{32}{subsection.3.3.2}
-\contentsline {section}{\numberline {3.4}Optimizaci\'on Paralela para Multiprocesamiento}{40}{section.3.4}
-\contentsline {subsection}{\numberline {3.4.1}An\'alisis de la subrutina Estela}{40}{subsection.3.4.1}
+\contentsline {section}{\numberline {3.4}Optimizaci\'on Paralela para Multiprocesamiento}{39}{section.3.4}
+\contentsline {subsection}{\numberline {3.4.1}An\'alisis de la subrutina Estela}{39}{subsection.3.4.1}
 \contentsline {subsection}{\numberline {3.4.2}Optimizaci\'on con OpenMP de subrutina Estela}{42}{subsection.3.4.2}
 \contentsline {chapter}{\numberline {4}Pruebas de ejecuci\'on}{47}{chapter.4}
 \contentsline {section}{\numberline {4.1}Introducci\'on}{47}{section.4.1}
@@ -68,7 +68,7 @@
 \contentsline {subsection}{\numberline {4.4.1}Perfilado de aplicaci\'on con tama\~no 80x80}{55}{subsection.4.4.1}
 \contentsline {subsection}{\numberline {4.4.2}Versi\'on serial}{55}{subsection.4.4.2}
 \contentsline {subsection}{\numberline {4.4.3}Versi\'on Optimizada Serialmente}{56}{subsection.4.4.3}
-\contentsline {subsection}{\numberline {4.4.4}Versi\'on con optimizaci\'on paralela}{57}{subsection.4.4.4}
+\contentsline {subsection}{\numberline {4.4.4}Versi\'on con optimizaci\'on paralela}{56}{subsection.4.4.4}
 \contentsline {section}{\numberline {4.5}Conclusi\'on}{57}{section.4.5}
 \contentsline {chapter}{\numberline {5}Conclusiones y Trabajos Futuros}{59}{chapter.5}
 \contentsline {section}{\numberline {5.1}Conclusiones}{59}{section.5.1}
