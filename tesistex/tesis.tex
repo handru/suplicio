@@ -6,16 +6,32 @@
 %\usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{natbib}
+\usepackage{verbatim}
 %
 \usepackage{enumerate}
+\usepackage{upgreek}
 %===== para figuras con código
 \usepackage{fancyvrb}
 %
 %===== para multiples lineas en tabla
 \usepackage{multirow}
 \usepackage{hhline}
-%===== para utilizar subfiguras
+%===== para utilizar figures y subfiguras
+\usepackage{caption}
 \usepackage{subcaption}
+%%
+%%====== Para varias lineas en caption de figuras ====
+\usepackage{varwidth}
+\DeclareCaptionFormat{myformat}{%
+  % #1: label (e.g. "Table 1")
+  % #2: separator (e.g. ": ")
+  % #3: caption text
+  \begin{varwidth}{\linewidth}%
+    \centering
+    #1#2#3%
+  \end{varwidth}%
+}
+
 %=================================
 %lstlisting para bloques de codigo
 %
@@ -80,6 +96,9 @@ xleftmargin=.1\textwidth,
 \renewcommand{\tablename}{Tabla}
 \renewcommand{\listtablename}{Índice de tablas}
 
+%%Para centrar en captions
+\captionsetup{format=myformat}
+
 %Empieza la numeración en números romanos
 \frontmatter
 % Incluimos la carátula
@@ -95,7 +114,7 @@ xleftmargin=.1\textwidth,
 
 % Incluimos la página de agradecimientos. Esta página es opcional.
 % Si la página no quiere ser incluida anteponga el símbolo "%" al comienzo de la siguiente línea
-\input{agradecimiento}
+%\input{agradecimiento}
 
 % Incluimos la página de resumen
 \input{resumen}
@@ -119,14 +138,16 @@ xleftmargin=.1\textwidth,
 \input{cap3}
 \input{cap4}
 \input{cap5}
+
+\vfill
+\pagebreak
+\bibliography{biblio1}
+\bibliographystyle{alpha}
+
 \vfill
 \pagebreak
 \appendix
 \renewcommand{\appendixname}{Anexo}
 \input{anexo1}
-\vfill
-\pagebreak
-\bibliography{biblio1}
-\bibliographystyle{alpha}
 
 \end{document}

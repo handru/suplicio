@@ -54,22 +54,6 @@ Una nota sobre la arquitectura del procesador de PC2. En este caso el procesador
 \section{Mediciones}
 Para las mediciones de tiempo se utilizó el comando \emph{time}\footnote{Para una referencia del comando en GNU/Linux ver su manual: ``man 1 time''.} de manera de poder evaluar el tiempo real consumido por la aplicación en las diferentes etapas del trabajo de tesis: programa original, optimizado serialmente, optimizado paralelamente. Mostraremos los tiempos en los equipos seleccionados para las pruebas y las mejoras en desempeño que obtuvimos en el programa en cada iteración de la optimización. Para ambos equipos se realizaron mediciones del tamaño de problema de 50x50, y para el tamaño de problema de 80x80 se utilizó el equipo PC2. Realizamos pruebas con ambos tamaños de datos para poder determinar la escalabilidad de la solución aplicada, además de poder verificar como impacta en el equipo el cambio de tamaño del problema.
 
-Para el tamaño de problema de 80x80 paneles, como se indicó en el capítulo 3, el archivo con los datos de entrada para la ejecución de la aplicación, \emph{entvis2f.in}, posee una única modificación con respecto al mismo archivo para el tamaño de problema de 50x50, se define $nr = 80$ y $no = 80$. 
-
-Luego mediante el análisis de las diferencias entre los códigos de la versión de tamaño 50x50 contra la de 80x80, observamos que el código en los bloques ``common'' de Fortran indica lo siguiente:
-
-\noindent Para el caso 50x50
-\begin{lstlisting}[style=For, numbers=none]
-   parameter (maxir=51,maxio=51,...
-\end{lstlisting}
-Para el caso 80x80
-\begin{lstlisting}[style=For, numbers=none]
-   parameter (maxir=81,maxio=81,...
-\end{lstlisting}
-Como indicamos en el capítulo 3, \emph{maxir} y \emph{maxio} son lo mismo que nr+1 o no+1, lo cual sería una manera más simple de definirlo. Debido a que la definición de estos valores está fija, literalmente, en cada bloque common de todo el código, es que para las optimizaciones, serial y paralela, de la aplicación con tamaño de problema 80x80, se debe cambiar en todo el código cada una de las definiciones de \emph{maxir} y \emph{maxio}.
-
-Luego de adaptado esto se puede compilar cada versión de la aplicación para el tamaño de problema de 80x80 de la misma manera que la versión de tamaño 50x50.
-
 También se incluyen muestras del estado de los archivos en disco luego de la ejecución del programa, el estado de la memoria y la CPU en plena ejecución del programa, para mostrar los resultados de las optimizaciones realizadas.
 
 \subsection{Estado inicial y primeras mediciones}
@@ -84,28 +68,9 @@ Para poder lanzar el ejecutable y poder verificar el tiempo lo realizamos con el
 \begin{lstlisting}[style=consola, numbers=none]
    $ time ./serial
 \end{lstlisting}
+En la Fig. \ref{figTSerial} se puede observar el tiempo resultante calculado por el comando \emph{time}, donde se obtiene un tiempo total de ejecución (linea ``real'') en PC1 de 21 min. 48 seg. y en PC2 de 22 min. 56 seg. 
 
-\subsubsection{Tiempos}
-En la Fig. \ref{figTSerial} se puede observar el tiempo resultante calculado por el comando \emph{time}, donde se obtiene un tiempo total de ejecución (linea ``real'') para el tamaño 50x50 en PC1 de 21 min. 48 seg. y en PC2 de 22 min. 56 seg. 
-
-Para la versión de tamaño 80x80 podemos observar también en la Fig. \ref{figTSerial} que la ejecución en el equipo PC2 indica un tiempo de ejecución de 225 min. 43 seg., es decir 3 hs. 45 min. 43 seg. El tamaño del problema se incrementa de 2500 paneles a 6400 paneles, un incremento de factor 2.56 veces, pero el tiempo se hace exponencial, en un factor de 9.78.
-
-%\begin{figure}[htb]
-% \centering
-%	\begin{lstlisting}[style=consola1, numbers=none]
-%   real    225m43.721s
-%    user    174m29.803s
-%    sys     3m11.953s
-%    live@PC1 $ 
-%	\end{lstlisting}
-%\caption{Tiempo de la versión original con tamaño 80x80.}
-%\label{figTS80}
-%\end{figure}
-
-Podemos observar que con un cambio en la arquitectura del procesador (PC1 con 4 núcleos reales, PC2 con 2 núcleos y 2 hilos de control por núcleo) se incurre en una demora de 1m8s. Se tomó otra muestra con el equipo PC2 y se obtuvo un resultado similar, 23 min. 1 seg. por lo que podríamos indicar que la diferencia persiste y se mantiene dentro de un margen de tiempo. Esta diferencia observada se debe posiblemente a la mayor velocidad del procesador en PC1 o al mayor gasto (\emph{overhead}) de tiempo en la administración y comunicación de los hilos por la arquitectura SMT de PC2. También sería de interés investigar el uso de la jerarquía de memoria, especialmente de las caches, en ambos procesadores.
-
-Como el programa es serial, siempre utilizó en su ejecución el mismo núcleo o hilo de ejecución. En la Fig. \ref{figTopS} podemos observar una captura del comando \emph{top} en PC1, donde se puede ver la aplicación original en ejecución sobre la CPU2.
-
+Podemos observar que con un cambio en la arquitectura del procesador (PC1 con 4 núcleos reales, PC2 con 2 núcleos y 2 hilos de control por núcleo) se incurre en una demora de 1m8s. Se tomó otra muestra con el equipo PC2 y se obtuvo un resultado similar, 23m1.628s por lo que podríamos indicar que la diferencia persiste y se mantiene dentro de ciertos parámetros. Esta diferencia observada se debe posiblemente a la mayor velocidad del procesador en PC1. Sería de interés investigar el uso de la jerarquía de memoria, especialmente de las caches, en ambos procesadores.
 \begin{figure}[t!]
  \centering
     \begin{subfigure}[t]{0.4\linewidth}
@@ -132,33 +97,20 @@ Como el programa es serial, siempre utilizó en su ejecución el mismo núcleo o hi
     \begin{subfigure}[t]{0.4\linewidth}
     \centering
 		\begin{lstlisting}[style=consola, numbers=none]
-    real    225m43.721s
-    user    174m29.803s
-    sys     3m11.953s
-    live@PC2 $ 
+    real    21m48.109s 
+    user    19m3.067s
+    sys     0m29.685s
+    live@PC1 $ 
 		\end{lstlisting}
-	\caption{Equipo PC2 - Tamaño 80x80}
+	\caption{Equipo PC1}
 	\end{subfigure}%
-\caption{Tiempos de la versión serial original.}
+\caption{Tiempo de la versión serial original.}
 \label{figTSerial}
 \end{figure}
 
-\begin{figure}[htb]%[htp]
-  \centering
-  \includegraphics[width=0.80\textwidth]{figuras/clon-top-serial.png} \\
-  \caption{Comando \emph{top}: Aplicación original en subrutina \emph{estela}.} 
-   \label{figTopS}
-\end{figure}
-
-\subsubsection{Archivos en disco}
-La ejecución genera para ambos tamaños de problema (50x50 y 80x80 paneles) todos los archivos utilizados para cálculos intermedios y resultados finales así como los temporales con los que el programa trabaja. 
-
-La ejecución serial del programa original generó la misma cantidad de archivos, 58 archivos (Fig. \ref{figListS}) entre los ``.txt'', ``.plt'', ``.out'' y los ``.tmp'', esto es así por el determinismo del programa. No contamos el archivo ejecutable ni el de datos de ingreso ``entvis2f.in''. 
-
-El tamaño en disco ocupado si difiere entre los tamaños de problema. Como podemos observar en la Fig. \ref{figListS}, para el tamaño de 50x50, tanto en PC1 como en PC2 el tamaño de los archivos fue de 684 Mb, donde el mayor tamaño era ocupado por los ocho archivos ``.tmp'', de los cuales siete ocupan 96 Mb cada uno para un total de 672 Mb. 
-
-Para el tamaño de 80x80 el espacio en disco utilizado fue de 4415Mb o 4.3GB, siendo los archivos ``.tmp'' los que ocupaban 4375MB, siete de los ocho archivos pesando 625MB cada uno.
-
+La ejecución genera todos los archivos utilizados para cálculos intermedios y resultados finales así como los temporales con los que el programa trabaja. 
+La ejecución serial del programa original generó en ambos equipos la misma cantidad de archivos, 58 archivos (Fig. \ref{figListS}) entre los ``.txt'', ``.plt'', ``.out'' y los ``.tmp'', esto es así por el determinismo del programa. No contamos el archivo ejecutable ni el de datos de ingreso ``entvis2f.in''. 
+El tamaño en disco ocupado tanto en PC1 como en PC2 por los archivos fue de 684 Mb (Fig. \ref{figListS}), donde el mayor tamaño era ocupado por los ocho archivos ``.tmp'', de los cuales siete ocupan 96 Mb cada uno para un total de 672 Mb. 
 \begin{figure}[htb]%[htp]
 \centering
   \begin{subfigure}[t]{1\linewidth}
@@ -171,21 +123,17 @@ Para el tamaño de 80x80 el espacio en disco utilizado fue de 4415Mb o 4.3GB, sie
   \includegraphics[width=0.80\textwidth]{figuras/dell-serial-arch-du.png} \\
   \caption{PC2}
   \end{subfigure}
-\caption{Original: Lista de archivos y tamaño del directorio por equipo. Tamaño 50x50.} 
+\caption{Original: Lista de archivos y tamaño del directorio por equipo.} 
 \label{figListS}
 \end{figure}
 
-\subsubsection{Memoria RAM}
-La cantidad de memoria consumida por la aplicación para el tamaño de problema de 50x50 al iniciar en cada equipo es de 217 MB en PC1 y lo mismo en PC2. Cuando durante la ejecución la aplicación ingresa en la subrutina \emph{solgauss} la memoria se incrementa a 255 MB. Y al salir de esta subrutina la memoria baja a 217 MB nuevamente. La salida por pantalla de la aplicación nos permite saber en que subrutina se encuentra, por ello en tiempo de ejecución podemos determinar el estado de la memoria para el proceso. Justamente la rutina \emph{solgauss} representa el máximo en la cantidad de memoria consumida por la aplicación.
-
-Para el tamaño 80x80, los datos observados muestran que en memoria RAM la aplicación llega a ocupar 1293 Mb o 1.26 GB fuera de la subrutina \emph{solgauss} y 1581 Mb dentro de la subrutina.
-
-Estos datos se obtienen del comando \emph{pmap}\footnote{Para una referencia del comando en GNU/Linux ver su manual: ``man pmap''.} aplicado sobre el proceso en ejecución, por ejemplo si la aplicación tiene PID 2228:
+La cantidad de memoria consumida por el programa al iniciar en cada equipo es de 217 MB en PC1 y lo mismo en PC2. Cuando durante la ejecución la aplicación ingresa en la subrutina solgauss la memoria se incrementa a 255 MB. Y al salir de esta subrutina la memoria baja a 217 MB. Esto nuevamente en ambos equipos. La salida por pantalla de la aplicación nos permite saber en que subrutina se encuentra, por ello en tiempo de ejecución podemos determinar estos estados de la memoria. Justamente la rutina solgauss representa un pico en la cantidad de memoria consumida por la aplicación.
+Estos datos se obtienen del comando \emph{pmap}\footnote{Para una referencia del comando en GNU/Linux ver su manual: ``man 1 pmap''.} aplicado sobre el proceso en ejecución, por ejemplo si la aplicación tiene PID 2228:
 \begin{lstlisting}[style=consola, numbers=none]
    $ pmap -x 2228
 \end{lstlisting}
 
-\emph{Pmap} reporta información del mapa de memoria de un proceso, dando en su última línea un total en Kbytes de la memoria utilizada, importándonos la primer columna donde indica el total de memoria utilizada por el proceso. Por ejemplo en la Fig. \ref{figPmap} vemos el resultado para cada equipo mientras se ejecutaba la aplicación original para el tamaño de problema de 50x50. El comando ``top'' también permite observar el mismo valor que indica ``pmap'' en su columna VIRT.
+\emph{Pmap} reporta información del mapa de memoria de un proceso, dando en su última línea un total en Kbytes de la memoria utilizada (Fig. \ref{figPmap}), importándonos la primer columna donde indica el total de memoria utilizada por el proceso. Por ejemplo en la Fig. \ref{figPmap} vemos el resultado para cada equipo mientras se ejecutaba la aplicación original. El comando ``top'' también permite observar el mismo valor que indica ``pmap'' en su columna VIRT.
 
 \begin{figure}[htb]
     \begin{subfigure}[t]{0.5\linewidth}
@@ -211,44 +159,34 @@ total kB      222472  209160  206240
 \label{figPmap}
 \end{figure}
 
-En la tabla \ref{tab:tabDataSerial} se muestran los datos recopilados hasta el momento en el trabajo de tesis, todos de la aplicación serial original. Las dos subsecciones siguientes mostrarán como evolucionó con la optimización, tomando como base para comparación los tiempos y tamaños obtenidos en esta primer etapa. 
+Por último la CPU utilizada siempre fue una sola de las disponibles, ya que el programa es serial. Como ejemplo vemos en la Fig. \ref{figTopS} una captura del comando \emph{top} de PC1 durante la ejecución de la aplicación original.
 
-\begin{table}[]
-\caption{My caption}
-\label{my-label}
-\begin{tabular}{|l|l|l|l|l|}
-\hline
-\multicolumn{2}{|l|}{} & \multicolumn{2}{l|}{} &  \\ \hline
-\multicolumn{2}{|l|}{} &           &           &  \\ \hline
-           &           &           &           &  \\ \hline
-           &           &           &           &  \\ \hline
-           &           &           &           &  \\ \hline
-           &           &           &           &  \\ \hline
-           &           &           &           &  \\ \hline
-\end{tabular}
-\end{table}
+\begin{figure}[htb]%[htp]
+  \centering
+  \includegraphics[width=0.80\textwidth]{figuras/clon-top-serial.png} \\
+  \caption{Comando \emph{top}: Aplicación original en subrutina ``estela''.} 
+   \label{figTopS}
+\end{figure}
+
+Los datos vistos hasta el momento en el trabajo de tesis (Tabla \ref{tab:tabDataSerial}), son de la ejecución del programa original, las dos subsecciones siguientes mostrarán como evolucionó con la optimización, teniendo como base los tiempos y tamaños obtenidos en esta primer etapa. 
 
 \begin{table}[htb]
 \begin{center}
-\begin{tabular}{|l|l|c|c|c|} 
-\hline
-\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Tamaños de problema} & \multicolumn{2}{c|}{tamaño 50x50} & tamaño 80x80 \\ 
+\begin{tabular}{|l|c|c|}
+\hline 
+\rule[-1ex]{0pt}{2.5ex}  & PC1 & PC2 \\ 
 \hline 
 \hline
-%\rule[-1ex]{0pt}{2.5ex} 
-\multicolumn{2}{|l|}{Equipos} & PC1 & PC2 & PC2 \\ 
-\hline 
-%\rule[-1ex]{0pt}{2.5ex} \multicolumn{2}{l}{Archivos generados} & 58 & 58 & \\
-\rule[-1ex]{0pt}{2.5ex} Archivos generados & & 58 & 58 & \\
+\rule[-1ex]{0pt}{2.5ex} Archivos generados & 58 & 58 \\
 \hline
-\rule[-1ex]{0pt}{2.5ex} Esp. en disco utilizado &  &  & 684Mb & 684Mb \\
+\rule[-1ex]{0pt}{2.5ex} Esp. en disco utilizado & 684Mb & 684Mb \\
 \hline
-\rule[-1ex]{0pt}{2.5ex} \multirow{2}{1cm}{Memoria} & Ejecución en \emph{solgauss} & 255Mb & 255Mb & \\ \cline{2-5}
-& Resto de la ejecución & 217Mb & 217Mb & \\ \cline{2-5}
+\rule[-1ex]{0pt}{2.5ex} \multirow{2}{1cm}{Memoria} & Ejecución en \emph{solgauss}: 255Mb & 255Mb \\ \cline{2-3}
+& Resto de la ejecución: 217Mb & 217Mb \\ \cline{2-3}
 \hline
-\rule[-1ex]{0pt}{2.5ex} CPUs utilizadas & & 1 & 1 & \\
+\rule[-1ex]{0pt}{2.5ex} CPUs utilizadas & 1 & 1 \\
 \hline
-\rule[-1ex]{0pt}{2.5ex} Tiempo total de ejecución & & 21m48s & 22m56s & \\
+\rule[-1ex]{0pt}{2.5ex} Tiempo total de ejecución & 21m48s & 22m56s \\
 \hline
 \end{tabular} 
 \caption {Datos de ejecución de la aplicación original en ambos equipos.}
@@ -317,7 +255,7 @@ El tamaño ocupado por los archivos del programa ahora fue de 17 Mb tanto en PC1 
 \label{figListI}
 \end{figure}
 
-Observando la memoria en esta versión del programa obtenemos que consume 552 Mb mientras está en \emph{solgauss} y 504MB el resto del tiempo, tanto en PC1 como PC2 (Fig. \ref{figPmapI}). Esto significa un incremento en la cantidad de memoria utilizada, en esta versión optimizada serialmente con respecto a la versión serial original, de 297MB cuando el programa está en la subrutina \emph{solgauss} y de 287MB antes o después de dicha subrutina. Este incremento se debe a los archivos ``.tmp'' que ya no utiliza mas en disco y debe llevar en memoria como internal files. 
+Observando la memoria en esta versión del programa obtenemos que consume 552 Mb mientras está en solgauss y 504MB el resto del tiempo, tanto en PC1 como PC2 (Fig. \ref{figPmapI}). Esto significa un incremento en la cantidad de memoria utilizada, en esta versión optimizada serialmente con respecto a la versión serial original, de 297MB cuando el programa está en la subrutina solgauss y de 287MB antes o después de dicha subrutina. Este incremento se debe a los archivos ``.tmp'' que ya no utiliza mas en disco y debe llevar en memoria como internal files. 
 
 \begin{figure}[htb]
     \begin{subfigure}[t]{0.5\linewidth}
@@ -339,7 +277,7 @@ total kB      516524  504308  501332
 	\end{lstlisting}
 	\caption{Equipo PC2}
 	\end{subfigure}
-\caption{Comando \emph{pmap} con la aplicación optimizada serialmente (fuera de \emph{solgauss}).}
+\caption{Comando \emph{pmap} con la aplicación optimizada serialmente (fuera de ``solgauss'').}
 \label{figPmapI}
 \end{figure}
 
@@ -367,12 +305,12 @@ total kB      516524  504308  501332
 \end{center}
 \end{table}
 
-Nuevamente en el caso de la CPU podemos observar que un solo procesador es el encargado de realizar la tarea ya que aún no se optimiza paralelamente. En la Fig. \ref{figTopI} podemos observar como ejemplo, la ejecución de la aplicación optimizada serialmente en PC1, en el momento que está dentro de la subrutina \emph{estela}.
+Nuevamente en el caso de la CPU podemos observar que un solo procesador es el encargado de realizar la tarea ya que aún no se optimiza paralelamente. En la Fig. \ref{figTopI} podemos observar como ejemplo, la ejecución de la aplicación optimizada serialmente en PC1, en el momento que está dentro de la subrutina estela.
 
 \begin{figure}[htb]%[htp]
   \centering
-  \includegraphics[width=0.80\textwidth]{figuras/clon-top-ifiles.png} \\
-  \caption{Comando \emph{top}: Aplicación opt. serialmente en subrutina \emph{estela}.} 
+  \includegraphics[width=0.80\textwidth]{figuras/clon-top-omp.png} \\
+  \caption{Comando \emph{top}: Aplicación opt. serialmente en subrutina ``estela''.} 
    \label{figTopI}
 \end{figure}
 
@@ -428,13 +366,13 @@ Se podría investigar la incidencia de los 4 núcleos reales del procesador AMD en
 \label{figTOmp}
 \end{figure}
 
-En el consumo de CPU esta vez podemos observar diferencia entre los programas seriales y uno paralelizado. Se han activado todos los núcleos disponibles en el equipo al momento de entrar en la zona de la subrutina \emph{estela} (Fig. \ref{figTopO}), ya sean núcleos reales (PC1) o virtuales (PC2). 
+En el consumo de CPU esta vez podemos observar diferencia entre los programas seriales y uno paralelizado. Se han activado todos los núcleos disponibles en el equipo al momento de entrar en la zona de la subrutina estela (Fig. \ref{figTopO}), ya sean núcleos reales (PC1) o virtuales (PC2). 
 Como ya indicamos, la activación de los núcleos no fue administrada de manera directa con directivas OpenMP por lo cual todos los núcleos disponibles fueron utilizados, pero como se indicaba en el capitulo 2, hay más directivas que pueden ser estudiadas de OpenMP que podrían ser utilizadas para disminuir o incrementar la cantidad de hilos generados en una región paralela y estudiar el impacto y la utilización de los recursos en el multiprocesador.
 
 \begin{figure}[htb]%[htp]
   \centering
-  \includegraphics[width=0.80\textwidth]{figuras/clon-top-omp.png} \\
-  \caption{Comando \emph{top}: Aplicación optimizada con OpenMP en subrutina \emph{estela}.} 
+  \includegraphics[width=0.80\textwidth]{figuras/clon-top-ifiles.png} \\
+  \caption{Comando \emph{top}: Aplicación optimizada con OpenMP en subrutina ``estela''.} 
    \label{figTopO}
 \end{figure}
 
@@ -460,11 +398,11 @@ total kB      480144  455828  452576
 	\end{lstlisting}
 	\caption{Equipo PC2}
 	\end{subfigure}
-\caption{Comando \emph{pmap} sobre aplicación optimizada con OpenMP (fuera de \emph{solgauss}).}
+\caption{Comando \emph{pmap} sobre aplicación optimizada con OpenMP (fuera de ``solgauss'').}
 \label{figPmapO}
 \end{figure}
 
-Observando la memoria el programa consume 516MB de RAM durante la subrutina \emph{solgauss} y 468MB en el resto de su ejecución en ambos equipos (Fig. \ref{figPmapO}). Con respecto al original esto indica un incremento de 261MB de memoria mientras está en \emph{solgauss} y 251MB en el resto de la ejecución. Al comparar con la aplicación optimizada serialmente se observó que el consumo de memoria es menor en la versión con OpenMP. Ocupa 36MB menos durante la ejecución, tanto si se ejecuta en \emph{solgauss} como en el resto del tiempo. 
+Observando la memoria el programa consume 516MB de RAM durante la subrutina solgauss y 468MB en el resto de su ejecución en ambos equipos (Fig. \ref{figPmapO}). Con respecto al original esto indica un incremento de 261MB de memoria mientras está en solgauss y 251MB en el resto de la ejecución. Al comparar con la aplicación optimizada serialmente se observó que el consumo de memoria es menor en la versión con OpenMP. Ocupa 36MB menos durante la ejecución, tanto si se ejecuta en solgauss como en el resto del tiempo. 
 Podría investigarse esta diferencias en la memoria en la optimización que realiza el compilador en el código para utilizar las directivas de OpenMP. 
 
 Finalmente podemos ver en la Fig. \ref{figDataTotal} los datos resumidos de las tres versiones de la aplicación.
@@ -476,16 +414,10 @@ Finalmente podemos ver en la Fig. \ref{figDataTotal} los datos resumidos de las 
    \label{figDataTotal}
 \end{figure}
 
-%%%%% hasta aca...
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{comment}
 \section{Pruebas con 80x80 paneles}
 Para determinar la escalabilidad de la solución aplicada y cómo impacta en un equipo el cambio del tamaño de los datos para el cálculo, se realizaron en PC2 testeos con el segundo tamaño de prueba provisto por el autor/usuario de la aplicación, 80x80 paneles.
 Solo tenemos los resultados de salida de la ejecución del original utilizado por el usuario y se utilizaron para verificar los resultados de salida de las versiones utilizadas para la prueba, arrojando que todas dan una salida correcta de los datos.
-Como se indicó en el capítulo 3, el archivo con los datos de entrada para la ejecución de la aplicación, \emph{entvis2f.in}, posee una única modificación con respecto al mismo archivo para el tamaño de problema de 50x50, se define nr = 80 y no = 80. Luego mediante el análisis de las diferencias entre los códigos de la versión de tamaño 50x50 contra la de 80x80, observamos que el código en los bloques ``common'' de Fortran indica lo siguiente:
+Como indicamos en el capítulo 3, el archivo con los datos de entrada para la ejecución de la aplicación (entvis2f.in) posee una única modificación con respecto al de 50x50 y que es  nr = no = 80. Luego mediante el análisis de las diferencias entre los códigos de la versión de tamaño 50x50 contra la de 80x80, observamos que el código en los bloques ``common'' de Fortran indica lo siguiente:
 
 \noindent Para el caso 50x50
 \begin{lstlisting}[style=For, numbers=none]
@@ -495,12 +427,12 @@ Para el caso 80x80
 \begin{lstlisting}[style=For, numbers=none]
    parameter (maxir=81,maxio=81,...
 \end{lstlisting}
-Como indicamos en el capítulo 3, \emph{maxir} y \emph{maxio} son lo mismo que nr+1 o no+1, lo cual sería una manera más simple de definirlo. Debido a que la definición de estos valores está fija, literalmente, en cada bloque common de todo el código, es que para las optimizaciones, serial y paralela, de la aplicación con tamaño de problema 80x80, se debe cambiar en todo el código cada una de las definiciones de \emph{maxir} y \emph{maxio}.
+Como indicamos en el capítulo 3, maxir y maxio son lo mismo que nr+1 o no+1, lo cual sería una manera más simple de definirlo. Debido a que la definición de estos valores está fija, literalmente, en cada bloque common de todo el código, es que para las optimizaciones, serial y paralela, de la aplicación con tamaño de problema 80x80, se debe cambiar en todo el código cada una de las definiciones de maxir y maxio.
 Luego de adaptado esto procedimos a las pruebas en el mismo orden que antes, versión original, versión optimizada serialmente, versión optimizada con OpenMP.
 
 \subsection{Perfilado de aplicación con tamaño 80x80}
 Previo a correr las pruebas de tiempo en el equipo PC2 realizamos un nuevo análisis de perfilado con la herramienta gprof sobre la aplicación adaptada a un tamaño distinto de problema, ya que esto puede afectar el comportamiento de las subrutinas.
-Luego de compilar la aplicación con la opción ``-pg'' activada, la ejecutamos y obtenemos el archivo gmon.out de salida. Con esto podemos generar la información del perfilado, el cual indica que la subrutina \emph{estela} es la que más porcentaje del tiempo se ejecuta seguida de \emph{solgauss}, pero esta vez los porcentajes cambian completamente. La subrutina \emph{estela} se ejecuta 46,42\% del tiempo mientras que \emph{solgauss} ahora ocupa un 43,09\% (Fig. \ref{figGprof4}), esto es mucho más que el 14,36\% en PC1 o el 16,84\% en PC2 obtenido por \emph{solgauss} para la versión de 50x50.
+Luego de compilar la aplicación con la opción ``-pg'' activada, la ejecutamos y obtenemos el archivo gmon.out de salida. Con esto podemos generar la información del perfilado, el cual indica que la subrutina estela es la que más porcentaje del tiempo se ejecuta seguida de solgauss, pero esta vez los porcentajes cambian completamente. Estela se ejecuta 46,42\% del tiempo mientras que solgauss ahora ocupa un 43,09\% (Fig. \ref{figGprof4}), esto es mucho más que el 14,36\% en PC1 o el 16,84\% en PC2 obtenido por solgauss para la versión de 50x50.
 \begin{figure}[htb]%[htp]
   \centering
   \includegraphics[width=0.60\textwidth]{figuras/gprof4.png} \\
@@ -525,7 +457,7 @@ La ejecución en el equipo PC2 arrojó un tiempo de ejecución de 225m43.721s, es d
 \label{figTS80}
 \end{figure}
 
-El espacio en disco utilizado fue de 4415MB o 4.3GB, siendo los archivos ``.tmp'' los que ocupaban 4375MB, siete de los ocho archivos pesando 625MB cada uno. En memoria RAM observamos que la aplicación llega a ocupar 1293MB o 1.26GB fuera de la subrutina \emph{solgauss} y 1581Mb dentro de la subrutina.
+El espacio en disco utilizado fue de 4415MB o 4.3GB, siendo los archivos ``.tmp'' los que ocupaban 4375MB, siete de los ocho archivos pesando 625MB cada uno. En memoria RAM observamos que la aplicación llega a ocupar 1293MB o 1.26GB fuera de la subrutina ``solgauss'' y 1581Mb dentro de la subrutina.
 
 \subsection{Versión Optimizada Serialmente}
 Los tiempos observados en la versión optimizada del código serial son de 150m45.602s, es decir 2h30m45s (Fig. \ref{figTI80}). El factor de incremento esta vez es de 8.83 con respecto a la aplicación equivalente en el problema de menor tamaño. Por esto se observa una ganancia de tiempo con respecto a la aplicación serial de 75m aproximadamente, o un factor de 1.5, el cual es mejor que ante el problema de menor tamaño. Esto puede ser adjudicado a la mayor cantidad de datos en disco que utiliza la aplicación con este tamaño de problema, en comparación al tamaño 50x50, que ahora son accedidos en memoria. 
@@ -544,10 +476,10 @@ Los tiempos observados en la versión optimizada del código serial son de 150m45.
 
 En disco se ve claramente el impacto de no utilizar los archivos ``.tmp'' al ocupar solo 40MB.
 
-El incremento, como en la versión de menor tamaño, se ve en la memoria. Observamos que en ejecución la aplicación utiliza mientras está en \emph{solgauss} 3483MB (3.4GB) y 3171 (3.09GB) en el resto de la ejecución. El equipo cuenta con 6GB de memoria RAM por lo que no fue necesario que realizara intercambio hacia disco (swapping), lo que hubiera impactado en los tiempos.    
+El incremento, como en la versión de menor tamaño, se ve en la memoria. Observamos que en ejecución la aplicación utiliza mientras está en solgauss 3483MB (3.4GB) y 3171 (3.09GB) en el resto de la ejecución. El equipo cuenta con 6GB de memoria RAM por lo que no fue necesario que realizara intercambio hacia disco (swapping), lo que hubiera impactado en los tiempos.    
 
 \subsection{Versión con optimización paralela}
-Los tiempos obtenidos en la versión con OpenMP son de 130m39.169s (Fig. \ref{figTOmp80}) o 2h10m39s. Se puede observar en las versiones optimizadas, principalmente por el perfilado con gprof ya mencionado y también siguiendo la salida que da el programa por pantalla, que la demora ahora se ubica en la subrutina \emph{solgauss}. 
+Los tiempos obtenidos en la versión con OpenMP son de 130m39.169s (Fig. \ref{figTOmp80}) o 2h10m39s. Se puede observar en las versiones optimizadas, principalmente por el perfilado con gprof ya mencionado y también siguiendo la salida que da el programa por pantalla, que la demora ahora se ubica en la subrutina solgauss. 
 
 \begin{figure}[htb]
  \centering
@@ -563,10 +495,10 @@ Los tiempos obtenidos en la versión con OpenMP son de 130m39.169s (Fig. \ref{fig
 
 El tiempo obtenido nos da una mejora que no es igual a la observada en la versión de 50x50, esta vez representa solo una mejora en un factor de 1.73 sobre la aplicación original.
 
-Si analizamos el tiempo teniendo en cuenta el resultado de gprof para este tamaño de problema (Fig. \ref{figGprof4}) y para gprof para el tamaño menor (Fig. \ref{figGprof1} y \ref{figGprof2}) podemos ver que la paralelización impacta sobre un 30\% menos de tiempo, limitando la mejora obtenida al incrementar el tamaño del problema. Esto ocurre porque sólo se paraleliza la subrutina \emph{estela}, siendo que la subrutina \emph{solgauss} ahora consume ese 30\% de tiempo. La paralelización de \emph{solgauss} es un posible trabajo futuro.
+Si analizamos el tiempo teniendo en cuenta el resultado de gprof para este tamaño de problema (Fig. \ref{figGprof4}) y para gprof para el tamaño menor (Fig. \ref{figGprof1} y \ref{figGprof2}) podemos ver que la paralelización impacta sobre un 30\% menos de tiempo, limitando la mejora obtenida al incrementar el tamaño del problema. Esto ocurre porque sólo se paraleliza la subrutina ``estela'', siendo que la subrutina ``solgauss'' ahora consume ese 30\% de tiempo. La paralelización de ``solgauss'' es un posible trabajo futuro.
 
 El comportamiento en disco es exactamente el mismo que en la versión optimizada serialmente, con 40MB de archivos. 
-En memoria ocurre igual que en la aplicación con tamaño 50x50, ocupando menos que en la versión optimizada serialmente, 3184MB (3.1GB) mientras está en \emph{solgauss} y 2864MB (2.79GB) en el resto de la ejecución.
+En memoria ocurre igual que en la aplicación con tamaño 50x50, ocupando menos que en la versión optimizada serialmente, 3184MB (3.1GB) mientras está en solgauss y 2864MB (2.79GB) en el resto de la ejecución.
 
 El resumen de los datos totales obtenidos con el tamaño de problema de 80x80 pueden verse en la Fig. \ref{figDataTotal80}.
 
@@ -576,7 +508,7 @@ El resumen de los datos totales obtenidos con el tamaño de problema de 80x80 pue
   \caption{Resumen datos totales de ejecución 80x80.} 
    \label{figDataTotal80}
 \end{figure}
-\end{comment}
+
 \section{Conclusión}
 En este capítulo hemos presentado distintas pruebas de ejecución de la aplicación bajo estudio durante el proceso de su optimización, distinguiendo tres etapas: aplicación original, aplicación optimizada serialmente y aplicación optimizada paralelamente. 
 Además se utilizaron dos plataformas de hardware distintas para dar mayor amplitud a la prueba y poder observar el comportamiento de la aplicación con distinto hardware. 

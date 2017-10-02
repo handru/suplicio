@@ -2,77 +2,75 @@
 \contentsline {chapter}{\numberline {1}Introducci\'on}{1}{chapter.1}
 \contentsline {section}{\numberline {1.1}Sistemas legacy o heredados}{1}{section.1.1}
 \contentsline {section}{\numberline {1.2}Aplicaci\'on seleccionada}{1}{section.1.2}
-\contentsline {section}{\numberline {1.3}Propuesta de modernizaci\'on}{2}{section.1.3}
-\contentsline {section}{\numberline {1.4}Motivaci\'on de la tesis}{2}{section.1.4}
-\contentsline {section}{\numberline {1.5}Organizaci\'on de la Tesis}{2}{section.1.5}
-\contentsline {chapter}{\numberline {2}Antecedentes}{5}{chapter.2}
+\contentsline {section}{\numberline {1.3}Objetivos y Motivaci\'on}{2}{section.1.3}
+\contentsline {section}{\numberline {1.4}Marco de trabajo}{3}{section.1.4}
+\contentsline {section}{\numberline {1.5}Organizaci\'on de la Tesis}{4}{section.1.5}
+\contentsline {chapter}{\numberline {2}Analisis conceptual}{5}{chapter.2}
 \contentsline {section}{\numberline {2.1}Introducci\'on}{5}{section.2.1}
 \contentsline {section}{\numberline {2.2}Visi\'on general del procesamiento paralelo}{5}{section.2.2}
 \contentsline {subsection}{\numberline {2.2.1}Modelos Paralelos}{6}{subsection.2.2.1}
 \contentsline {subsubsection}{\numberline {2.2.1.1}Conceptos b\'asicos de hilos}{7}{subsubsection.2.2.1.1}
-\contentsline {subsubsection}{\numberline {2.2.1.2}Hilos POSIX}{8}{subsubsection.2.2.1.2}
+\contentsline {subsubsection}{\numberline {2.2.1.2}Hilos POSIX}{7}{subsubsection.2.2.1.2}
 \contentsline {subsubsection}{\numberline {2.2.1.3}Paralelismo basado en directivas del compilador}{8}{subsubsection.2.2.1.3}
-\contentsline {subsubsection}{\numberline {2.2.1.4}Paralelismo de memoria compartida}{9}{subsubsection.2.2.1.4}
-\contentsline {subsubsection}{\numberline {2.2.1.5}Pasaje de Mensajes}{9}{subsubsection.2.2.1.5}
-\contentsline {subsection}{\numberline {2.2.2}Infraestructuras de hardware para paralelismo}{9}{subsection.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1.4}Paralelismo de memoria compartida}{8}{subsubsection.2.2.1.4}
+\contentsline {subsubsection}{\numberline {2.2.1.5}Pasaje de Mensajes}{8}{subsubsection.2.2.1.5}
+\contentsline {subsection}{\numberline {2.2.2}Infraestructuras de hardware para paralelismo}{8}{subsection.2.2.2}
 \contentsline {subsubsection}{\numberline {2.2.2.1}Clusters}{9}{subsubsection.2.2.2.1}
-\contentsline {subsubsection}{\numberline {2.2.2.2}Multiprocesadores}{10}{subsubsection.2.2.2.2}
-\contentsline {section}{\numberline {2.3}C\'omputo de Altas Prestaciones}{10}{section.2.3}
-\contentsline {subsection}{\numberline {2.3.1}Ciencia e Ingenier\IeC {\'\i }a Computacional}{11}{subsection.2.3.1}
-\contentsline {section}{\numberline {2.4}Fortran}{12}{section.2.4}
-\contentsline {subsection}{\numberline {2.4.1}Evoluci\'on del lenguaje}{13}{subsection.2.4.1}
-\contentsline {section}{\numberline {2.5}OpenMP}{13}{section.2.5}
-\contentsline {subsection}{\numberline {2.5.1}La idea de OpenMP}{14}{subsection.2.5.1}
-\contentsline {subsection}{\numberline {2.5.2}Conjunto de construcciones paralelas}{15}{subsection.2.5.2}
-\contentsline {subsubsection}{\numberline {2.5.2.1}Crear equipos de Hilos}{15}{subsubsection.2.5.2.1}
-\contentsline {subsubsection}{\numberline {2.5.2.2}Compartir trabajo entre Hilos}{15}{subsubsection.2.5.2.2}
+\contentsline {subsubsection}{\numberline {2.2.2.2}Multiprocesadores}{9}{subsubsection.2.2.2.2}
+\contentsline {section}{\numberline {2.3}C\'omputo de Altas Prestaciones}{9}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Ciencia e Ingenier\IeC {\'\i }a Computacional}{10}{subsection.2.3.1}
+\contentsline {section}{\numberline {2.4}Fortran}{11}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}Evoluci\'on del lenguaje}{12}{subsection.2.4.1}
+\contentsline {section}{\numberline {2.5}OpenMP}{12}{section.2.5}
+\contentsline {subsection}{\numberline {2.5.1}La idea de OpenMP}{13}{subsection.2.5.1}
+\contentsline {subsection}{\numberline {2.5.2}Conjunto de construcciones paralelas}{14}{subsection.2.5.2}
+\contentsline {subsubsection}{\numberline {2.5.2.1}Crear equipos de Hilos}{14}{subsubsection.2.5.2.1}
+\contentsline {subsubsection}{\numberline {2.5.2.2}Compartir trabajo entre Hilos}{14}{subsubsection.2.5.2.2}
 \contentsline {subsubsection}{\numberline {2.5.2.3}Modelo de memoria de OpenMP}{15}{subsubsection.2.5.2.3}
-\contentsline {subsubsection}{\numberline {2.5.2.4}Sincronizaci\'on de Hilos}{16}{subsubsection.2.5.2.4}
-\contentsline {subsubsection}{\numberline {2.5.2.5}Otras caracter\IeC {\'\i }sticas}{16}{subsubsection.2.5.2.5}
-\contentsline {section}{\numberline {2.6}OpenMP en Fortran}{16}{section.2.6}
-\contentsline {subsection}{\numberline {2.6.1}Centinelas para directivas de OpenMP y compilaci\'on condicional}{16}{subsection.2.6.1}
-\contentsline {subsection}{\numberline {2.6.2}El constructor de regi\'on paralela}{17}{subsection.2.6.2}
-\contentsline {subsection}{\numberline {2.6.3}Directiva !\$OMP DO}{18}{subsection.2.6.3}
-\contentsline {subsection}{\numberline {2.6.4}Clausulas Atributo de Alcance de Datos}{19}{subsection.2.6.4}
-\contentsline {subsubsection}{\numberline {2.6.4.1}PRIVATE(lista)}{19}{subsubsection.2.6.4.1}
-\contentsline {subsubsection}{\numberline {2.6.4.2}SHARED(lista)}{20}{subsubsection.2.6.4.2}
-\contentsline {subsubsection}{\numberline {2.6.4.3}DEFAULT ( PRIVATE \textbar SHARED \textbar NONE )}{21}{subsubsection.2.6.4.3}
-\contentsline {subsubsection}{\numberline {2.6.4.4}FIRSTPRIVATE(lista)}{21}{subsubsection.2.6.4.4}
-\contentsline {subsection}{\numberline {2.6.5}Otras Construcciones y Cl\'ausulas}{22}{subsection.2.6.5}
-\contentsline {section}{\numberline {2.7}Proceso de optimizaci\'on}{22}{section.2.7}
+\contentsline {subsubsection}{\numberline {2.5.2.4}Sincronizaci\'on de Hilos}{15}{subsubsection.2.5.2.4}
+\contentsline {subsubsection}{\numberline {2.5.2.5}Otras caracter\IeC {\'\i }sticas}{15}{subsubsection.2.5.2.5}
+\contentsline {section}{\numberline {2.6}OpenMP en Fortran}{15}{section.2.6}
+\contentsline {subsection}{\numberline {2.6.1}Centinelas para directivas de OpenMP y compilaci\'on condicional}{15}{subsection.2.6.1}
+\contentsline {subsection}{\numberline {2.6.2}El constructor de regi\'on paralela}{16}{subsection.2.6.2}
+\contentsline {subsection}{\numberline {2.6.3}Directiva !\$OMP DO}{17}{subsection.2.6.3}
+\contentsline {subsection}{\numberline {2.6.4}Clausulas Atributo de Alcance de Datos}{18}{subsection.2.6.4}
+\contentsline {subsubsection}{\numberline {2.6.4.1}PRIVATE(lista)}{18}{subsubsection.2.6.4.1}
+\contentsline {subsubsection}{\numberline {2.6.4.2}SHARED(lista)}{19}{subsubsection.2.6.4.2}
+\contentsline {subsubsection}{\numberline {2.6.4.3}DEFAULT ( PRIVATE \textbar SHARED \textbar NONE )}{19}{subsubsection.2.6.4.3}
+\contentsline {subsubsection}{\numberline {2.6.4.4}FIRSTPRIVATE(lista)}{20}{subsubsection.2.6.4.4}
+\contentsline {subsection}{\numberline {2.6.5}Otras Construcciones y Cl\'ausulas}{21}{subsection.2.6.5}
+\contentsline {section}{\numberline {2.7}Proceso de optimizaci\'on}{21}{section.2.7}
 \contentsline {subsection}{\numberline {2.7.1}Optimizaci\'on Serial}{22}{subsection.2.7.1}
-\contentsline {subsubsection}{\numberline {2.7.1.1}Metodolog\IeC {\'\i }a de medici\'on}{23}{subsubsection.2.7.1.1}
-\contentsline {subsubsection}{\numberline {2.7.1.2}Herramientas de medici\'on}{25}{subsubsection.2.7.1.2}
+\contentsline {subsubsection}{\numberline {2.7.1.1}Metodolog\IeC {\'\i }a de medici\'on}{24}{subsubsection.2.7.1.1}
+\contentsline {subsubsection}{\numberline {2.7.1.2}Herramientas de medici\'on}{24}{subsubsection.2.7.1.2}
 \contentsline {subsubsection}{\numberline {2.7.1.3}Herramientas de medici\'on de tiempo}{25}{subsubsection.2.7.1.3}
-\contentsline {subsubsection}{\numberline {2.7.1.4}Herramientas de perfilado de programa}{26}{subsubsection.2.7.1.4}
+\contentsline {subsubsection}{\numberline {2.7.1.4}Herramientas de perfilado de programa}{25}{subsubsection.2.7.1.4}
 \contentsline {subsection}{\numberline {2.7.2}Optimizaci\'on Paralela}{26}{subsection.2.7.2}
-\contentsline {section}{\numberline {2.8}Caso de Estudio: Modelizaci\'on del Flujo Inv\IeC {\'\i }scido}{28}{section.2.8}
 \contentsline {chapter}{\numberline {3}Optimizaci\'on e implementaci\'on de multiprocesamiento}{29}{chapter.3}
 \contentsline {section}{\numberline {3.1}Introducci\'on}{29}{section.3.1}
 \contentsline {section}{\numberline {3.2}An\'alisis de la aplicaci\'on}{29}{section.3.2}
 \contentsline {subsection}{\numberline {3.2.1}An\'alisis de perfilado}{30}{subsection.3.2.1}
-\contentsline {section}{\numberline {3.3}Optimizaci\'on Serial del c\'odigo Fortran}{31}{section.3.3}
+\contentsline {subsection}{\numberline {3.2.2}Perfilado de aplicaci\'on para el problema de tama\~no de 80x80}{31}{subsection.3.2.2}
+\contentsline {section}{\numberline {3.3}Optimizaci\'on Serial del c\'odigo Fortran}{32}{section.3.3}
 \contentsline {subsection}{\numberline {3.3.1}An\'alisis del acceso a datos de la aplicaci\'on}{32}{subsection.3.3.1}
-\contentsline {subsection}{\numberline {3.3.2}Optimizaci\'on por adaptaci\'on de archivos externos a internos}{32}{subsection.3.3.2}
+\contentsline {subsection}{\numberline {3.3.2}Optimizaci\'on por adaptaci\'on de archivos externos a internos}{33}{subsection.3.3.2}
 \contentsline {section}{\numberline {3.4}Optimizaci\'on Paralela para Multiprocesamiento}{40}{section.3.4}
-\contentsline {subsection}{\numberline {3.4.1}An\'alisis de la subrutina Estela}{40}{subsection.3.4.1}
-\contentsline {subsection}{\numberline {3.4.2}Optimizaci\'on con OpenMP de subrutina Estela}{42}{subsection.3.4.2}
-\contentsline {chapter}{\numberline {4}Pruebas de ejecuci\'on}{47}{chapter.4}
+\contentsline {subsection}{\numberline {3.4.1}An\'alisis de la subrutina Estela}{41}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.4.2}Optimizaci\'on con OpenMP de subrutina Estela}{43}{subsection.3.4.2}
+\contentsline {chapter}{\numberline {4}Experimentaci\'on y An\'alisis de Resultados}{47}{chapter.4}
 \contentsline {section}{\numberline {4.1}Introducci\'on}{47}{section.4.1}
-\contentsline {section}{\numberline {4.2}Equipos/Computadoras/Arquitecturas de prueba}{47}{section.4.2}
-\contentsline {section}{\numberline {4.3}Pruebas de tiempo}{48}{section.4.3}
-\contentsline {subsection}{\numberline {4.3.1}Estado inicial y primeras mediciones}{48}{subsection.4.3.1}
-\contentsline {subsection}{\numberline {4.3.2}Optimizaci\'on serial y mediciones intermedias}{50}{subsection.4.3.2}
-\contentsline {subsection}{\numberline {4.3.3}Optimizaci\'on Paralela y mediciones finales}{52}{subsection.4.3.3}
-\contentsline {section}{\numberline {4.4}Pruebas con 80x80 paneles}{54}{section.4.4}
-\contentsline {subsection}{\numberline {4.4.1}Perfilado de aplicaci\'on con tama\~no 80x80}{55}{subsection.4.4.1}
-\contentsline {subsection}{\numberline {4.4.2}Versi\'on serial}{55}{subsection.4.4.2}
-\contentsline {subsection}{\numberline {4.4.3}Versi\'on Optimizada Serialmente}{56}{subsection.4.4.3}
-\contentsline {subsection}{\numberline {4.4.4}Versi\'on con optimizaci\'on paralela}{56}{subsection.4.4.4}
-\contentsline {section}{\numberline {4.5}Conclusi\'on}{57}{section.4.5}
-\contentsline {chapter}{\numberline {5}Conclusiones y Trabajos Futuros}{59}{chapter.5}
-\contentsline {section}{\numberline {5.1}Conclusiones}{59}{section.5.1}
-\contentsline {section}{\numberline {5.2}Trabajos Futuros}{60}{section.5.2}
+\contentsline {section}{\numberline {4.2}Arquitecturas de prueba}{47}{section.4.2}
+\contentsline {section}{\numberline {4.3}Mediciones}{48}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}Estado inicial y primeras mediciones}{49}{subsection.4.3.1}
+\contentsline {subsubsection}{\numberline {4.3.1.1}Tiempos}{49}{subsubsection.4.3.1.1}
+\contentsline {subsubsection}{\numberline {4.3.1.2}Archivos en disco}{50}{subsubsection.4.3.1.2}
+\contentsline {subsubsection}{\numberline {4.3.1.3}Memoria RAM}{50}{subsubsection.4.3.1.3}
+\contentsline {subsection}{\numberline {4.3.2}Optimizaci\'on serial y mediciones intermedias}{52}{subsection.4.3.2}
+\contentsline {subsection}{\numberline {4.3.3}Optimizaci\'on Paralela y mediciones finales}{54}{subsection.4.3.3}
+\contentsline {section}{\numberline {4.4}Conclusi\'on}{56}{section.4.4}
+\contentsline {chapter}{\numberline {5}Conclusiones y Trabajos Futuros}{57}{chapter.5}
+\contentsline {section}{\numberline {5.1}Conclusiones}{57}{section.5.1}
+\contentsline {section}{\numberline {5.2}Trabajos Futuros}{58}{section.5.2}
 \contentsline {chapter}{\numberline {A}Referencia del Lenguaje Fortran}{61}{appendix.Alph1}
 \contentsline {section}{\numberline {A.1}Estructuras de Especificaci\'on}{61}{section.Alph1.1}
 \contentsline {subsection}{\numberline {A.1.1}COMMON}{61}{subsection.Alph1.1.1}

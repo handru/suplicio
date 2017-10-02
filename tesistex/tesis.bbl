@@ -11,6 +11,12 @@ Barbara Chapman, Gabriele Jost, and Ruud van~der Pas.
 \newblock {\em Using OpenMP}.
 \newblock The MIT Press, 2008.
 
+\bibitem[EEL{\etalchar{+}}97]{SMT}
+Susan Eggers, Joel Emer, Henry Levy, Jack Lo, Rebecca Stamm, and Dean Tullsen.
+\newblock Simultaneous multithreading: A platform for next-generation
+  processors.
+\newblock Technical report, IEEE Micro, 1997.
+
 \bibitem[For12]{mpi}
 Message Passing~Interface Forum.
 \newblock Mpi: A message-passing interface standard.

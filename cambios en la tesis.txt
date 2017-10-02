@@ -1,0 +1,43 @@
+Principales cambios.
+- Se eliminó la sección 2.8 completa, se la agrega a la sección 1.2.
+- Sección 1.2 cambia completamente. Se explica mejor el programa optimizado y paralelizado así como su marco (trabajo de Prado).
+- Sección 1.3 y 1.4 cambian. 
+	* La sección 1.3 se pasa a llamar "Objetivos y Motivación" en lugar de "Propuesta de modernización". Su contenido cambia para agregar objetivos generales y particulares de la tesis así como explicación de porqué es importante el trabajo.
+	* La sección 1.4 pasó a llamarse "Marco de trabajo" por anotación de Javier en la corrección. Si es mejor otro nombre por favor indicar.
+
+Generales.
+- Insertados espacios para separar las citas, por ejemplo donde decía "programación[Her00]" dice ahora "programación [Her00]".
+- Palabras en Ingles como "release" fueron cambiadas por su adaptación en castellano.
+- Se quitaron todas las referencias a capítulos dentro de las referencias de libros (por ejemplo [WC00, Cap. 4]).
+- Se cambió el título del capítulo 2.
+
+Capítulo 2.
+Se quitaron de las referencia a las figuras la frase que decía "tomada de". Se agrega referencia en la misma imágen con leyenda "Fuente: [referencia]".
+Se quitó la figura de wikipedia sobre taxonomía de Flynn.
+Se modifico la explicación de la taxonomía de Flynn, quitando nombres en Ingles, dejando las Siglas en Ingles, y utilizando mejores terminos, como "Unidad de procesamiento".
+Modificación de otros parrafos con terminos o frases confusas:
+- Donde decía "lenguajes adaptados" se dejó "lenguajes orientados".
+- Donde decía "arquitecturas básicas" se dejó "arquitecturas"
+- Frase confusa que decía "agregandose nodos al sistema agregando mas estaciones" se quitó la frase. Se indicó solamente que los clusters son escalables.
+- Eliminado párrafo que hablaba sobre visibilidad del cluster por indicar conceptos erroneos.
+- Sección 2.3, donde decía "estructuras de cómputo complejas y de altos requerimientos" se modificó por "estructuras de datos complejas y con gran utilización de recursos (tiempo de CPU, memoria, disco)"
+- SubSección 2.2.1.2 donde dice: "a pesar de que los sistemas operativos venían implementando hilos hacía décadas" cambia por "a pesar de que los sistemas operativos ya venían implementando hilos"
+- Se quitan comillas donde no son necesarias o están mal ubicadas.
+- Sección 2.5 se cambia "notación" por "directiva" para que se entienda mejor que es OpenMP
+- Sección 2.7 se cambia "Las etapas de optimización serial y optimización paralela son las que serán explicadas brevemente en esta subsección"  por "Las etapas de optimización serial y optimización paralela son parte de este trabajo de tesis"
+- SubSección 2.7.1.1 se cambia "Con esto en mente se definen las siguientes reglas generales" por "Establecido esto se definen las siguientes reglas generales".
+- SubSección 2.7.1.2 se cambia "uno debe identificar" por "se debe identificar"
+- SubSección 2.7.2 se cambia "secuencial" por "serial"
+- SubSección 2.7.2 se cambia "adelante-atras" por "inversa" (se había utilizado traducción literal).
+
+Capitulo 3.
+- Sección 3.1 se cambia "paralelizar la programación" por "paralelizar una aplicación"
+- Sección 3.1 se cambia "el usuario de la aplicación utilizada es también su creador" por "el usuario de la aplicación utilizada es también su programador".
+- Sección 3.2 cambios mayores en la redacción para que sea entendible.
+- SubSección 3.2.1 se cambia la explicación del procesador core i3 por "procesador Intel Core i3 con 2 núcleos con SMT (cada núcleo con 2 hilos de ejecución)" además de agregar una referencia a un Reporte Técnico explicando SMT.
+- Sección 3.3 donde dice "debemos optimizar las opciones de compilación" cambia por "debemos utilizar las opciones del compilador en línea de comandos que permitan la mayor optimización del código (en recursos y velocidad de ejecución)".
+- SubSección 3.3.1 se cambia donde dice "los puntos de aplicación de la optimización" por "las subrutinas mas adecuadas para la optimización"
+También se adaptó el siguiente parrafo:
+"Fortran ofrece los archivos regulares, o \emph{archivos externos} soportados en disco (External Files), pero también los \emph{archivos internos} (Internal Files), que son cadenas de caracteres o arreglos de cadenas de caracteres, localizados en memoria principal. Los \emph{archivos internos} se manejan con las mismas funciones que los archivos externos, y la única restricción para su uso es la cantidad de memoria virtual del sistema."
+- SubSección 3.4.1 se emfatiza la palabra "estela" en lugar de encerrarla entre comillas.
+
