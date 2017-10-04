@@ -171,7 +171,7 @@ Para el tamaño de 80x80 el espacio en disco utilizado fue de 4415Mb o 4.3GB, sie
   \includegraphics[width=0.80\textwidth]{figuras/dell-serial-arch-du.png} \\
   \caption{PC2}
   \end{subfigure}
-\caption{Original: Lista de archivos y tamaño del directorio por equipo. Tamaño 50x50.} 
+\caption{Problema tamaño 50x50 - Original: Lista de archivos y tamaño del directorio por equipo.} 
 \label{figListS}
 \end{figure}
 
@@ -213,21 +213,6 @@ total kB      222472  209160  206240
 
 En la tabla \ref{tab:tabDataSerial} se muestran los datos recopilados hasta el momento en el trabajo de tesis, todos de la aplicación serial original. Las dos subsecciones siguientes mostrarán como evolucionó con la optimización, tomando como base para comparación los tiempos y tamaños obtenidos en esta primer etapa. 
 
-\begin{table}[]
-\caption{My caption}
-\label{my-label}
-\begin{tabular}{|l|l|l|l|l|}
-\hline
-\multicolumn{2}{|l|}{} & \multicolumn{2}{l|}{} &  \\ \hline
-\multicolumn{2}{|l|}{} &           &           &  \\ \hline
-           &           &           &           &  \\ \hline
-           &           &           &           &  \\ \hline
-           &           &           &           &  \\ \hline
-           &           &           &           &  \\ \hline
-           &           &           &           &  \\ \hline
-\end{tabular}
-\end{table}
-
 \begin{table}[htb]
 \begin{center}
 \begin{tabular}{|l|l|c|c|c|} 
@@ -236,39 +221,61 @@ En la tabla \ref{tab:tabDataSerial} se muestran los datos recopilados hasta el m
 \hline 
 \hline
 %\rule[-1ex]{0pt}{2.5ex} 
-\multicolumn{2}{|l|}{Equipos} & PC1 & PC2 & PC2 \\ 
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Equipos} & PC1 & PC2 & PC2 \\ 
 \hline 
-%\rule[-1ex]{0pt}{2.5ex} \multicolumn{2}{l}{Archivos generados} & 58 & 58 & \\
-\rule[-1ex]{0pt}{2.5ex} Archivos generados & & 58 & 58 & \\
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Archivos generados} & 58 & 58 & 58\\
 \hline
-\rule[-1ex]{0pt}{2.5ex} Esp. en disco utilizado &  &  & 684Mb & 684Mb \\
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Esp. en disco utilizado} & 684Mb & 684Mb & 4415Mb\\
 \hline
-\rule[-1ex]{0pt}{2.5ex} \multirow{2}{1cm}{Memoria} & Ejecución en \emph{solgauss} & 255Mb & 255Mb & \\ \cline{2-5}
-& Resto de la ejecución & 217Mb & 217Mb & \\ \cline{2-5}
+\rule[-1ex]{0pt}{2.5ex} \multirow{2}{3cm}{Memoria} & Ejecución en \emph{solgauss} & 255Mb & 255Mb & 1581Mb\\ \cline{2-5}
+& Resto del programa & 217Mb & 217Mb & 1293Mb\\ \cline{2-5}
 \hline
-\rule[-1ex]{0pt}{2.5ex} CPUs utilizadas & & 1 & 1 & \\
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Hilos de ejecución utilizados} & 1 & 1 & 1\\
 \hline
-\rule[-1ex]{0pt}{2.5ex} Tiempo total de ejecución & & 21m48s & 22m56s & \\
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Tiempo total de ejecución} & 21 min 48 seg & 22 min 56 seg & 3 hs 45 min 43 seg\\
 \hline
 \end{tabular} 
-\caption {Datos de ejecución de la aplicación original en ambos equipos.}
+\caption {Datos de ejecución de la aplicación serial original.}
 \label{tab:tabDataSerial}
 \end{center}
 \end{table}
 
 \subsection{Optimización serial y mediciones intermedias}
-Luego de realizar la optimización serial se tomaron nuevamente mediciones. La compilación se realizó con el mismo comando ya que en esta etapa aún no tenemos la adición de ninguna optimización paralela.
+Luego de realizar la optimización serial se tomaron nuevamente mediciones. La compilación se realizó con el mismo comando ya que la aplicación sigue siendo serial y por lo tanto no hay adiciones de paralelización a la computación. La nueva versión de la aplicación la denominamos \emph{optserial}.
+en esta etapa aún no tenemos la adición de ninguna optimización paralela.
 \begin{lstlisting}[style=consola, numbers=none]
       $ gfortran -o optserial invisidos2fin_optSerial.for
 \end{lstlisting}
-Y nuevamente para medir el tiempo del programa ejecutamos la aplicación con la instrucción time.
+Y nuevamente para medir el tiempo del programa ejecutamos la aplicación con la instrucción \emph{time}.
 \begin{lstlisting}[style=consola, numbers=none]
       $ time ./optserial
 \end{lstlisting}
-El tiempo obtenido en PC1 fue de 16m2.124s, lo que representa una ganancia de 5m36s aproximadamente sobre la versión serial original de la aplicación en el mismo equipo, teniendo entonces un factor de 1.35 de mejora en el tiempo.
-En la computadora PC2 los tiempos obtenidos fueron de 17min 4.161seg. Se observa una mejora sobre la versión serial original de 5m 52s aproximadamente, o un factor de 1.34 de mejora en el tiempo (Fig. \ref{figTIfiles}).
 
-\begin{figure}[t!]
+Para comparar los tiempos entre las versiones de la aplicación nos interesa calcular el \emph{factor de mejora del rendimiento} (\emph{speed-up}, rapidez, aceleración), el cual se define por la ecuación \ref{eq2}:
+
+\begin{equation}\label{eq2}
+S(n) = T(1)/T(n)
+\end{equation}
+
+Donde $S(n)$ es el \emph{speed-up}, $T(1)$ es el tiempo de ejecución en un procesador y $T(n)$ es el tiempo de ejecución en \emph{n} procesadores. Para este caso de optimización serial tomaremos $T(n)$ como el tiempo de ejecución de la nueva versión del programa.
+
+Mas información sobre este tema se puede encontrar en \citep{Hwang}.
+
+\subsubsection{Tiempos}
+En la Fig. \ref{figTIfiles} se pueden observar los tiempos obtenidos para ambos tamaños de  problema. Para el problema de tamaño 50x50 el tiempo obtenido para \emph{optserial} en PC1 fue de 16 min 2 seg, lo que representa una disminución en el tiempo de 5 min 36 seg aproximadamente sobre la versión serial original de la aplicación en el mismo equipo. Aplicando la ecuación \ref{eq2} de \emph{speed-up} se tiene un factor de mejora del rendimiento de 1.35.
+
+En la computadora PC2 para el tamaño 50x50 los tiempos obtenidos fueron de 17 min 4 seg. Tenemos una disminución con respecto a la versión serial original de 5 min 52 seg. Aplicando nuevamente la ecuación \ref{eq2} resulta en una mejora de factor 1.34.
+
+Se puede ver que el factor de mejora alcanzado entre el original serial y el optimizado es muy similar entre ambos equipos, con una diferencia de solo 0.01, y que es levemente mejor en PC1.
+
+Para el tamaño de problema de 80x80 los tiempos observados en la versión optimizada del código serial son de 150 min. 45 seg., es decir 2 hs. 30 min 45 seg. Con respecto a la versión de tamaño 50x50, el tiempo de ejecución se incrementa en 8.83 veces, menos que la diferencia entre los tiempos de las versiones originales de la aplicación (9.78 veces).
+De esto podemos determinar que el \emph{speed-up} será mayor también que para el tamaño de problema menor. Observamos una ganancia de tiempo con respecto a la aplicación serial de 75 min. aproximadamente, que al calcular \ref{eq2} nos da un factor de 1.5. 
+
+Esta mejora puede explicarse por la mayor cantidad de datos en disco que utiliza la aplicación en el tamaño 80x80 y que ahora son accedidos en memoria.
+
+Nuevamente en el caso de la CPU podemos observar que un solo procesador es el encargado de realizar la tarea ya que aún no se optimiza paralelamente. En la Fig. \ref{figTopI} podemos observar como ejemplo, la ejecución de la aplicación optimizada serialmente en PC1, en el momento que está dentro de la subrutina \emph{estela}.
+
+\begin{figure}[htb] %[t!]
  \centering
     \begin{subfigure}[t]{0.4\linewidth}
     \centering
@@ -291,15 +298,31 @@ En la computadora PC2 los tiempos obtenidos fueron de 17min 4.161seg. Se observa
 		\end{lstlisting}
 	\caption{Equipo PC2}
 	\end{subfigure}
+    \begin{subfigure}[t]{0.4\linewidth}
+    \centering
+		\begin{lstlisting}[style=consola,numbers=none]
+    real    150m45.602s
+    user    150m36.178s
+    sys     0m3.413s
+    live@PC1 $ 
+		\end{lstlisting}
+	\caption{Equipo PC2 - Tamaño 80x80}
+	\end{subfigure}
 \caption{Tiempo de la versión optimizada serialmente.}
 \label{figTIfiles}
 \end{figure}
 
-Se puede ver que el factor de mejora alcanzado entre el original serial y el optimizado es muy similar entre ambos equipos, con una diferencia de solo 0.01, y que es levemente mejor en PC1.
-Estrictamente hablando de los tiempos de ejecución del código optimizado serialmente, entre los equipos la diferencia observada es de 1m2s, nuevamente a favor de PC1.
+\begin{figure}[htb]%[htp]
+  \centering
+  \includegraphics[width=0.80\textwidth]{figuras/clon-top-ifiles.png} \\
+  \caption{Comando \emph{top}: Aplicación opt. serialmente en subrutina \emph{estela}.} 
+   \label{figTopI}
+\end{figure}
 
-Al observar el directorio donde se ejecuta la aplicación, observamos que luego de la optimización serial han desaparecido los archivos ``.tmp'' (Fig. \ref{figListI}), ya que ahora lleva los cálculos intermedios en la memoria para poder mejorar los tiempos de acceso. El resto de archivos (50 en total) siguen creándose, pero al demorar la escritura de los archivos utilizados para ir mostrando y almacenando la salida por pantalla, tanto como los que son leidos y escritos y obtienen resultados finales, se logra evitar el acceso constante al disco a través de la ejecución de la aplicación, para tener sólo que hacerlo una vez por archivo al finalizar la ejecución del programa o una subrutina en particular.
-El tamaño ocupado por los archivos del programa ahora fue de 17 Mb tanto en PC1 como en PC2 (Fig. \ref{figListI}), observando nuevamente el impacto de no generar los archivos ``.tmp''. 
+\subsubsection{Archivos en disco}
+En la Fig. \ref{figListI} observamos que luego de la optimización serial han desaparecido del directorio los archivos ``.tmp'', esto se debe a que los cálculos intermedios ahora son almacenados en memoria RAM. Esto ocurre tanto para el tamaño de 50x50 paneles como el de 80x80. El resto de archivos (50 en total) siguen creándose, pero al demorar la escritura de los archivos utilizados para ir mostrando y almacenando la salida por pantalla, tanto como los que son leidos y escritos y obtienen resultados finales, se logra evitar el acceso constante al disco a través de la ejecución de la aplicación, para tener sólo que hacerlo una vez por archivo al finalizar la ejecución del programa o una subrutina en particular.
+
+El tamaño ocupado por los archivos de la aplicación fue de 17 Mb para el tamaño 50x50, tanto en PC1 como en PC2, y de 40 Mb para el tamaño 80x80, lo podemos ver en la Fig. \ref{figListI}. De estos datos se puede observar el impacto de no generar los archivos ``.tmp'' en disco.
 
 \begin{figure}[h]%[htp]
   \centering
@@ -313,11 +336,14 @@ El tamaño ocupado por los archivos del programa ahora fue de 17 Mb tanto en PC1 
   \includegraphics[width=0.80\textwidth]{figuras/dell-ifiles-arch-du.png} \\
   \caption{PC2}
   \end{subfigure}
-\caption{Opt. Serial: Lista de archivos y tamaño del directorio por equipo.} 
+\caption{Problema tamaño 50x50 - Opt. Serial: Lista de archivos y tamaño del directorio por equipo.} 
 \label{figListI}
 \end{figure}
 
-Observando la memoria en esta versión del programa obtenemos que consume 552 Mb mientras está en \emph{solgauss} y 504MB el resto del tiempo, tanto en PC1 como PC2 (Fig. \ref{figPmapI}). Esto significa un incremento en la cantidad de memoria utilizada, en esta versión optimizada serialmente con respecto a la versión serial original, de 297MB cuando el programa está en la subrutina \emph{solgauss} y de 287MB antes o después de dicha subrutina. Este incremento se debe a los archivos ``.tmp'' que ya no utiliza mas en disco y debe llevar en memoria como internal files. 
+\subsubsection{Memoria RAM}
+Observando la memoria en esta versión de la aplicación para el tamaño 50x50, obtenemos que consume 552 Mb mientras está en \emph{solgauss} y 504MB el resto de la ejecución, tanto en PC1 como PC2, esto se puede ver en la Fig. \ref{figPmapI}. Esto significa un incremento en la cantidad de memoria utilizada, en esta versión optimizada serialmente con respecto a la versión serial original, de 297MB cuando el programa está en la subrutina \emph{solgauss} y de 287MB antes o después de dicha subrutina. Este incremento se debe a los archivos ``.tmp'' que ya no utiliza mas en disco y debe llevar en memoria como internal files. 
+
+En el tamaño de 80x80 también observamos un incremento en la memoria. Observamos que en ejecución la aplicación utiliza mientras está en \emph{solgauss} 3483MB (3.4GB) y 3171MB (3.09GB) en el resto de la ejecución. El equipo cuenta con 6GB de memoria RAM por lo que no fue necesario que realizara intercambio hacia disco (\emph{swapping}), lo que hubiera impactado en los tiempos.
 
 \begin{figure}[htb]
     \begin{subfigure}[t]{0.5\linewidth}
@@ -345,36 +371,30 @@ total kB      516524  504308  501332
 
 \begin{table}[htb]
 \begin{center}
-\begin{tabular}{|l|c|c|}
+\begin{tabular}{|l|l|c|c|c|} 
+\hline
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Tamaños de problema} & \multicolumn{2}{c|}{tamaño 50x50} & tamaño 80x80 \\ 
 \hline 
-\rule[-1ex]{0pt}{2.5ex}  & PC1 & PC2 \\ 
+\hline
+%\rule[-1ex]{0pt}{2.5ex} 
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Equipos} & PC1 & PC2 & PC2 \\ 
 \hline 
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Archivos generados} & 50 & 50 & 50\\
 \hline
-\rule[-1ex]{0pt}{2.5ex} Archivos generados & 50 & 50 \\
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Esp. en disco utilizado} & 17Mb & 17Mb & 40Mb\\
 \hline
-\rule[-1ex]{0pt}{2.5ex} Esp. en disco utilizado & 17Mb & 17Mb \\
+\rule[-1ex]{0pt}{2.5ex} \multirow{2}{3cm}{Memoria} & Ejecución en \emph{solgauss} & 552Mb & 552Mb & 3483Mb\\ \cline{2-5}
+& Resto del programa & 504Mb & 504Mb & 3171Mb\\ \cline{2-5}
 \hline
-\rule[-1ex]{0pt}{2.5ex} \multirow{2}{1cm}{Memoria} & Ejecución en \emph{solgauss}: 552Mb & 552Mb \\ \cline{2-3}
-& Resto de la ejecución: 504Mb & 504Mb \\ \cline{2-3}
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Hilos de ejecución utilizados} & 1 & 1 & 1\\
 \hline
-\rule[-1ex]{0pt}{2.5ex} CPUs utilizadas & 1 & 1 \\
-\hline
-\rule[-1ex]{0pt}{2.5ex} Tiempo total de ejecución & 16m02s & 17m04s \\
+\multicolumn{2}{|l|}{\rule[-1ex]{0pt}{2.5ex} Tiempo total de ejecución} & 16 min 2 seg & 17 min 4 seg & 2 hs 30 min 45 seg\\
 \hline
 \end{tabular} 
 \caption {Datos de ejecución de la aplicación optimizada serialmente.}
 \label{tab:tabDataIfiles}
 \end{center}
 \end{table}
-
-Nuevamente en el caso de la CPU podemos observar que un solo procesador es el encargado de realizar la tarea ya que aún no se optimiza paralelamente. En la Fig. \ref{figTopI} podemos observar como ejemplo, la ejecución de la aplicación optimizada serialmente en PC1, en el momento que está dentro de la subrutina \emph{estela}.
-
-\begin{figure}[htb]%[htp]
-  \centering
-  \includegraphics[width=0.80\textwidth]{figuras/clon-top-ifiles.png} \\
-  \caption{Comando \emph{top}: Aplicación opt. serialmente en subrutina \emph{estela}.} 
-   \label{figTopI}
-\end{figure}
 
 La Tabla \ref{tab:tabDataIfiles} resume la información obtenida de la optimización serial de la aplicación. En la siguiente sección se ven los resultados de la optimización paralela mediante OpenMP.
 
@@ -395,7 +415,8 @@ Un contratiempo que ocurrió en este paso fue que al ingresar en la parte paralel
    $ ulimit -s unlimited
 \end{lstlisting}
 Luego de establecido el parámetro, la ejecución de la aplicación es correcta.
- 
+
+\subsubsection{Tiempos} 
 Los resultados de ``time'' para PC1 indicaron un tiempo de ejecución de 6m5.294s (Fig. \ref{figTOmp}). Al comparar con los 21m48.109s que tomó en su versión original podemos observar 15m42s de mejora aproximada, obteniendo un factor de 3.58 de mejora en el desempeño, lo cual es muy superior a la ganancia inicial con la optimización serial.
 En PC2 obtuvimos 8m50.822s de tiempo de ejecución (Fig. \ref{figTOmp}), mientras el programa original tomó 22m56.392s, es decir aproximadamente 14m6s más rápida la versión paralela, obteniendo un factor de 2.59 de mejora en el desempeño.
 La diferencia de tiempo de ejecución entre la aplicación optimizada paralelamente en PC1 y PC2 es de 2m45s, observándose esta vez una diferencia de tiempo considerable.
@@ -438,6 +459,7 @@ Como ya indicamos, la activación de los núcleos no fue administrada de manera di
    \label{figTopO}
 \end{figure}
 
+\subsubsection{Archivos en disco}
 El directorio de ejecución del programa queda igual que en la versión optimizada serialmente (Ver Fig. \ref{figListI}) ya que en esta nueva versión se han agregado las directivas OpenMP utilizadas y no se ha tocado el código serial ni el tratamiento de los archivos. Lo mismo ocurre con el tamaño ocupado por los archivos en disco (17MB). 
 
 \begin{figure}[htb]
@@ -464,6 +486,7 @@ total kB      480144  455828  452576
 \label{figPmapO}
 \end{figure}
 
+\subsubsection{Memoria RAM}
 Observando la memoria el programa consume 516MB de RAM durante la subrutina \emph{solgauss} y 468MB en el resto de su ejecución en ambos equipos (Fig. \ref{figPmapO}). Con respecto al original esto indica un incremento de 261MB de memoria mientras está en \emph{solgauss} y 251MB en el resto de la ejecución. Al comparar con la aplicación optimizada serialmente se observó que el consumo de memoria es menor en la versión con OpenMP. Ocupa 36MB menos durante la ejecución, tanto si se ejecuta en \emph{solgauss} como en el resto del tiempo. 
 Podría investigarse esta diferencias en la memoria en la optimización que realiza el compilador en el código para utilizar las directivas de OpenMP. 
 

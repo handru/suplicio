@@ -1,0 +1,4 @@
+Cap 4.
+\\
+ABSTRACT
+This thesis presents the optimization of a scientific application taken from the field of Fluid Dynamics, a discipline commonly related to High Performance Computing, developed between the years 1999 and 2005. The code is writen in Fortran and whas executed in a resource-limited  hardware platform. The application also belongs to the field of Legacy Software, programs that remains valid after ten, fifthteen or more years. They are usually big, complex programs, performing crucial tasks in their owner organization.

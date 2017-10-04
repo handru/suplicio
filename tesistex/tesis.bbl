@@ -56,6 +56,12 @@ Miguel Hermmans.
   de Motopropulsi\'on y Termofluidodin\'amica, School of Aeronautical
   Engineering, Abril 2002.
 
+\bibitem[Hwa93]{Hwang}
+Kai Hwang.
+\newblock {\em Advanced Computer Architecture: Parallelism, Scalability,
+  Programmability}.
+\newblock McGraw-Hill, 1993.
+
 \bibitem[MT12]{MMen}
 Mariano M\'endez and Fernando~G. Tinetti.
 \newblock A gpu approach to fortran legacy systems.
