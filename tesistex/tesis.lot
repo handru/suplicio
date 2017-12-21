@@ -2,13 +2,16 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Relaci\'on archivos y funciones de la aplicaci\'on\relax }}{34}{table.caption.18}
+\contentsline {table}{\numberline {3.1}{\ignorespaces Relaci\'on archivos y subrutinas de la aplicaci\'on\relax }}{34}{table.caption.18}
 \contentsline {table}{\numberline {3.2}{\ignorespaces Equivalencias Archivo en Disco a Archivo Interno.\relax }}{36}{table.caption.21}
 \contentsline {table}{\numberline {3.3}{\ignorespaces Decisiones para cambio de Archivo en Disco a Archivo Interno.\relax }}{40}{table.caption.22}
-\contentsline {table}{\numberline {3.4}{\ignorespaces Variables necesarias para el c\'odigo paralelizado.\relax }}{45}{table.caption.25}
+\contentsline {table}{\numberline {3.4}{\ignorespaces Comparaci\'on de tiempos: Original vs Optimizado serialmente en primer equipo.\relax }}{41}{table.caption.24}
+\contentsline {table}{\numberline {3.5}{\ignorespaces Variables necesarias para el c\'odigo paralelizado.\relax }}{46}{table.caption.26}
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Datos de ejecuci\'on de la aplicaci\'on serial original.\relax }}{52}{table.caption.30}
-\contentsline {table}{\numberline {4.2}{\ignorespaces Datos de ejecuci\'on de la aplicaci\'on optimizada serialmente.\relax }}{55}{table.caption.35}
+\contentsline {table}{\numberline {4.1}{\ignorespaces Datos de ejecuci\'on de la aplicaci\'on serial original.\relax }}{54}{table.caption.31}
+\contentsline {table}{\numberline {4.2}{\ignorespaces Datos de ejecuci\'on de la aplicaci\'on optimizada serialmente.\relax }}{56}{table.caption.36}
+\contentsline {table}{\numberline {4.3}{\ignorespaces Resumen datos totales de ejecuci\'on - tama\~no \textsc {T50x50}.\relax }}{59}{table.caption.40}
+\contentsline {table}{\numberline {4.4}{\ignorespaces Resumen datos totales de ejecuci\'on - tama\~no \textsc {T80x80}.\relax }}{60}{table.caption.41}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Evaluaci\'on de IF aritm\'etico.\relax }}{65}{table.caption.41}
+\contentsline {table}{\numberline {A.1}{\ignorespaces Evaluaci\'on de IF aritm\'etico.\relax }}{69}{table.caption.43}

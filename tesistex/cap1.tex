@@ -10,13 +10,13 @@ Las aplicaciones \emph{legacy}, o heredadas, debido al paso de una cierta cantid
 \section{Aplicación seleccionada}
 Este trabajo de tesis aborda el problema de la modernización de una aplicación científica del campo de la Dinámica de Fluidos. La aplicación objeto de optimización de esta tesis es de autoría de Ricardo A. Prado, docente e investigador de la Universidad Nacional del Comahue, y fue utilizado para obtener resultados para su trabajo de tesis de doctorado \citep{Prado} en el área de Ingeniería presentado en la Universidad de Buenos Aires en 2007. La aplicación analiza el comportamiento fluidodinámico de un tipo particular de turbomáquina, la turbina eólica de eje horizontal. Fue desarrollado entre los años 1999 y 2005, en un momento en el cual los recursos de computación eran restrictivos en comparación con los de hoy. Por otro lado, por el tipo de tarea que desarrolla, se encuentra entre las aplicaciones de la Computación de Altas Prestaciones (HPC, High Performance Computing) y desde que fue escrita esta aplicación, las características del software y el hardware disponibles para esta clase de actividades han avanzado notablemente. 
 
-Este programa fue construido en su momento para la plataforma computacional típica que estaba entonces al alcance de los pequeños grupos de investigación. Estos mismos grupos hoy ven la posibilidad de acceder a plataformas de características sumamente diferentes. Este trabajo de tesis intenta optimizar y modernizar la aplicación para que puedan ser aprovechados recursos que no estaban previstos en su diseño original, pero con los que hoy pueden contar sus usuarios. En especial nos referimos a las capacidades de multiprocesamiento de los equipos actuales, la mayor cantidad de memoria principal, y las nuevas capacidades de los compiladores que acompañan estos desarrollos arquitectónicos.
+Esta aplicación fue construida en su momento para la plataforma computacional típica que estaba entonces al alcance de los pequeños grupos de investigación. Estos mismos grupos hoy ven la posibilidad de acceder a plataformas de características sumamente diferentes. Este trabajo de tesis intenta optimizar y modernizar la aplicación para que puedan ser aprovechados recursos que no estaban previstos en su diseño original, pero con los que hoy pueden contar sus usuarios. En especial nos referimos a las capacidades de multiprocesamiento de los equipos actuales, la mayor cantidad de memoria principal, y las nuevas capacidades de los compiladores que acompañan estos desarrollos arquitectónicos.
 
 Como se expone en \citep{Prado}, dicha tesis ``analiza el comportamiento fluidodinámico de una turbomáquina particular: la turbina eólica''. La creación de la aplicación en estudio se justifica en el mismo trabajo indicando que ``debido a la complejidad de las ecuaciones de gobierno en ambas zonas del campo fluidodinámico, como así también de la geometría de la turbina y de sus condiciones de operación, se requiere de procesos de resolución numérica adecuados, los cuales se incorporaron en los códigos computacionales que se desarrollaron a tal efecto'' \citep{Prado}, y si bien existen otras soluciones para lo indicado, la realización de la aplicación formaba parte del trabajo de doctorado.
 
 La primer parte del trabajo de Prado es sobre el flujo inviscido (de viscosidad despreciable, casi nula) alrededor de la pala de la turbina. Para determinar dicho flujo, el modelo numérico de dicha tesis se formula a través del método de los paneles ``por el cual la pala es discretizada mediante un número finito de paneles cuadrilaterales, los cuales son adecuadamente distribuídos a lo largo de la envergadura y cuerda de la misma'' \citep{Prado}. Además indica que ``asociado a cada panel se encuentra un anillo vorticoso de intensidad de circulación constante, conformado por segmentos de hilos vorticosos rectos. Estos anillos configuran el sistema vorticoso ligado a la pala'' \citep{Prado}. 
 
-La aplicación en estudio en esta tesis realiza el cálculo de las velocidades inducidas en un punto del panel para cada uno de los paneles. El cálculo es realizado mediante la ley de Biot-Savart la cual es una de las leyes fundamentales de la magnetoestática e indica el campo magnético creado por corrientes eléctricas estacionarias. Se establece una equivalencia entre Electromagnetismo y la Mecánica de Fluidos para aplicar Biot-Savart, considerando que un hilo de corriente equivale a un hilo vorticoso; a partir de esto calcula las velocidades no viscosas sobre dicho hilo vorticoso. 
+La aplicación realiza el cálculo de las velocidades inducidas en un punto del panel para cada uno de los paneles. El cálculo es realizado mediante la ley de Biot-Savart la cual es una de las leyes fundamentales de la magnetoestática e indica el campo magnético creado por corrientes eléctricas estacionarias. Se establece una equivalencia entre Electromagnetismo y la Mecánica de Fluidos para aplicar Biot-Savart, considerando que un hilo de corriente equivale a un hilo vorticoso; a partir de esto se calculan las velocidades no viscosas sobre dicho hilo vorticoso. 
 
 La ecuación principal resuelta por la aplicación es la del vector de velocidad inducida en cada uno de los puntos de colocación de los N paneles, donde dicho vector tiene tres componentes:
 
@@ -27,51 +27,33 @@ La ecuación principal resuelta por la aplicación es la del vector de velocidad i
 Mediante la integración de la Ley de Biot-Savart a lo largo de la longitud de cada filamento del sistema vorticoso completo se determinan las tres componentes cartesianas de las velocidades inducidas en cada punto P definido.
 El proceso de integración numérica se realiza por el método de Simpson. La regla o método de Simpson es un método de integración numérica que se utiliza para obtener la aproximación de una integral en un intervalo definido, al dividir ese intervalo en subintervalos y aproximar cada subintervalo con un polinomio de segundo grado. En el trabajo de Prado se indica que ``El proceso de integración numérica de la ley de Biot-Savart para la obtención de los coeficientes de influencia de cada hilo de la estela sobre cada punto de control, [...], se realizó mediante el método de Simpson, considerando hilos de longitud finita que partían desde el borde de fuga de la pala hasta una coordenada axial igual a 40 radios R [...], y dividiendo dichos hilos en 2000 segmentos correspondientes a incrementos constantes del parámetro del helicoide'' \citep{Prado}.
 
-Analizando la aplicación en sí, podemos indicar que está escrito en lenguaje Fortran, utilizando una estructura de programación secuencial y monolítica. Presenta un cuerpo principal con múltiples subrutinas, entre las cuales se pueden identificar dos de ellas que realizan el cálculo más intensivo, \emph{estela} y \emph{solgauss}, donde la primera realiza el cálculo de los coeficientes de influencia de los hilos libres Cix, Ciy y Ciz, y la segunda resuelve el sistema de ecuaciones para determinar las vorticidades de los paneles mediante el metodo de eliminación de Gauss para matrices. En estas subrutinas es en donde se encuentran las mayores posibilidades de optimización y paralelización para nuestro trabajo de tesis.
+Podemos indicar que la aplicación está escrita en lenguaje Fortran, utilizando una estructura de programación secuencial y monolítica. Presenta un cuerpo principal con múltiples subrutinas, entre las cuales se pueden identificar dos de ellas que realizan el cálculo más intensivo, \emph{estela} y \emph{solgauss}, donde la primera realiza el cálculo de los coeficientes de influencia de los hilos libres Cix, Ciy y Ciz, y la segunda resuelve el sistema de ecuaciones para determinar las vorticidades de los paneles mediante el metodo de eliminación de Gauss para matrices. En estas subrutinas es en donde se encuentran las mayores posibilidades de optimización y paralelización para nuestro trabajo de tesis.
 
 %\section{Propuesta de modernización}
-\section{Objetivos y Motivación}
-En este trabajo se busca principalmente la optimización a través de paralelización de la aplicación presentada, utilizando herramientas modernas sobre código \emph{legacy}, tales como OpenMP y OpenMPI. 
+\section{Objetivos y motivación}
+En este trabajo se busca principalmente la optimización a través de paralelización de la aplicación presentada, utilizando herramientas modernas sobre código \emph{legacy}, tales como OpenMP y MPI. 
 
-Se debe tener en cuenta que la aplicación es totalmente determinista, es decir que cada ejecución sucesiva arroja siempre los mismos resultados. De acuerdo a lo indicado en conversaciones con el autor de la aplicación, se observaban tiempos de ejecución altos, de los cuales no se tienen registros. En el caso de tamaño de datos de 50x50 (50 filas de 50 paneles) tardaba unas horas y en el caso de tamaño 80x80 (80 filas de 80 paneles), debido a un elevado tiempo de ejecución, se dejaba en ejecución de un día para el otro. Debido a esta falta de registros de tiempos, en este trabajo de tesis se realizaron nuevas ejecuciones de la aplicación con ambos tamaños de datos para obtener tiempos de referencia con respecto a los siguientes pasos de optimización.
+Se debe tener en cuenta que la aplicación es totalmente determinista, es decir que cada ejecución sucesiva arroja siempre los mismos resultados. El autor de la aplicación nos proveyó con dos conjuntos de datos de prueba, los cuales representan una ejecución correcta de la aplicación para dos tamaños de problema distintos, uno de 50 filas de 50 paneles, y otro de 80 filas de 80 paneles. Nos referiremos en el resto de este trabajo de tesis a ambos como  \textsc{t50x50} y \textsc{t80x80} respectivamente.
+De acuerdo a lo indicado en conversaciones con el autor de la aplicación, se observaban tiempos de ejecución altos, de los cuales no se tienen registros. En el caso de \textsc{t50x50} tardaba unas horas y en el caso de \textsc{t80x80}, debido a un elevado tiempo de ejecución, se dejaba en ejecución de un día para el otro. Debido a esta falta de registros de tiempos, en este trabajo de tesis se realizaron nuevas ejecuciones de la aplicación con ambos tamaños de datos para obtener tiempos de referencia con respecto a los siguientes pasos de optimización.
 
 Por esto es que otro objetivo importante es la mejora en los tiempos de ejecución de la aplicación a través del proceso de optimización y paralelización, esperando alcanzar ejecuciones en la mitad del tiempo (50\% menos) que la aplicación original, comparando las mediciones directamente contra las nuevas ejecuciones del código original. 
 
 Como la aplicación realiza el almacenamiento de datos temporales y resultados, tanto parciales como finales, en archivos planos debido a restricciones de memoria en la arquitectura original de ejecución del código, se pretende también mejorar la utilización de los recursos, maximizando el uso de memoria RAM, que actualmente es de mayor tamaño a la utilizada en 1999, y minimizando el uso de disco, buscando así mejorar el desempeño de la aplicación.
 
-%Justamente estos son puntos interesantes de intervención para adecuar la aplicación a las arquitecturas actuales, intentando mejorar sus 
-%; y son otros tantos interesantes puntos de intervención para adecuarla a las arquitecturas actuales, intentando mejorar sus prestaciones. 
-
 Por lo expresado es que la optimización buscada tiene en cuenta las nuevas arquitecturas paralelas, así como la mayor disponibilidad de memoria principal en las nuevas plataformas. Se propondrá una optimización del código secuencial y a continuación una solución de ejecución paralela. 
 
-Se mantendrán las condiciones actuales de uso para el usuario. En particular, no se modificará el lenguaje de programación, de modo que el usuario y autor de la aplicación conserve la capacidad de modificar la misma.
+Se mantienen las condiciones actuales de uso para el usuario, en particular, no se modifica el lenguaje de programación, de modo que el usuario y autor de la aplicación conserve la capacidad de modificar la misma.
 
 Esta tesis surge de la necesidad de adaptar y optimizar el código \emph{legacy}, utilizando nuevas técnicas de programación disponibles, nuevas estructuras de datos o aplicando nuevos recursos del lenguaje original en el que fue escrito. Además de permitir al código aprovechar los recursos de la máquina sobre la que se ejecuta. 
 
-En particular el código de Computo de Altas Prestaciones posee ejemplos de código \emph{legacy} que puede y necesita ser adaptado y optimizado, dentro de la dinámica de fluidos como otros campos de la denominada Ciencia e Ingeniería Computacional. Se ampliaran estos conceptos en los siguientes capítulos.
+En particular, el código de Computo de Altas Prestaciones posee ejemplos de código \emph{legacy} que puede y necesita ser adaptado y optimizado, dentro de la dinámica de fluidos como otros campos de la denominada Ciencia e Ingeniería Computacional. Se ampliaran estos conceptos en los siguientes capítulos.
 
-Por último pero no menos importante, se busca que se pueda aprovechar las posibilidades de paralelización que brindan las nuevas arquitecturas disponibles en las PC actuales, permitiendo a grupos de investigación que no poseen equipamiento especializado para realizar los cálculos de sus trabajos poder obtener mejores resultados en equipos de uso general.
+Especialmente se busca que se pueda aprovechar las posibilidades de paralelización que brindan las nuevas arquitecturas disponibles en las PC actuales, permitiendo a grupos de investigación que no poseen equipamiento especializado para realizar los cálculos de sus trabajos, poder obtener mejores resultados en equipos de uso general.
 
 \section{Marco de trabajo}
-El autor de la tesis que se presenta es integrante del proyecto de investigación 04/F002, Computación de Altas Prestaciones, Parte II, dirigido por la Dra. Silvia Castro. La tesis ha sido desarrollada como aporte a los objetivos de dicho proyecto: 
+El autor de la tesis que se presenta es integrante del proyecto de investigación 04/F002, Computación de Altas Prestaciones, Parte II, dirigido por la Dra. Silvia Castro y co dirigido por el Lic. Eduardo Grosclaude. 
 
-\begin{itemize}
- \item De formación de recursos humanos
- \begin{itemize}   
-    \item Adquirir conocimientos teóricos y prácticos para el diseño, desarrollo, gestión y mejora de las tecnologías de hardware y software involucradas en la Computación de Altas Prestaciones y sus aplicaciones en Ciencia e Ingeniería Computacional. 
-    \item Formar experiencia directa en temas relacionados con Cómputo de Altas Prestaciones, en particular, optimización y paralelización de aplicaciones científicas.
-     \end{itemize}
-\end{itemize}
-\begin{itemize}
- \item De transferencia
- \begin{itemize}   
-     \item Relevar los requerimientos de Computación de Altas Prestaciones de otros investigadores en Ciencias e Ingeniería de Computadoras y
-cooperar en su diagnóstico y/o resolución.
-     \item Detectar necesidades relacionadas con Computación de Altas Prestaciones en otras entidades del ámbito regional y plantear correspondientes actividades de transferencia.
-     \end{itemize}
-\end{itemize}
-
-\section{Organización de la Tesis}
+\section{Organización de la tesis}
 A continuación se describe sintéticamente el contenido del resto de los capítulos comprendidos en esta Tesis.
 
 \begin{itemize}

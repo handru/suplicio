@@ -1,37 +1,37 @@
 \label{pagcap3}
-\chapter{Optimización e implementación de multiprocesamiento}
+\chapter{Paralelización de una aplicación Fortran}
 
 \section{Introducción}
 En los capítulos anteriores presentamos la problemática por la cual surge la idea y la necesidad de paralelizar una aplicación, así como las herramientas a utilizar, en nuestro caso OpenMP bajo Fortran. La elección del lenguaje Fortran se debe a que el usuario de la aplicación utilizada es también su programador, de manera que, para hacer el cambio lo más transparente posible, se decide no alterar este aspecto del programa.
 
-Con Fortran como base, y teniendo en cuenta la estructura del programa con un análisis inicial del mismo, debido a las características de programa estructurado, monolítico y no modularizado, se elige orientar la solución a aplicar concurrencia en un entorno de Memoria Compartida y dejar habilitada la ejecución paralela en un equipo multiprocesador.
+Con Fortran como base, y teniendo en cuenta la estructura del programa con un análisis inicial del mismo, debido a las características de programa estructurado, monolítico y no modularizado, se elige orientar la solución a aplicar concurrencia en un entorno de Memoria Compartida y habilitar la ejecución paralela en un equipo multiprocesador.
 
-La aplicación bajo estudio utiliza archivos de datos en disco para guardar resultados, tanto parciales como finales. Esta actividad de entrada/salida introduce importantes demoras en el tiempo de respuesta que necesitamos considerar. En este capítulo describiremos el proceso seguido para la optimización del código Fortran en lo relacionado con el manejo de los archivos. Esta primera fase de optimización permitirá la paralelización de segmentos de código.
+La aplicación bajo estudio utiliza archivos de datos en disco para guardar resultados, tanto parciales como finales. Esta actividad de entrada/salida introduce importantes demoras en el tiempo de respuesta que necesitamos considerar. En este capítulo describimos el proceso seguido para la optimización del código Fortran en lo relacionado con el manejo de los archivos. Esta primera fase de optimización permitirá la paralelización de segmentos de código.
 
-También realizaremos un análisis del perfil de ejecución de la aplicación, con una herramienta de perfilado  que permitirá identificar qué subrutinas son las que más tiempo consumen y cuáles son las más indicadas para aplicar la paralelización.
+También realizamos un análisis del perfil de ejecución de la aplicación, con una herramienta de perfilado  que permitirá identificar qué subrutinas son las que más tiempo consumen y cuáles son las más indicadas para aplicar la paralelización.
 
-Por último veremos la forma como se ha aplicado OpenMP a las partes seleccionadas de la aplicación. Explicaremos por qué han sido seleccionadas ciertas construcciones específicas del código y las razones de modificar algunas estructuras de control para hacer más eficiente la utilización de la memoria y de la CPU.
+Por último se presenta el análisis de como se aplica OpenMP a las partes seleccionadas de la aplicación. Explicaremos por qué han sido seleccionadas ciertas construcciones específicas del código y las razones de modificar algunas estructuras de control para hacer más eficiente la utilización de la memoria y de la CPU.
 
 
 \section{Análisis de la aplicación}
 Como se explicó  en la sección \ref{sec:n6}, se debe determinar la plataforma en que debería ejecutarse la aplicación, estableciendo versión de sistema operativo  y arquitectura. La aplicación recibida fue utilizada por su programador en arquitectura x86 de 32 bits, bajo sistema operativo GNU/Linux, específicamente con la distribución CentOS. 
 
-Lo primero fue obtener resultados base de ejecuciones de la aplicación bajo ese entorno, a fin de tener una referencia para la comparación de resultados. El autor de la aplicación nos indicó que la misma es completamente determinística, con lo cual la aplicación, con los mismos datos de entrada provistos, debe arrojar los mismos resultados en todas las ejecuciones. El autor nos proveyó con dos conjuntos de resultados correctos con los cuales se puede verificar la aplicación.
+En el trabajo de tesis lo primero fue obtener resultados base de ejecuciones de la aplicación bajo ese entorno, a fin de tener una referencia para la comparación de resultados. El autor de la aplicación indicó que la misma es completamente determinista, con lo cual la aplicación, con los mismos datos de entrada provistos, arroja los mismos resultados en todas las ejecuciones. Junto con la aplicación se proveyeron dos conjuntos de resultados correctos para dos tamaños de problema, con los cuales es posible verificar la correctitud de la aplicación.
 
-Para llevar a cabo el trabajo de la Tesis se seleccionó el entorno GNU/Linux, con la distribución Slackware de 64 bits como base, a la cual no fue necesario agregar componentes ni efectuar ninguna compilación especial. Se verificó que la aplicación entregada por el usuario compilara correctamente sin ninguna modificación en esta plataforma y arrojara, para los datos de entrada, exactamente los mismos resultados que en su entorno original. 
+Para llevar a cabo el trabajo se seleccionó como base la distribución de GNU/Linux, Slackware versión de 64 bits,  la cual se utilizó sin agregar componentes o paquetes extras, ni efectuar ninguna compilación especial. Se verificó que la aplicación entregada por el usuario compilara correctamente sin ninguna modificación en esta plataforma y que se obtuvieran, para los datos de entrada, los mismos resultados que en su entorno original. 
 
-Como vimos en el capítulo anterior, lo primero antes de optimizar es tener una aplicación que produzca resultados correctos. En nuestro caso se nos presentó una aplicación ya depurada y funcionando correctamente, así que pasamos a la parte de optimización, donde se deben seleccionar previamente los casos de test para validar que la optimización sigue produciendo resultados correctos.
+Como se vio en el capítulo anterior, lo primero antes de optimizar es tener una aplicación que produzca resultados correctos. Para esta tesis se contó con una aplicación ya depurada y funcionando correctamente, así que se pasó a la parte de optimización, donde se deben seleccionar previamente los casos de test para validar que la optimización sigue produciendo resultados correctos.
 
-Como se indicó previamente en esta sección, contamos con dos conjuntos de resultados provistos por el autor de la aplicación que serán los casos de test, los cuales se identifican por dos parámetros, \emph{nr} y \emph{no} que definen, respectivamente, la cantidad total de palas y de nodos sobre los cuales se va a realizar la simulación. Con estos parámetros se definen los casos de test, con valores iguales para ambos datos: \emph{nr} y \emph{no} = 50 en el primer caso de test, \emph{nr} y \emph{no} = 80 en el segundo caso.
+Como se indicó previamente, se contó con dos conjuntos de resultados provistos por el autor de la aplicación que fueron los casos de test. Estos conjuntos se identifican, y diferencian, por dos parámetros, \emph{nr} y \emph{no} que definen, respectivamente, la cantidad total de palas y de nodos sobre los cuales se va a realizar la simulación. Con estos parámetros se definen los casos de test, con valores iguales para ambos datos:  $nr = 50$ y $no = 50$ en el primer caso de test,  $nr = 80$ y $no = 80$ en el segundo caso.
 
 Estos valores también definen variables globales comunes de la aplicación denominadas \emph{maxir} y \emph{maxio} que se establecen a los valores \emph{nr+1} y \emph{no+1} respectivamente. Los valores están codificados directamente en la aplicación y no se utiliza ningún tipo de constante simbólica que los defina, algo que sería más adecuado para su tratamiento y para tener un código más limpio; esto no se modificó y se mantuvo el tratamiento original de los valores para alterar lo menos posible el código. 
 
 Por el mismo motivo, tampoco se modificó la obtención de los valores de entrada para las simulaciones a partir de un archivo de texto.
 
 \subsection{Análisis de perfilado}\label{ssec:perfilado}
-Como paso preliminar de la optimización realizamos análisis de la aplicación con la herramienta de perfilado gprof, para poder comparar los principales puntos de consumo de tiempo con anterioridad a la optimización y luego de la misma. De esta forma se pretende seleccionar una o varias subrutinas para la paralelización y observar de qué manera cambia el comportamiento de la aplicación con la optimización.
+Como paso preliminar de la optimización se realizó el análisis de la aplicación con la herramienta de perfilado \emph{gprof}, para poder identificar los principales puntos de consumo de tiempo previo a la optimización serial y luego de realizada. De esta forma se buscó seleccionar una o varias subrutinas para la paralelización y observar si el comportamiento de la aplicación con la optimización serial cambia o se mantiene.
 
-Los datos obtenidos mediante gprof en esta etapa muestran que la subrutina \emph{estela} resulta ser la que consume el mayor porcentaje, 79,83\% del tiempo de ejecución de la aplicación. Le sigue la subrutina \emph{solgauss} con un 14,36\%. Estos datos se pueden observar en la Fig. \ref{figGprof1}.
+Los datos obtenidos mediante \emph{gprof} en esta etapa muestran que la subrutina \emph{estela} es la que consume el mayor porcentaje, 74,05\% del tiempo de ejecución de la aplicación. Le sigue la subrutina \emph{solgauss} con un 18,68\%. Estos datos se pueden observar en la Fig. \ref{figGprof1}.
 
 \begin{figure}[h!]%[htp]
   \centering
@@ -40,11 +40,11 @@ Los datos obtenidos mediante gprof en esta etapa muestran que la subrutina \emph
    \label{figGprof1}
 \end{figure}
 
-Con estos resultados se pudo inferir en esta primer revisión que estas dos subrutinas son las candidatas a ser optimizadas con procesamiento paralelo.
+Con estos resultados se pudo inferir en esta primer revisión que estas dos subrutinas son las candidatas a ser optimizadas con procesamiento paralelo, especialmente \emph{estela}.
 
-Para las pruebas se utilizaron dos computadoras de escritorio distintas, ambas de arquitectura multiprocesador. El primer equipo posee un procesador AMD Phenom II con 4 núcleos y 4GB de memoria RAM. El segundo equipo consta de un procesador Intel Core i3 con 2 núcleos con SMT \citep{SMT} (cada núcleo con 2 hilos de ejecución) y 6 Gb de RAM. Las especificaciones completas son provistas en el Capítulo 4 donde se analizan los resultados obtenidos.
+Para las pruebas se utilizaron dos computadoras de escritorio distintas, ambas de arquitectura multiprocesador. El primer equipo posee un procesador AMD Phenom II con 4 núcleos y 4 GB de memoria RAM. El segundo equipo consta de un procesador Intel Core i3 con 2 núcleos con SMT \citep{SMT} (cada núcleo con 2 hilos de ejecución) y 6 Gb de RAM. Las especificaciones completas son provistas en el Capítulo 4 donde se analizan los resultados obtenidos.
 
-La salida de la Fig. \ref{figGprof1} fue obtenida en el primer equipo. Realizamos el mismo análisis de perfilado sobre el segundo equipo, y observamos que la mayor porción del tiempo sigue siendo consumida por la subrutina \emph{estela} seguida por \emph{solgauss} casi en los mismos porcentajes, 74,26\% y 16,84\% respectivamente. También es de notar la mejora en los tiempos de ejecución. Esto se puede observar en la Fig. \ref{figGprof2}.
+La salida de la Fig. \ref{figGprof1} fue obtenida en el primer equipo. Se realizó el mismo análisis de perfilado sobre el segundo equipo, y se observó que la mayor porción del tiempo sigue siendo consumida por la subrutina \emph{estela} seguida por \emph{solgauss} casi en los mismos porcentajes, 76,21\% y 15,96\% respectivamente. Esto se puede observar en la Fig. \ref{figGprof2}.
 
 \begin{figure}[h!]%[htp]
   \centering
@@ -53,31 +53,32 @@ La salida de la Fig. \ref{figGprof1} fue obtenida en el primer equipo. Realizamo
    \label{figGprof2}
 \end{figure}
 
-A esta altura del trabajo contamos con ``código correcto no optimizado'' (Unoptimized Correct Code) \citep{Garg}, de modo que, siguiendo las etapas del proceso de optimización (ilustradas en la Fig. \ref{figGySEtapas}) visto en el capítulo 2, debemos efectuar una optimización serial para obtener código optimizado. Luego de esto podremos pasar a la etapa de ``Optimización Paralela'', donde aplicaremos paralelización al código para obtener justamente código paralelo optimizado. 
+A esta altura del trabajo se contaba con ``código correcto no optimizado'' (\emph{Unoptimized Correct Code}) \citep{Garg}, de modo que, siguiendo las etapas del proceso de optimización (ilustradas en la Fig. \ref{figGySEtapas}) visto en el capítulo 2, se procedió a efectuar una optimización serial para obtener código optimizado. Luego de esto se podrá pasar a la etapa de ``Optimización Paralela'', donde se aplicará paralelización al código para obtener justamente código paralelo optimizado. 
 
-En las siguientes secciones veremos cómo realizamos estas dos etapas del proceso para obtener nuestra aplicación de estudio en forma optimizada paralela.
+En las siguientes secciones se verá cómo se realizaron estas dos etapas del proceso para obtener culminar con la aplicación de estudio en versión optimizada paralelamente.
 
-\subsection{Perfilado de aplicación para el problema de tamaño de 80x80}
-Realizamos un nuevo análisis de perfilado con la herramienta \emph{gprof} sobre la aplicación adaptada al problema de tamaño 80x80 paneles, ya que esto puede afectar el comportamiento de las subrutinas.
+\subsection{Perfilado de aplicación para el problema de tamaño \textsc{80x80}}
+Se realizó un nuevo análisis de perfilado con la herramienta \emph{gprof} sobre la aplicación adaptada al problema de tamaño \textsc{T80x80}, para determinar si el tamaño del problema afecta el comportamiento de las subrutinas.
 
-Luego de compilar la aplicación con la opción ``-pg'' activada, la ejecutamos y obtenemos el archivo \emph{gmon.out} de salida. Con esto podemos generar la información del perfilado, el cual indica que la subrutina estela es la que más porcentaje del tiempo se ejecuta seguida de solgauss, pero esta vez los porcentajes cambian completamente. En la Fig. \ref{figGprof4} podemos observar que estela se ejecuta 46,42\% del tiempo mientras que solgauss ahora ocupa un 43,09\%, esto es mucho más que el 14,36\% en PC1 o el 16,84\% en PC2 obtenido por solgauss para la versión de 50x50.
+Luego de compilar la aplicación con la opción ``-pg'' activada, se la corrió una vez para obtener el archivo \emph{gmon.out} de salida. Con esto se generó la información del perfilado, el cual indicó que la subrutina \emph{estela} es la que más porcentaje del tiempo se ejecuta seguida de \emph{solgauss}, pero esta vez los porcentajes representaron una diferencia mayor a la que se observó para la versión de tamaño \textsc{T50x50} en diferentes equipos. En la Fig. \ref{figGprof4} se puede observar que \emph{estela} se ejecuta 46,42\% del tiempo mientras que \emph{solgauss} ahora consume un 43,09\%, esto es mucho más que el 18,68\% en el primer equipo o el 15,96\% en el segundo obtenido por \emph{solgauss} para la versión de tamaño \textsc{T50x50}.
 
-Este cambio que se produce en la ejecución al agrandar el tamaño del problema, tendrá impacto en los tiempos de las distintas versiones de la aplicación como veremos en el siguiente capitulo.
+Este cambio que se produce en los porcentajes de tiempo del perfilado al agrandar el tamaño del problema, puede tener impacto en los tiempos de la aplicación al ser paralelizada. Esto se analizará en el Capítulo 4.
 
 \begin{figure}[htb]%[htp]
   \centering
   \includegraphics[width=0.60\textwidth]{figuras/gprof4.png} \\
-  \caption{Salida de \emph{gprof}. Aplicación para problema de tamaño 80x80.} %
+  \caption{Salida de \emph{gprof}. Aplicación para problema de tamaño \textsc{T80x80}.} %
    \label{figGprof4}
 \end{figure}
 
 \section{Optimización Serial del código Fortran}
-La optimización serial es ``un proceso iterativo que involucra medir repetidamente un programa seguido de optimizar sus porciones críticas'' \citep{Garg}. Obtenidas las mediciones iniciales del comportamiento, debemos utilizar las opciones del compilador en línea de comandos que permitan la mayor optimización del código (en recursos y velocidad de ejecución) y vincular  el código objeto con bibliotecas optimizadas. En el trabajo de tesis se intenta reducir al mínimo las modificaciones al código, por lo cual las opciones que se utilizarán para la compilación serán únicamente las referidas a la infraestructura de programación paralela de OpenMP. 
+La optimización serial es ``un proceso iterativo que involucra medir repetidamente un programa seguido de optimizar sus porciones críticas'' \citep{Garg}. Obtenidas las mediciones iniciales de ejecución de la aplicación, se procedió con la optimización serial. En el trabajo de tesis las opciones que se utilizarán para la compilación serán únicamente las referidas a la infraestructura de programación paralela de OpenMP. 
 
-Por lo demás, la aplicación no hace uso de ninguna otra biblioteca que no se cuente entre las que utiliza regularmente el compilador para construir la aplicación. Como buscamos observar el impacto de optimizar serialmente el código y aplicar paralelización, no se utilizan bibliotecas que pudieran optimizar otras partes del programa.
+Por lo demás, la aplicación no hace uso de ninguna otra biblioteca que no se cuente entre las que utiliza regularmente el compilador. Como buscamos observar el impacto de optimizar serialmente el código y aplicar paralelización, no se utilizan bibliotecas que pudieran optimizar otras partes del programa.
 
 \subsection{Análisis del acceso a datos de la aplicación}
-Al analizar los resultados de ejecución de la aplicación observamos que maneja gran cantidad de archivos en disco, tanto de texto como binarios (temporales). En el directorio de la aplicación aparecen 34 archivos de extensión TXT, 9 archivos PLT, 5 archivos OUT y 8 archivos TMP. A éstos se agregan el propio archivo fuente .for, el ejecutable invisidosExe, el archivo con los datos de entrada entvis2f.in, y el que utilizamos para almacenar los datos de gprof, invisidosExegprof. En la Fig. \ref{consLS} se puede observar el listado del directorio de ejecución.\\
+Al analizar los resultados de ejecución de la aplicación, se observó que genera gran cantidad de archivos en disco, tanto de texto como binarios (temporales). En el directorio de la aplicación figuraron 34 archivos de extensión TXT, 9 archivos PLT, 5 archivos OUT y 8 archivos TMP (temporales). A éstos se suman el archivo fuente \emph{invisidos2fin.for}, el ejecutable \emph{invisidosExe}, el archivo con los datos de entrada \emph{entvis2f.in}, y el que se utilizó para almacenar los datos de \emph{gprof}, \emph{invisidosExegprof}. En la Fig. \ref{consLS} se puede observar el listado del directorio de ejecución.
+
 \begin{figure}[h!]%[htp]
   \begin{lstlisting}[style=consola, numbers=none]
         h4ndr3s@gondolin:~/pruebas/oldone\$ ls
@@ -101,15 +102,15 @@ Al analizar los resultados de ejecución de la aplicación observamos que maneja g
   \caption{Listado del directorio luego de la ejecución del programa}
   \label{consLS}
 \end{figure}
-Los tamaños de la mayoría de los archivos van desde 8 KB hasta 2 MB, pero los archivos TMP pueden alcanzar un tamaño de varios megabytes (se observan algunos del orden de los cientos de megabytes). Esto evidencia que una corrida de la aplicación intercambia un volumen significativo de datos entre la aplicación y el sistema de archivos.
+Los tamaños de la mayoría de los archivos fue desde 8 KB hasta 2 MB, pero los archivos temporales alcanzaron un tamaño de varios megabytes (se observan algunos del orden de los cientos de megabytes). Esto evidencia que una ejecución de la aplicación intercambia un volumen significativo de datos entre la aplicación y el sistema de archivos.
 
-Con el fin de localizar las subrutinas mas adecuadas para la optimización, relevamos la relación entre cada archivo y las subrutinas que lo acceden, indicando las operaciones realizadas (escritura, lectura, lectura/escritura, rewind). De este relevamiento se obtiene la lista de archivos que únicamente son escritos en disco, y los que son además leídos, por cada subrutina. La relación de archivos y subrutinas se muestra en la tabla \ref{tab:tabArch}.\\
+Con el fin de localizar las subrutinas mas adecuadas para la optimización, se relevó la relación entre cada archivo y las subrutinas que lo acceden, indicando las operaciones realizadas: escritura, lectura, lectura/escritura, rewind. De este relevamiento se obtuvo la lista de archivos que únicamente son escritos en disco, y los que son además leídos, por cada subrutina. La relación de archivos y subrutinas se muestra en la tabla \ref{tab:tabArch}.\\
 
 \begin{table}[htb]
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline 
-\rule[-1ex]{0pt}{2.5ex} Archivos & Función & Operación \\ 
+\rule[-1ex]{0pt}{2.5ex} Archivos & Subrutina & Operación \\ 
 \hline 
 \hline
 \rule[-1ex]{0pt}{2.5ex} cpei.plt, cpei.txt & presion2 & write only \\ 
@@ -147,7 +148,7 @@ Con el fin de localizar las subrutinas mas adecuadas para la optimización, relev
 \rule[-1ex]{0pt}{2.5ex} fzas.txt, fuerza.plt, vector.plt & cargas & write only \\ 
 \hline 
 \rule[-1ex]{0pt}{2.5ex} \multirow{2}{1cm}{coefg.tmp, cindg.tmp} & circulac & write y rewind \\ \cline{2-3}
-& solgauss & read y rewind \\ \cline{2-3}
+& \emph{solgauss} & read y rewind \\ \cline{2-3}
 \hline 
 \rule[-1ex]{0pt}{2.5ex} \multirow{2}{1cm}{cix1.tmp, ciy1.tmp, ciz1.tmp} & anillo & write y rewind \\ \cline{2-3}
 & coefin & read y rewind \\ \cline{2-3}
@@ -164,23 +165,23 @@ Con el fin de localizar las subrutinas mas adecuadas para la optimización, relev
 %\hline 
 \hline 
 \end{tabular} 
-\caption {Relación archivos y funciones de la aplicación}
+\caption {Relación archivos y subrutinas de la aplicación}
 \label{tab:tabArch}
 \end{center}
 \end{table}
 
 Fortran ofrece los archivos regulares, o \emph{archivos externos} soportados en disco (\emph{External Files}), pero también los \emph{archivos internos} (\emph{Internal Files}), que son cadenas de caracteres o arreglos de cadenas de caracteres, localizados en memoria principal. Los \emph{archivos internos} se manejan con las mismas funciones que los \emph{archivos externos}, y la única restricción para su uso es la cantidad de memoria virtual del sistema. 
-Como la latencia de los accesos a disco magnético es, normalmente, al menos cinco órdenes de magnitud mayor que la de los accesos a memoria principal \citep{Gregg}, cambiando la definición de los archivos en disco a \emph{archivos internos} (siempre que la restricción de tamaño del sistema de memoria virtual lo permita) conseguimos una mejora sustancial de desempeño de la aplicación, sin ninguna modificación importante al código ni al comportamiento del programa.
+Como la latencia de los accesos a disco magnético es, normalmente, al menos cinco órdenes de magnitud mayor que la de los accesos a memoria principal \citep{Gregg}, al cambiar la definición de los archivos en disco a \emph{archivos internos} (siempre que la restricción de tamaño del sistema de memoria virtual lo permita) se consigue una mejora de desempeño de la aplicación, sin ninguna modificación importante al código ni al comportamiento del programa.
 
 \subsection{Optimización por adaptación de archivos externos a internos}
-La primera decisión tomada para la optimización del código es reducir el impacto de los accesos a archivos en disco que son leídos y además escritos por la aplicación. No efectuaremos ninguna modificación sobre los archivos que son únicamente escritos por las subrutinas, con cuatro excepciones: la escritura de los archivos \emph{integ1.txt} e \emph{integ2.txt} en la subrutina \emph{estela}, retrasada hasta el final de la misma, y los archivos \emph{salida2.out}, que guarda resultados de la ejecución a medida que avanza, y \emph{subr.out}, que recoge lo mostrado en salida estándar. 
-Estos archivos se guardarán en objetos de tipo Archivo Interno (Internal File) de Fortran y su escritura se demorará hasta la finalización del programa. La elección de no pasar más archivos a archivos internos es para evitar un incremento elevado en la cantidad de memoria utilizada por la aplicación.
+La primera decisión tomada para la optimización del código es reducir el impacto de los accesos a archivos en disco que son leídos y además escritos por la aplicación. No se efectuó ninguna modificación sobre los archivos que son únicamente escritos por las subrutinas, con cuatro excepciones: la escritura de los archivos \emph{integ1.txt} e \emph{integ2.txt} en la subrutina \emph{estela}, retrasada hasta el final de la misma, y los archivos \emph{salida2.out}, que guarda resultados de la ejecución a medida que avanza, y \emph{subr.out}, que recoge lo mostrado en salida estándar. 
+Estos archivos se decidió guardarlos en objetos de tipo Archivo Interno (\emph{Internal File}) de Fortran y su escritura se demoró hasta la finalización del programa. La elección de no pasar más archivos a archivos internos es para evitar un incremento elevado en la cantidad de memoria utilizada por la aplicación.
 
-Un caso especial es el archivo interno \emph{outstd} que lleva lo impreso en salida estándar dentro de algunas subrutinas (estela, geomest, etc), y es mostrado por pantalla al retornar dichas subrutinas al programa principal.
+Un caso especial es el archivo interno \emph{outstd} que lleva lo impreso en salida estándar dentro de algunas subrutinas (\emph{estela}, \emph{geomest}, etc), y es mostrado por pantalla al retornar dichas subrutinas al programa principal.
 
-Luego, todo archivo externo que sea escrito y leído durante la ejecución de la aplicación será mantenido por un archivo interno. La única modificación necesaria al código será el cambio de las referencias a los archivos en las sentencias ``write'', ``read'' y ``rewind''. En la Fig. \ref{codSinMod} se muestra un ejemplo de código previo a la modificación, y en la Fig. \ref{codModif} el código ya modificado.
+Luego, todo archivo externo que sea escrito y leído durante la ejecución de la aplicación fue mantenido por un archivo interno. La única modificación necesaria al código es el cambio de las referencias a los archivos en las sentencias ``write'', ``read'' y ``rewind''. En la Fig. \ref{codSinMod} se muestra un ejemplo de código previo a ser modificado, y en la Fig. \ref{codModif} el código con la modificación.
 
-Como se ve, reemplazamos el archivo \emph{subr.out} representado por el identificador de unidad 15 por el archivo interno denominado subrout.
+Como se ve, se reemplazó el archivo \emph{subr.out} representado por el identificador de unidad 15 por el archivo interno denominado \emph{subrout}.
 
 \begin{figure}[htb]%[htp]
 %  \begin{lstlisting}[style=For, numbers=none]
@@ -211,8 +212,8 @@ Como se ve, reemplazamos el archivo \emph{subr.out} representado por el identifi
   \label{codModif}
 \end{figure}
 
-Como se ha dicho, el archivo externo \emph{subr.out} pasa a ser manejado como un archivo interno, que como se ve en la declaración de la Fig. \ref{codModif}, es un arreglo de 500 cadenas de 60 caracteres como máximo. La variable nsubr mantiene la posición en el archivo interno a ser escrita, y el argumento ``1'' en los comandos write es un formato de escritura definido dentro del programa como se explicaba en el capítulo anterior.
-En la tabla \ref{tab:tabEquiv} vemos cómo quedan las equivalencias de los archivos externos y su correspondiente cambio a archivo interno.
+Como se ha dicho, el archivo externo \emph{subr.out} pasa a ser manejado como un archivo interno, que como se ve en la declaración de la Fig. \ref{codModif}, es un arreglo de 500 cadenas de 60 caracteres como máximo. La variable \emph{nsubr} mantiene la posición en el archivo interno a ser escrita, y el argumento ``1'' en los comandos write es un formato de escritura definido dentro del programa. En el Anexo \ref{apen1} se explican los formatos.
+En la tabla \ref{tab:tabEquiv} se ve cómo quedan las equivalencias de los archivos externos y su correspondiente cambio a archivo interno.
 
 \begin{table}[htb]
 \begin{center}
@@ -257,44 +258,44 @@ En la tabla \ref{tab:tabEquiv} vemos cómo quedan las equivalencias de los archiv
 \end{center}
 \end{table}
 
-El proceso fue realizado primero en la subrutina Estela, buscando mejorar sus tiempos al convertir el manejo de los archivos \emph{integ1.txt} e \emph{integ2.txt} en archivos internos, retrasando la escritura en disco de los datos hasta el final de la subrutina. Lo primero que se observa luego de esta modificación es un comprensible incremento del uso de memoria de la aplicación, pasando de un uso de 200 a 202 MB, originalmente, sin aplicar ninguna modificación, a utilizar 205 MB con la modificación indicada en el tratamiento de los archivos. Es un cambio en principio poco significativo, pero con las modificaciones sucesivas se verá el impacto en la utilización de memoria.
+El proceso se realizó primero en la subrutina \emph{estela}, buscando mejorar sus tiempos al convertir el manejo de los archivos \emph{integ1.txt} e \emph{integ2.txt} en archivos internos, retrasando la escritura en disco de los datos hasta el final de la subrutina. Lo primero que se observó luego de esta modificación es un comprensible incremento del uso de memoria de la aplicación, pasando de utilizar entre 200 MB y 202 MB, originalmente, sin aplicar ninguna modificación, a utilizar 205 MB con la modificación indicada en el tratamiento de los archivos. Es un cambio en principio poco significativo, pero con las modificaciones sucesivas se vio el impacto en la utilización de memoria.
 
-De acuerdo a la tabla de funciones y archivos, y al análisis efectuado mediante gprof, procedimos a modificar las subrutinas Solgauss y Circulac que son las que leen y escriben los archivos TMP respectivamente, archivos que consumen la mayor cantidad de espacio en disco de los utilizados por la aplicación.
-Antes de realizar el cambio directamente, analizamos qué estructura sería la más adecuada para alojar los resultados, ya que los archivos TMP eran binarios sin formato, que transportaban valores calculados de una subrutina a otra.
+De acuerdo a la tabla de funciones y archivos, y al análisis efectuado mediante \emph{gprof}, se procedió a modificar las subrutinas \emph{solgauss} y \emph{circulac} que son las que leen y escriben, respectivamente, los archivos temporales, que consumen la mayor cantidad de espacio en disco de los utilizados por la aplicación.
+Antes de realizar el cambio directamente, se analizó qué estructura sería la más adecuada para alojar los resultados, ya que los archivos temporales eran binarios sin formato, que transportaban valores calculados de una subrutina a otra.
 
-Seleccionamos primero los archivos coefg.tmp y cindg.tmp (definidos como units 40 y 41 respectivamente al principio de la aplicación original) ya que eran los de menor tamaño de todos los archivos tipo TMP. Como observamos en la tabla \ref{tab:tabArch}, los archivos mencionados son escritos en la subrutina ``circulac'' y leídos en \emph{solgauss} (además de los rewind).
+Se seleccionaron primero los archivos \emph{coefg.tmp} y \emph{cindg.tmp} (definidos como \emph{units} 40 y 41 respectivamente al principio de la aplicación original) ya que eran los de menor tamaño de todos los archivos temporales. Como observamos en la tabla \ref{tab:tabArch}, los archivos mencionados son escritos en la subrutina \emph{circulac} y leídos en \emph{solgauss}.
 
-La subrutina circulac, como indica en sus comentarios realiza el cálculo de la circulación asociada a la estela y a cada anillo vorticoso. Está dividida en tres partes, siendo la primer parte la que realiza la escritura de los archivos coefg.tmp y cindg.tmp, y donde para estos cálculos lee los archivos tmp cix2.tmp, ciy2.tmp y ciz2.tmp, los cuales no son modificados en esta etapa. La segunda parte realiza la resolución de un sistema de npa*npa ecuaciones algebraicas y lo hace llamando a la subrutina solgauss que veremos a continuación. En la tercer parte con los resultados obtenidos se calculan otros valores que se escriben en otros archivos de resultados.
+La subrutina \emph{circulac}, indica en sus comentarios que realiza el cálculo de la circulación asociada a la estela y a cada anillo vorticoso. Está dividida en tres partes, siendo la primer parte la que realiza la escritura de los archivos \emph{coefg.tmp} y \emph{cindg.tmp}, y donde para estos cálculos lee los archivos temporales \emph{cix2.tmp}, \emph{ciy2.tmp} y \emph{ciz2.tmp}, los cuales no son modificados en esta etapa. La segunda parte realiza la resolución de un sistema de $npa*npa$ ecuaciones algebraicas y lo hace llamando a la subrutina \emph{solgauss} que veremos a continuación. En la tercer parte con los resultados obtenidos se calculan otros valores que se escriben en otros archivos de resultados.
 
-Como la subrutina ``circulac'' es la que crea los archivos coefg.tmp y cindg.tmp analizamos las estructuras de control utilizadas para generar dichos archivos. 
+Como la subrutina \emph{circulac} es la que crea los archivos \emph{coefg.tmp} y \emph{cindg.tmp} se analizó en el código de la misma las estructuras de control utilizadas para generar dichos archivos. 
 
-El bucle externo controlado por el ``do 1'' realiza el equivalente a \emph{npan} iteraciones, con lo cual podemos concluir que el archivo determinado por la unit 41 (lo sabemos por el write(41)), es decir cindg.tmp, almacena un total de \emph{npan} resultados. El bucle interno controlado por el ``do 2'' realiza \emph{npan} * \emph{npan} iteraciones, por lo tanto el archivo determinado por la unit 40 (write(40)), i.e. coefg.tmp, almacena \emph{npan} * \emph{npan} resultados. 
+En la porción de código que genera el archivo \emph{cindg.tmp}, el bucle externo controlado por un \textsc{do 1} realiza el equivalente a $npan$ iteraciones, con lo cual se pudo concluir que el archivo determinado por la unidad 41 o \emph{cindg.tmp}, deducido el número de unidad a partir de un \textsc{write(41)} en la estructura de control, almacena un total de $npan$ resultados. El bucle interno controlado por un \textsc{do 2} realiza $npan * npan$ iteraciones, por lo tanto el archivo determinado por la unidad 40 (\textsc{write(40)}), i.e. \emph{coefg.tmp}, almacena $npan * npan$ resultados. 
 
-Analizado esto podemos definir que los tamaños de los archivos internos para dichos archivos serán de \emph{npan} y \emph{npan} * \emph{npan}. Luego podemos ver que las variables \emph{coefg} y \emph{cindg} que almacenan los resultados para escribir en los archivos no están tipificadas explícitamente en el código, con lo cual observamos en el bloque common de toda la aplicación (repetido en cada subrutina) que se realiza la siguiente declaración:
+Analizado esto se define que los tamaños de los archivos internos para dichos archivos serán de \emph{npan} y \emph{npan} * \emph{npan}. Luego se observa que las variables \emph{coefg} y \emph{cindg} que almacenan los resultados para escribir en los archivos no están tipificadas explícitamente en el código, con lo cual observamos en el bloque common de toda la aplicación (repetido en cada subrutina) que se realiza la siguiente declaración:
 \begin{lstlisting}[style=For, numbers=none]
   implicit real*8 (a-h,o-z)
 \end{lstlisting}
-la que indica que cualquier variable no tipificada definida en el código cuyo nombre comience con una letra entre los rangos indicados (a-h y o-z) será declarada, implícitamente, como real * 8, por lo cual podemos asegurar que \emph{coefg} y \emph{cindg} son de tipo real * 8. Con esto determinado podemos declarar archivos internos de tipo real * 8 de tamaños \emph{npan} y \emph{npan} * \emph{npan} para reemplazar a cindg.tmp y coefg.tmp respectivamente:
+Esto indica que cualquier variable no tipificada definida en el código cuyo nombre comience con una letra entre los rangos indicados (a-h y o-z) será declarada, implícitamente, como \emph{real * 8}, por lo cual se deduce que \emph{coefg} y \emph{cindg} son de tipo \textsc{real * 8}. Con esto determinado se declaran archivos internos de tipo \textsc{real * 8} de tamaños \emph{npan} y \textsc{npan * npan} para reemplazar a \emph{cindg.tmp} y \emph{coefg.tmp} respectivamente:
 \begin{lstlisting}[style=For, numbers=none]
   real*8 cindgtmp(npan),coefgtmp(npan*npan)
 \end{lstlisting}
-siendo cindgtmp el archivo interno para cindg.tmp y coefgtmp el archivo interno para coefg.tmp.
+Se define \emph{cindgtmp} el archivo interno para \emph{cindg.tmp} y \emph{coefgtmp} el archivo interno para \emph{coefg.tmp}.
 
-Ahora debemos reemplazar las escrituras de los archivos binarios en disco con los archivos internos de la siguiente manera, donde existían las siguientes operaciones de escritura:
+Luego se procedió a reemplazar las escrituras de los archivos binarios en disco con los archivos internos de la siguiente manera, donde existían las siguientes operaciones de escritura:
 \begin{lstlisting}[style=For, numbers=none]
   write(40)coefg
   write(41)cindg
 \end{lstlisting}
-reemplazamos con el siguiente código:
+se reemplazó con el siguiente código:
 \begin{lstlisting}[style=For, numbers=none]
   coefgtmp(incoefg)=coefg
   cindgtmp(npa)=cindg
 \end{lstlisting}
 respectivamente. 
 
-La variable \emph{incoefg} es utilizada para marcar la posición en el array de \emph{npan} * \emph{npan} elementos, archivo interno coefgtmp, por cada vez que entramos en el bucle interior. Como es un array de dimensión 1 (igual al archivo binario que reemplaza) es necesario tener guardada la última posición accedida por cada iteración del bucle externo. Para el archivo interno cindgtmp que reemplaza a cindg.tmp con utilizar la variable ``npa'' es suficiente, ya que lleva exactamente la posición en el array por cada iteración (es la variable de control del bucle).
+La variable \emph{incoefg} es utilizada para marcar la posición en el archivo interno \emph{coefgtmp}, de $npan * npan$ elementos, por cada vez que entramos en el bucle interior. Al ser un arreglo de una dimensión (igual al archivo binario que reemplaza) que es escrito en un bucle interno, es necesario tener guardada la última posición accedida por cada iteración del bucle externo, de manera que cada nuevo ingreso al bucle interno continue de la siguiente posición libre. Para el archivo interno \emph{cindgtmp} que reemplaza a \emph{cindg.tmp}, con utilizar la variable \emph{npa} es suficiente, ya que solo se accede en el bucle externo y dicha variable lleva exactamente la posición en el arreglo por cada iteración (es la variable de control del bucle).
 
-En el siguiente extracto de código observamos las estructuras DO mencionadas que aparecen al principio de ``circulac'' \citep{Prado}:
+En el siguiente extracto de código observamos las estructuras DO mencionadas que aparecen al principio de \emph{circulac} \citep{Prado}:
 \begin{lstlisting}[style=For, numbers=none]
   do 1 npa=1,npan
   do 2 nv =1,npan  
@@ -308,7 +309,8 @@ En el siguiente extracto de código observamos las estructuras DO mencionadas que
   write(41)cindg
 1 continue
 \end{lstlisting}
-Como explicamos, la segunda parte de ``circulac'' llama a la subrutina \emph{solgauss}, y previamente habíamos dicho que los archivos cindg.tmp y coefg.tmp que estamos reemplazando son escritos por la primera subrutina y leídos por la segunda. En \emph{solgauss} el cambio es simple, tenemos dos bucles anidados que iteran de la misma manera que en ``circulac'', sólo que leen los datos almacenados en los archivos TMP. Luego de esto hacen rewind de los archivos para que vuelvan a quedar disponibles para lectura al principio de los mismos. A continuación podemos ver el código original \citep{Prado}:
+
+Como se explico, la segunda parte de \emph{circulac} llama a la subrutina \emph{solgauss}, y previamente se indicó que los archivos \emph{cindg.tmp} y \emph{coefgtmp} que son reemplazados se escriben por la primer subrutina y se leen en la segunda. En \emph{solgauss} el cambio es simple, se tienen dos bucles anidados que iteran de la misma manera que en \emph{circulac}, sólo que leen los datos almacenados en los archivos temporales en lugar de escribirlos. Luego de esto hacen \textsc{rewind} de los archivos para que queden disponibles para lectura al principio de los mismos. A continuación se puede ver la parte del código original mencionada que pertenece a \emph{solgauss}.
 \begin{lstlisting}[style=For, numbers=none]
   m=npan+1
 
@@ -324,25 +326,27 @@ Como explicamos, la segunda parte de ``circulac'' llama a la subrutina \emph{sol
   rewind(40) 
   rewind(41)
 \end{lstlisting}
-Aquí se leen ambos archivos para armar una matriz con la variable denominada coefg, la cual tiene \emph{npan} filas y npan+1 columnas, realizando lo siguiente: en cada fila almacena en los primeros \emph{npan} valores, o primeras \emph{npan} columnas, los datos obtenidos de coefg.tmp, y en último lugar, columna npan+1, el dato obtenido de cindg.tmp.
+Aquí se leen ambos archivos para armar una matriz con la variable denominada \emph{coefg}, la cual tiene \emph{npan} filas y \emph{npan+1} columnas. Lo que se realiza es que en cada fila se almacena en los primeros \emph{npan} valores, o primeras \emph{npan} columnas, los datos obtenidos de \emph{coefg.tmp}, y en último lugar, columna \emph{npan+1}, el dato obtenido de \emph{cindg.tmp}.
 
-Para permitir que \emph{solgauss} pueda trabajar con el cambio que introdujimos es necesario que reciba de alguna manera las referencias a los archivos internos. Esto lo conseguimos simplemente pasando por parámetro los mismos. El cambio en el código sería el siguiente:
-\\
-Código original definición de subrutina
+Para permitir que \emph{solgauss} pueda trabajar con el cambio que se realizó, es necesario que reciba de alguna manera las referencias a los archivos internos. Esto lo conseguimos pasando por parámetro los mismos. 
+
+La definición de la subrutina en el código original es la siguiente:
 \begin{lstlisting}[style=For, numbers=none]
   subroutine solgauss(npan,gama)
    ...
 \end{lstlisting}
-Código modificado
+
+El código modificado quedó de esta forma:
 \begin{lstlisting}[style=For, numbers=none]
   subroutine solgauss(npan,gama,tmpcoefg,tmpcindg)
   ...
   real*8 tmpcoefg(mxro*mxro),tmpcindg(mxro)
 \end{lstlisting}
-Aquí tmpcoefg y tmpcindg son los nombres con los que identifica la subrutina a los archivos internos, y ambos arrays deben ser declarados explícitamente en la sección correspondiente.
+Aquí \emph{tmpcoefg} y \emph{tmpcindg} son los nombres con los que identifica la subrutina a los archivos internos y se agregan como parámetros. Ambos arreglos deben ser declarados explícitamente en la sección correspondiente dentro de la subrutina y con el mismo tipo que poseen los archivos definidos en \emph{circulac}. La variable \emph{mxro} es igual a \emph{npan}.
 
-Luego de que \emph{solgauss} conoce la existencia de los archivos internos necesarios, modificamos los bucles de control para que los utilicen.\\
-El código visto previamente de solgauss quedó de la siguiente manera:
+Luego de que \emph{solgauss} conoce la existencia de los archivos internos necesarios, se modificaron los bucles de control para que los utilicen.
+
+El código visto previamente de \emph{solgauss} quedó de la siguiente manera:
 \begin{lstlisting}[style=For, numbers=none]
    m=npan+1                                                     
    incfg=1                                                      
@@ -363,30 +367,31 @@ El código visto previamente de solgauss quedó de la siguiente manera:
    !rewind(40)                                                  
    !rewind(41)
 \end{lstlisting}
-Como indicábamos, el cambio no es complicado. Lo primero que hicimos fue la inclusión de una variable de control ``incfg'' inicializada en 1 con la cual mantener la posición de la cual debe leerse desde tmpcoefg (que reemplaza a coefg.tmp) la próxima vez que se ingresa al bucle de control; luego cambiamos las sentencias read en disco de los archivos de texto por el acceso a los archivos internos (en memoria), utilizando una variable auxiliar extra para leer el dato y luego ingresarlo en la matriz ``coefg''. La variable auxiliar es utilizada para salvar errores aleatorios encontrados en los datos asignados al utilizar una asignación directa del archivo interno a la matriz ``coefg''. La variable ``incfg'' es utilizada para seguir la posición del archivo interno ``tmpcoefg'', ya que la posición del archivo interno ``tmpcindg'' puede ser llevada utilizando la variable de control del bucle, en este caso ``i''.
 
-Estos cambios y ajustes para el recambio de archivos de texto por archivos internos (arrays en memoria) se realizó por cada uno de los archivos indicados en la tabla \ref{tab:tabEquiv}. 
+Como se indicó, el cambio no es complicado. Lo primero que se hizo fue la inclusión de una variable de control \emph{incfg} inicializada en $1$ con la cual se mantiene la posición desde la cual debe leerse \emph{tmpcoefg} la próxima vez que se ingresa al bucle de control; luego se cambiaron las sentencias \textsc{read} de los archivos de texto en disco, por el acceso a los archivos internos en memoria, utilizando una variable auxiliar extra para leer el dato y luego ingresarlo en la matriz \emph{coefg}. La variable auxiliar se utilizó para evitar errores aleatorios, que pueden ser encontrados al utilizar una asignación directa del archivo interno \emph{tmpcoefg} a la matriz \emph{coefg}. Al igual que en el código original, la posición del archivo interno \emph{tmpcindg} puede ser llevada utilizando la variable de control del bucle, en este caso \emph{i}.
 
-En su mayor parte el cambio es simple y consiste en modificar unas pocas líneas de código, como por ejemplo las que mantienen los archivos \emph{subr.out} y \emph{salida2.out} para postergar la escritura en disco de dichos archivos. Esos archivos internos son subrout y salida2out respectivamente, para los cuales agregamos la siguiente definición en el bloque ``common'':
+Estos cambios y ajustes para el recambio de archivos de texto por archivos internos (arreglos en memoria) se realizó por cada uno de los archivos indicados en la tabla \ref{tab:tabEquiv}. 
+
+En su mayor parte los cambios fueron simples y consistieron en modificar unas pocas líneas de código, como por ejemplo las que mantienen los archivos \emph{subr.out} y \emph{salida2.out} para postergar la escritura en disco de dichos archivos. Esos archivos internos son \emph{subrout} y \emph{salida2out} respectivamente, para los cuales se agregó la siguiente definición en el bloque \textsc{common}:
 \begin{lstlisting}[style=For, numbers=none]
   character salida2out(102)*95, subrout(500)*60
 \end{lstlisting}
-Y luego al utilizarlos llevar junto con ellos un contador que mantenga la posición siguiente para escribir, al cual llamamos nsubr para subrout:
+Y luego al ser utilizados se debe llevar junto con ellos un contador que mantenga la posición siguiente para escribir, al cual se llamó \emph{nsubr} para \emph{subrout}:
 \begin{lstlisting}[style=For, numbers=none]
   write(subrout(nsubr),1)
   nsubr=nsubr+1
 \end{lstlisting}
-y nsld2 para salida2out:
+y \emph{nsld2} para \emph{salida2out}:
 \begin{lstlisting}[style=For, numbers=none]
   write(salida2out(nsld2),21)indice,ncapa
   write(salida2out(nsld2+1),'(a1)') ""
   nsld2=nsld2+2
 \end{lstlisting}
-En estos ejemplos, recordamos del capítulo 2 que el número ubicado en el comando ``write'' al lado del archivo interno es una etiqueta de formato. La cantidad de elementos de estos arrays se corresponde con la cantidad de líneas que genera el archivo en disco.
+En estos ejemplos, el número ubicado en el comando \textsc{write} al lado del archivo interno es una etiqueta de formato \ref{apen1}. La cantidad de elementos de estos arreglos se corresponde con la cantidad de líneas que genera el archivo en disco.
 
-En el resto del código el tratamiento de estos archivos es similar, variando solamente de acuerdo a qué datos deben ser escritos en el mismo, como observamos en los archivos internos que vimos previamente, los que reemplazan a coefg.tmp y cindg.tmp.
+En el resto del código el tratamiento de estos archivos se realizó de manera similar, variando solamente de acuerdo a qué datos deben ser escritos en el mismo, como se observó en los archivos internos que vimos previamente, los que reemplazan a \emph{coefg.tmp} y \emph{cindg.tmp}.
 
-Un caso especial son los archivos internos cix1tmp, cix2.tmp, ciy1tmp, ciy2.tmp, ciz1tmp y ciz2.tmp, para los cuales sus homónimos archivos en disco (cix1.tmp, cix2.tmp, y así sucesivamente) son definidos en el programa original como ``unformatted'', i.e., sin formato, con lo cual se generan archivos en disco de tipo binario. Para obtener el mismo comportamiento en nuestros archivos internos debimos tener el cuidado de escribir en ellos sin dar formato a lo ingresado, i.e., los valores ingresan tal cual son generados por el programa. Veamos un ejemplo con cix1tmp. 
+Un caso especial son los archivos internos \emph{cix1tmp}, \emph{cix2tmp}, \emph{ciy1tmp}, \emph{ciy2tmp}, \emph{ciz1tmp} y \emph{ciz2tmp}, para los cuales sus homónimos archivos en disco (\emph{cix1.tmp}, \emph{cix2.tmp}, y así sucesivamente) son definidos en el programa original como \textsc{unformatted}, i.e., sin formato, con lo cual se generan archivos en disco de tipo binario. Para obtener el mismo comportamiento en los archivos internos se tuvo cuidado de escribir en ellos sin dar formato a lo ingresado, i.e., los valores ingresan tal cual son generados por el programa. A continuación vemos un ejemplo con \emph{cix1tmp}. 
 
 El código para escribir los valores en el programa original es el siguiente:
 \begin{lstlisting}[style=For, numbers=none]
@@ -398,9 +403,9 @@ El código para escribir los valores en el programa original es el siguiente:
 113 continue
 114 continue
 \end{lstlisting}
-La apertura del archivo cix1.tmp le asigna al principio del programa la unidad 42 para referencia posterior en el programa y de ahí el descriptor utilizado por el write, mientras que la matriz ``cix'' es generada por cálculos previos. Al asignar directamente y no dar un formato a utilizar en el comando write, estamos escribiendo los valores ``crudos'' para ser almacenados.
+La apertura del archivo cix1.tmp le asigna al principio del programa la unidad 42 para referencia posterior en el programa y de ahí el descriptor utilizado por el \textsc{write}, mientras que la matriz \emph{cix} es generada por cálculos previos. Al asignar directamente y no dar un formato a utilizar en el comando \textsc{write}, se están escribiendo los valores ``crudos'' para ser almacenados.
 
-El código en el programa optimizado es:
+El código en el programa optimizado quedó de la siguiente manera:
 \begin{lstlisting}[style=For, numbers=none]
     common  ... cix1tmp(maxro*maxro), ...
     ...
@@ -414,27 +419,27 @@ El código en el programa optimizado es:
 113 continue
 114 continue
 \end{lstlisting}
-Aquí referenciamos primero la definición del archivo interno cix1tmp, y no se define un tipo por defecto, por lo que, como explicamos en párrafos anteriores, toma el tipo implicito real*8 definido en el bloque ``common'' de cada subrutina. 
+Aquí se realizó primero la definición del archivo interno \emph{cix1tmp}, y no se define un tipo por defecto, por lo que, como se explicó en párrafos anteriores, tomó el tipo implícito \textsc{real*8} definido en el bloque \textsc{common} de cada subrutina. 
 
-El tamaño del archivo interno (maxro * maxro) es definido por el mismo bucle que lo genera, que itera desde 1 a ``npan'' dentro de otro bucle que itera la misma cantidad de veces, i.e., genera npan*npan elementos en cix1tmp. La variable maxro definida ``common'' y con valor previamente asignado es equivalente a npan, y maxro es preferida a ésta ya que en el bloque de definición \emph{npan} aún no tiene asignado su valor.  
+El tamaño del archivo interno, \textsc{maxro * maxro}, es definido por el mismo bucle que lo genera, que itera desde 1 a $npan$ dentro de otro bucle que itera la misma cantidad de veces, i.e., genera $npan*npan$ elementos en \emph{cix1tmp}. La variable \emph{maxro} definida en el bloque \textsc{common} y con valor previamente asignado es equivalente a \emph{npan}, y \emph{maxro} es preferida a ésta ya que en el bloque de definición, \emph{npan} aún no tiene asignado un valor.  
 
-Por último la variable ``kon'' oficia de contador de posiciones para el archivo interno.
+Por último la variable \emph{kon} oficia de contador de posiciones para el archivo interno.
 
-Luego de igual manera modificamos el código donde el archivo interno es leido por su equivalente interno. 
+Luego de igual manera modificamos el código donde el archivo interno es leído por su equivalente interno. 
 
-El código original sería:
+El código original es:
 \begin{lstlisting}[style=For, numbers=none]
   read(42)cinfx
 \end{lstlisting}
-Optimizado con archivo interno:
+Utilizando un archivo interno queda:
 \begin{lstlisting}[style=For, numbers=none]
   cinfx=cix1tmp(kon)
 \end{lstlisting}
-Donde nuevamente la variable ``kon'' lleva la posición dentro del archivo interno.
+Donde nuevamente la variable \emph{kon} lleva la posición dentro del archivo interno.
 
-De igual manera son manejados los demás archivos externos binarios como archivos internos, los cuales mantienen la información necesaria en memoria y no en disco. El tiempo de lectura y escritura de dichos archivos decrece considerablemente, pasando de tiempos de acceso medidos en milisegundos para un disco rígido, a tiempos de acceso en nanosegundos para la memoria RAM, lo cual implica un aumento teórico de velocidad en varios órdenes de magnitud. 
+De igual manera son manejados los demás archivos externos binarios como archivos internos, los cuales mantienen la información necesaria en memoria y no en disco. El tiempo de lectura y escritura de dichos archivos decrece considerablemente, pasando de tiempos de acceso medidos en milisegundos para un disco rígido, a tiempos de acceso en nanosegundos para la memoria RAM. 
 
-Obviamente esto trae aparejado una necesidad mayor de memoria RAM para el proceso ya que ésta debe ser capaz de contener la totalidad de los datos temporales que antes se contenían en disco, creciendo dicha necesidad proporcionalmente con el tamaño del problema calculado. Por ello inferimos que es posible que ante un tamaño suficientemente grande del problema, su cálculo no sea viable en ciertos equipos. Tratamos este tema en el capítulo 5.
+Obviamente esto trae aparejado una necesidad mayor de memoria RAM para el proceso, ya que ésta debe ser capaz de contener la totalidad de los datos temporales que antes se contenían en disco, creciendo dicha necesidad proporcionalmente con el tamaño del problema calculado. Por ello se puede conjeturar que es posible que ante un tamaño suficientemente grande del problema, su cálculo no sea viable en ciertos equipos, como los utilizados por equipos de investigación con bajo presupuesto. Se pone a consideración este tema en el Capítulo 5.
 
 Por los motivos recién indicados,en el trabajo de optimización se decidió no pasar la totalidad de los archivos externos a archivos internos y no diferir su escritura al final de la ejecución del programa, sino que se seleccionaron los más críticos a efectos del cálculo: aquellos que eran escritos y leídos durante la ejecución del programa, y manteniendo como archivos externos todos aquellos de lectura exclusiva o escritura exclusiva.
 
@@ -447,9 +452,9 @@ En la tabla \ref{tab:tabCambio} se enumeran los archivos que se decidió manejar 
 \rule[-1ex]{0pt}{2.5ex} Archivo en Disco & Archivo Interno & Motivo del Cambio \\ 
 \hline 
 \hline
-\rule[-1ex]{0pt}{2.5ex} integ1.txt & integ1 & Mejorar tiempo de subr. estela \\
+\rule[-1ex]{0pt}{2.5ex} integ1.txt & integ1 & Mejorar tiempo de subr. \emph{estela} \\
 \hline
-\rule[-1ex]{0pt}{2.5ex} integ2.txt & integ2 & Mejorar tiempo de subr. estela \\
+\rule[-1ex]{0pt}{2.5ex} integ2.txt & integ2 & Mejorar tiempo de subr. \emph{estela} \\
 \hline
 \rule[-1ex]{0pt}{2.5ex} salida2.out & salida2out & Diferir escritura \\
 \hline
@@ -483,16 +488,11 @@ En la tabla \ref{tab:tabCambio} se enumeran los archivos que se decidió manejar 
 \end{center}
 \end{table}
 
-Una vez realizados los cambios indicados, verificamos que los resultados siguieran siendo los correctos. Para ello comparamos los archivos de salida de la aplicación original con los generados por la misma aplicación, verificando que produzcan la misma salida. Al ser archivos de texto esto puede ser realizado con aplicaciones como \emph{diff} o \emph{vimdiff}\footnote{Para una referencia de los comandos en GNU/Linux ver su manual: ``man diff'' o ``man vimdiff''.}, los cuales permiten verificar que ambos archivos tienen el mismo contenido o no.
+\subsection{Efecto de la optimización serial}
 
-Una vez verificado esto, a continuación pasamos a la siguiente etapa de optimización.
+Una vez realizados los cambios indicados, se verificó que los resultados de esta nueva versión de la aplicación sean correctos. Para ello se compararon los archivos de salida de la aplicación original con los generados por la nueva versión de la aplicación, verificando que produzcan la misma salida. Al ser archivos de texto esto puede ser realizado con aplicaciones como \emph{diff} o \emph{vimdiff}\footnote{Para una referencia de los comandos en GNU/Linux ver su manual: ``man diff'' o ``man vimdiff''.}, los cuales permiten verificar que ambos archivos tienen el mismo contenido o no.
 
-\section{Optimización Paralela para Multiprocesamiento}
-
-Con el primer paso de optimización realizado es posible llevar a cabo la optimización paralela del código con el modelo de programación paralela seleccionado.
-
-Como vimos en la sección \ref{ssec:perfilado}, de acuerdo al resultado de la herramienta gprof, el código candidato para ser optimizado en ese primer momento era principalmente la subrutina \emph{estela}, seguida de \emph{solgauss}.
-Si compilamos nuestro programa nuevamente con el profiler de GNU (gprof), pero con la optimización de los archivos internos, obtenemos que la subrutina \emph{estela} sigue siendo la de  mayor peso en la ejecución, seguida de solgauss, incluso en porcentajes bastante aproximados a los obtenidos para el programa original. Esto lo podemos observar en la Fig. \ref{figGprofInt}. 
+Se comprobó que el programa, con las modificaciones de la optimización serial, continúa siendo determinista. La versión optimizada en el primer equipo muestra el perfil de ejecución de la Fig. \ref{figGprofInt}.
 
 \begin{figure}[h!]%[htp]
   \centering
@@ -502,9 +502,43 @@ Si compilamos nuestro programa nuevamente con el profiler de GNU (gprof), pero c
 \end{figure}
 
 
-\subsection{Análisis de la subrutina Estela}
+Como se vio en la sección \ref{ssec:perfilado}, de acuerdo al resultado de la herramienta \emph{gprof}, el código candidato para ser optimizado en ese momento era principalmente la subrutina \emph{estela}, seguida de \emph{solgauss}.
+Si se compila la aplicación nuevamente con el profiler de GNU (\emph{gprof}), pero con la optimización de archivos internos realizada, obtenemos que la subrutina \emph{estela} sigue siendo la de  mayor peso en la ejecución, seguida de \emph{solgauss}, incluso en porcentajes bastante aproximados a los obtenidos para el programa original.
 
-En la definición de la subrutina \emph{estela}, el código documentado del programa indica que ésta realiza ``cálculo de los coeficientes de influencia de los hilos libres''. Los cálculos realizados dentro de la subrutina son numerosos y complejos, por lo cual utilizaremos un pseudocódigo para poder observar los puntos más importantes dentro de la subrutina que pueden ser candidatos a ser paralelizados. En la Fig. \ref{codEstela} aparece el pseudocódigo anotado de la subrutina estela.
+Aunque en el Capítulo 4 se realizará un examen exhaustivo de las etapas de la optimización, esta primera etapa ya ha dado resultados tangibles a simple vista. En la tabla \ref{tab:tabMejoras} vemos en el primer equipo la reducción efectiva de tiempos correspondiente a la optimización serial realizada.
+
+\begin{table}[htb]
+\begin{center}
+\begin{tabular}{|p{7cm}|c|c|c|}
+\hline 
+\rule[-1ex]{0pt}{2.5ex} & Original & Optimizado & Tiempo Mejorado \\ 
+\hline 
+\hline
+\rule[-1ex]{0pt}{2.5ex} Tiempo Total & 21 min 48 s & 16 min 2 s & 5 min 46 s \\
+\hline
+\rule[-1ex]{0pt}{2.5ex} Tiempo CPU en \emph{estela} (\emph{gprof}) & 5 min 20 s & 5 min 28 s & -8 s \\
+\hline
+\rule[-1ex]{0pt}{2.5ex} Tiempo CPU en \emph{solgauss} (\emph{gprof}) & 1 min 20 s & 1 min 22 s & -2 s \\
+\hline
+\rule[-1ex]{0pt}{2.5ex} Tiempo restante (E/S, llamadas al sistema, etc.) & 15 min 8 s & 9 min 12 s & 5 min 56 s \\
+\hline
+\end{tabular} 
+\caption {Comparación de tiempos: Original vs Optimizado serialmente en primer equipo.}
+\label{tab:tabMejoras}
+\end{center}
+\end{table}
+
+La tabla \ref{tab:tabMejoras} muestra que el primer paso de optimización ha reducido el tiempo total de ejecución de la aplicación en 5 min 46 s, i.e., un 26.44\%. 
+
+En la tabla también se puede observar que la mejora en el rendimiento viene dada por la optimización de la E/S realizada por el programa. En la tabla se puede ver el tiempo total de ejecución y los tiempos de CPU de acuerdo al perfilado de las subrutinas \emph{estela} y \emph{solgauss}, y el tiempo restante es la diferencia entre el total y los resultados de las subrutinas. Se puede observar de esto que la mayor reducción de tiempo se obtiene en el tiempo restante, donde se incluye toda la E/S del programa, i.e., la parte optimizada hasta el momento. 
+
+\section{Optimización Paralela para Multiprocesamiento}
+
+Con el primer paso de optimización realizado es posible llevar a cabo la optimización paralela del código con el modelo de programación paralela seleccionado.
+
+\subsection{Análisis de la subrutina \emph{estela}}
+
+En la definición de la subrutina \emph{estela}, el código documentado del programa indica que ésta realiza el ``cálculo de los coeficientes de influencia de los hilos libres''. Los cálculos realizados dentro de la subrutina son numerosos y complejos, por lo cual utilizaremos un pseudocódigo para poder observar los puntos más importantes dentro de la subrutina que pueden ser candidatos a ser paralelizados. En la Fig. \ref{codEstela} aparece el pseudocódigo anotado de la subrutina \emph{estela}.
 
 \begin{figure}[htbp]
    \begin{lstlisting}[style=consola]
@@ -545,7 +579,7 @@ En la definición de la subrutina \emph{estela}, el código documentado del progra
 		ik = ik +2
 	end do
 	calculo ciex(ir,npa), ciey(ir,npa), ciez(ir,npa)
-	if (indice = 1) and (ib = 1) then  ## se ejecuta solo 1 vez
+	if (indice = 1) and (ib = 1) then  ## se ejecuta solo en la primer etapa
 	# calculo coeficientes de la estela x, y, z
 		if (i = nr) and (j = nr/2) then  
 		# calculo para i=50 y j=25 
@@ -581,24 +615,24 @@ En la definición de la subrutina \emph{estela}, el código documentado del progra
   \label{codEstela}
 \end{figure}
 
-Analizando el pseudocódigo podemos observar que la subrutina tiene partes bien diferenciadas. Un inicio, estableciendo valores iniciales y cálculos parciales, y luego un bloque conformado por dos bucles principales; dentro de ellos es donde se encuentran las estructuras que pueden ser paralelizadas.
+Analizando el pseudocódigo se puede observar que la subrutina tiene partes bien diferenciadas. Un inicio, estableciendo valores iniciales y cálculos parciales, y luego un bloque conformado por dos bucles principales; dentro de ellos es donde se encuentran las estructuras que pueden ser paralelizadas.
 
-El bucle inicial calcula los datos en fx, fy, fz, denom y dista; luego calcula términos pares e impares, y finaliza con el denominado cálculo de coeficientes de la estela x,y,z. 
+El bucle inicial calcula los datos en \emph{fx}, \emph{fy}, \emph{fz}, \emph{denom} y \emph{dista}; luego calcula términos pares e impares, y finaliza con el denominado cálculo de coeficientes de la estela x,y,z. 
 
-El cálculo de coeficientes parece ser el más complejo de los puntos indicados, pero si observamos bien, sólo se ejecuta una vez en todo el programa, cuando ``indice'' es igual a 1 (la variable ``ib'' siempre tiene valor 1, por lo cual no la contamos). Dicha variable ``indice'' es global al programa y controla las etapas por las que pasa, toma valores de 1 a 10 y no repite los valores.
+El cálculo de coeficientes parece ser el más complejo de los puntos indicados, pero si observamos en la Fig. \ref{codEstela}, sólo se ejecuta en una llamada a \emph{estela}. El programa principal llama a \emph{estela} en todas sus etapas pero este cálculo solo se ejecuta cuando la variable \emph{indice} tiene valor 1. Dicha variable \emph{indice} es global al programa y controla las etapas por las que pasa, toma valores de 1 a 10 y no repite los valores. 
 
-Por otra parte, el cálculo de coeficientes se hace sobre los valores valx, valy y valz, realizando sobre ellos una sumatoria, con lo cual se crea una dependencia de datos entre el cálculo de un valor y los cálculos previos, ya que para obtener el valor de valx en un momento, es necesario el valor previo de valx. Si realizamos una paralelización del código tendríamos un problema en los límites de los distintos threads. 
+Por otra parte, el cálculo de coeficientes se hace sobre los valores \emph{valx}, \emph{valy} y \emph{valz}, realizando sobre ellos una sumatoria, con lo cual se crea una dependencia de datos entre el cálculo de un valor y los cálculos previos, ya que para obtener el valor de \emph{valx} en un momento, es necesario el valor previo de \emph{valx}. Si se realiza una paralelización del código se tendría un problema en los límites de los distintos hilos. 
 
-Por ejemplo, al dividir los datos en porciones de 100 elementos, el thread que calcula los valores 101 a 200 de un bucle necesita conocer el valor de la sumatoria en el valor 100 para poder iniciar con valores correctos su cálculo, y dicho valor 100 puede no existir aún en el momento en que se lo necesita (porque el thread encargado de su cálculo puede no haber finalizado o siquiera iniciado).
+Por ejemplo, al dividir los datos en porciones de 100 elementos, el hilo que calcula los valores 101 a 200 de un bucle necesita conocer el valor de la sumatoria en el valor 100 para poder iniciar con valores correctos su cálculo, y dicho valor 100 puede no existir aún en el momento en que se lo necesita (porque el hilo encargado de su cálculo puede no haber finalizado o siquiera iniciado).
 
-En el cálculo de los términos pares e impares se presenta el mismo problema de dependencia de datos que aparece en el cálculo de coeficientes. Cuando calculamos, por ejemplo, six, necesitamos conocer el valor previo de six en ese momento.
+En el cálculo de los términos pares e impares se presenta el mismo problema de dependencia de datos que aparece en el cálculo de coeficientes. Cuando calculamos, por ejemplo \emph{six}, necesitamos conocer el valor previo de \emph{six} en ese momento.
 
-Existen técnicas y formas de transformar el código que permiten en algunos casos poder reprogramar una porción del mismo para que pueda ser paralelizable a pesar de tener esta dependencia de dato. Debido al potencial gran cambio necesario en el código para subsanar el problema de la dependencia, y al requisito de no modificar el código de maneras que puedan volverlo ilegible para el usuario, es que no se avanzó sobre estas áreas de la subrutina. La solución a este problema puede ser motivo de un trabajo futuro que se pondrá a consideración en el capítulo 5.
+Existen técnicas y formas de transformar el código que permiten en algunos casos poder reprogramar una porción del mismo para que pueda ser paralelizable a pesar de tener esta dependencia de dato. Debido al potencial gran cambio necesario en el código para subsanar el problema de la dependencia, y para respetar el requisito de no modificar el código en formas que puedan volverlo ilegible para el usuario, es que no se avanzó sobre estas áreas de la subrutina. La solución a este problema se pone a consideración en el Capítulo 5.
 
-Luego de descartar estos puntos como las zonas a paralelizar en la subrutina \emph{estela} nos quedamos con el bucle de la Fig. \ref{codEstela} que genera los arrays fx, fy, fz, denom y dista (lineas 17 a 19), ya que cada valor generado de estos arrays no depende de otros previos dentro de los arrays.
+Luego de descartar estos puntos como las zonas a paralelizar en la subrutina \emph{estela} se seleccionó el bucle de la Fig. \ref{codEstela} que genera los arreglos \emph{fx}, \emph{fy}, \emph{fz}, \emph{denom} y \emph{dista} (lineas 17 a 19), ya que cada valor generado de estos arreglos no depende de otros previos dentro de los arreglos.
 
-\subsection{Optimización con OpenMP de subrutina Estela}
-Seleccionado el bucle a paralelizar hicimos un análisis de los datos que intervienen para poder realizar una optimización correcta. Realizamos varias pruebas para definir las directivas OpenMP correctas, quedando definido un conjunto de datos que debe ser compartido por cada thread lanzado por OpenMP y ciertas variables que deben ser privadas de cada uno de ellos.
+\subsection{Optimización con OpenMP de subrutina \emph{estela}}
+Seleccionado el bucle a paralelizar se llevó a cabo un análisis de los datos que intervienen para poder realizar una optimización correcta. Se realizaron varias pruebas para definir las directivas OpenMP correctas, quedando definido un conjunto de datos que debe ser compartido por cada hilo lanzado por OpenMP y ciertas variables que deben ser privadas de cada uno de ellos.
 
 El bloque de código seleccionado para optimizar es el siguiente (ha sido abreviado):
 \begin{lstlisting}[style=For]
@@ -612,48 +646,42 @@ El bloque de código seleccionado para optimizar es el siguiente (ha sido abrevia
    denom(ik)=dista(ik)**3                   
 3 continue
 \end{lstlisting}
-Este bucle es el primer bucle interno de dos iteraciones mayores que incluyen más cálculos con otras estructuras, las cuales dependen de los resultados obtenidos en este primer bucle.
+Este es el primer bucle interno de dos iteraciones mayores que incluyen más cálculos con otras estructuras, las cuales dependen de los resultados obtenidos en este primer bucle.
 
-Se calculan tres arrays llamados fx, fy y fz, un valor dist2, y dos arrays más basados en el valor de dist2, llamados dista y denom.
+Se calculan tres arreglos llamados \emph{fx}, \emph{fy} y \emph{fz}, una variable \emph{dist2}, y dos arreglos más basados en el valor de \emph{dist2}, llamados \emph{dista} y \emph{denom}.
 
-Los cálculos de los tres primeros arrays y del valor dist2 dependen de varios otros arrays ya calculados previamente, y que la subrutina obtiene por el área de datos común con el resto de partes del programa Fortran, además de utilizar funciones propias del lenguaje.
+Los cálculos de los tres primeros arreglos y del valor \emph{dist2} dependen de varios otros arreglos ya calculados previamente, y que la subrutina obtiene por el área de datos común con el resto de partes del programa Fortran, además de utilizar funciones propias del lenguaje.
 
-En un primer análisis del bloque de código observamos una posible dependencia de datos en las líneas (5) y (8) del código anterior. En la primera, el cálculo de fz(ik) depende de sí mismo y en la segunda el valor de denom(ik) depende del valor de dista(ik) que depende de dist2. Si bien es posible que no surgieran problemas con estos valores, para evitar resultados inesperados, decidimos analizar y modificar si fuera necesario para evitar la dependencia, siempre que el cambio no fuera significativo, como reescribir la estructura de control completa o varias líneas con nuevas instrucciones.
+En un primer análisis del bloque de código se observó una posible dependencia de datos en las líneas 5 y 8 del código anterior. En la primera, el cálculo de \textsc{fz(ik)} depende de sí mismo y en la segunda el valor de \textsc{denom(ik)} depende del valor de \textsc{dista(ik)} que depende de \textsc{dist2}. Si bien es posible que no surgieran problemas con estos valores, para evitar resultados inesperados, se decidió analizar el código y modificar, si fuera necesario para evitar la dependencia, siempre que el cambio no fuera significativo, como reescribir la estructura de control completa o varias líneas con nuevas instrucciones.
 
-La dependencia de datos en la línea (5) pudo solucionarse rápida y elegantemente. La línea multiplica el valor en fz(ik) por -1, por lo cual es posible agregar este cálculo al final de la línea (4) quedando de la siguiente manera:
+No existe dependencia de datos en la línea 5 por lo cual no fue necesario modificar nada. Solo se agregó al final de la linea 4 la multiplicación por -1 que se realiza en la linea 5. No hay dependencia de datos ya que el valor de \textsc{fz(ik)} es interno del hilo que lo calcula. La línea 4 quedó de la siguiente manera:
 \begin{lstlisting}[style=For, numbers=none]
   fz(ik)=([cálculo con valores de varias matrices])*(-1.)
 \end{lstlisting}
-En el caso de la línea (8) el análisis es distinto: la dependencia se encuentra en el valor de dista(ik) el cual es calculado en el paso previo y depende del cálculo del valor dist2. Además, se trata de un cálculo simple con una función interna del lenguaje Fortran. Se podría utilizar un cálculo intermedio y luego asignar el resultado a dista(ik) y denom(ik), por ejemplo:
-\begin{lstlisting}[style=For, numbers=none]
-  var_aux = dsqrt(dist2)
-  dista(ik) = var_aux
-  denom(ik) = var_aux**3
-\end{lstlisting}
-Pero enfrentamos la indeterminación del valor inicial de var\_aux, y cómo afecta a cada bloque paralelo cuando realicemos la optimización con OpenMP. Esto se puede resolver llevando un control de la variable en el bloque declarativo de OpenMP e inicializando la variable cada vez que es utilizada, lo que agrega carga de control al bloque de código (tanto en OpenMP como en el código Fortran normal). Si el cálculo a realizar con dist2 fuera de mayor complejidad podría justificarse la utilización de una variable auxiliar intermedia, pero como es un cálculo sencillo que utiliza una función interna de Fortran a la cual se le envía un solo valor, se puede resolver de la siguiente manera:
-\begin{lstlisting}[style=For, numbers=none]
-    dista(ik) = dsqrt(dist2)
-    denom(ik) = (dsqrt(dist2))**3
-\end{lstlisting}
+
+En el caso de la línea 8, el análisis es distinto. La dependencia se encuentra en el valor de \textsc{dist2)} el cual es calculado en la linea 6. 
+
+Enfrentamos la indeterminación del valor de \emph{dist2}, y cómo afecta a cada bloque paralelo cuando realicemos la optimización con OpenMP, ya que todos los hilos comparten la variable \emph{dist2} y la porción de código entre el cálculo de \emph{dist2} y su utilización se convierte en una región crítica. Esto se puede resolver llevando un control de la variable en el bloque declarativo de OpenMP con una clausula PRIVATE como veremos más adelante. 
+
 Se puede entender mejor la dependencia de datos y la necesidad de controlar ciertas variables en los bloques paralelizados al observar un problema importante que surgió durante el trabajo de tesis, el cual incluso no estaba a simple vista. 
 
-Al realizar la optimización paralela los resultados del programa eran distintos a los de la ejecución normal. Los resultados deben ser iguales, dado que el programa es completamente determinístico; por lo cual se buscaron muchas formas diferentes con directivas de OpenMP de controlar la ejecución de los threads en este bloque seleccionado para optimización, para que los datos no se contaminaran, pero siempre arribando al mismo resultado erróneo. 
+Al realizar la optimización paralela los resultados del programa eran distintos a los de la ejecución normal. Los resultados deben ser iguales, dado que el programa es completamente determinista, por lo cual se buscaron muchas formas diferentes con directivas de OpenMP de controlar la ejecución de los hilos en este bloque seleccionado para optimización, para que los datos no se contaminaran, pero siempre se arribaba al mismo resultado erróneo. 
 
-El problema se encontró en otra porción de código que parecía bastante simple de paralelizar y sin necesidad de control alguno. Al iniciar, la subrutina estela utiliza dos estructuras DO anidadas que inicializan con valor 0 tres arrays (ciex, ciey y ciez), por lo cual con una estructura OMP PARALLEL DO de OpenMP debería bastar para paralelizar el cálculo y obtener una mejora, si bien poco considerable, en performance.
+El problema se encontró en otra porción de código que parecía bastante simple de paralelizar y sin necesidad de control alguno. Al iniciar, la subrutina \emph{estela} utiliza dos estructuras \textsc{do} anidadas que inicializan con valor 0 tres arreglos (\emph{ciex}, \emph{ciey} y \emph{ciez}), por lo cual con una estructura \textsc{OMP PARALLEL DO} de OpenMP debería bastar para paralelizar el cálculo y obtener una mejora en el desempeño.
 
-El problema surge porque la inicialización a 0 se realiza a través de una variable llamada ``cero'' definida en otra parte del código con el valor 0. Al lanzarse los threads de OpenMP dicha variable pasó a tener un valor indeterminado para cada thread, trayendo consigo datos espurios a los cálculos siguientes donde los arrays intervienen. Al comentar las directivas OpenMP que encerraban dichos bloques DO los resultados del programa volvieron a ser correctos.
+El problema surgió porque la inicialización a 0 se realiza a través de una variable llamada \emph{cero} definida en otra parte del código con el valor 0. Al lanzarse los hilos de OpenMP dicha variable pasó a tener un valor indeterminado para cada hilo, trayendo consigo datos espurios a los cálculos siguientes donde los arreglos intervienen. Al comentar las directivas OpenMP que encerraban dichos bloques \textsc{do} los resultados del programa volvieron a ser correctos.
 
-Si bien el comportamiento por defecto de OpenMP debería ser compartir entre todos los threads las variables en memoria del programa principal, no ocurrió en este caso con la variable ``cero'', y no se encontró una explicación para este hecho. Investigar estas particularidades, cómo una implementación del estándar OpenMP difiere de otras, y qué problemas acarrean estas diferencias, puede ser motivo de una extensión futura de este trabajo de tesis. 
+Si bien el comportamiento por defecto de OpenMP es compartir entre todos los hilos las variables en memoria del programa principal, no ocurrió en este caso con la variable \emph{cero}. El problema se puede rastrear a la definición de la constante \emph{cero}, la cual es definida en la subrutina \emph{input} pero nunca es incorporada al bloque \textsc{common} de Fortran. De esta manera al iniciarse la región paralela de OpenMP el valor pasa a estar indefinido. 
 
-Con las modificaciones indicadas el bucle ya estaba en condiciones de ser paralelizado con OpenMP.
+Continuando con el trabajo, con las modificaciones indicadas el bucle ya estaba en condiciones de ser paralelizado con OpenMP.
 
-Lo primero que realizamos, como se planificó en el capítulo 2, es indicar el comienzo de la región paralela y su final:
+Lo primero que se realizó es indicar el comienzo de la región paralela y su final:
 \begin{lstlisting}[style=For, numbers=none]
 !$OMP PARALLEL
 [bucle paralelizado]
 !$OMP END PARALLEL
 \end{lstlisting}
-Ahora debíamos agregar las directivas para indicar que la región paralela debía ser una estructura DO, por lo que agregamos las directivas DO de OpenMP:
+Luego se agregaron las directivas para indicar que la región paralela debía ser una estructura \textsc{DO}:
 \begin{lstlisting}[style=For, numbers=none]
 !$OMP PARALLEL
 !$OMP DO
@@ -663,9 +691,9 @@ Ahora debíamos agregar las directivas para indicar que la región paralela debía 
 !$OMP END DO
 !$OMP END PARALLEL
 \end{lstlisting}
-Al realizar estos cambios en el código para el bloque indicado, conseguimos una gran mejora en el tiempo empleado, pero los resultados aún no eran correctos. Teniendo en cuenta esto debemos considerar qué variables son compartidas por los distintos threads del proceso y cuál es su alcance, para evitar discrepancias en los resultados.
+Al realizar estos cambios en el código para el bloque indicado, se consiguió una gran mejora en el tiempo empleado, pero los resultados aún no eran correctos. Teniendo en cuenta esto se tuvo que considerar qué variables son compartidas por los distintos hilos del proceso y cuál es su alcance, para evitar discrepancias en los resultados.
 
-En el bloque de código observamos que para realizar el cálculo de los arrays son necesarios varios otros arrays y variables, los que ya poseen valores previos. Además utiliza las variables de control ir y npa de los bloques DO exteriores donde está anidado nuestro bloque de código, utilizadas para recorrer los arrays indicados en la Fig. \ref{codEstela}. Podemos ver esto en la tabla \ref{tab:tabVar}.
+En el bloque de código se observó que para realizar el cálculo de los arreglos son necesarios varios otros arreglos y variables, los que ya poseen valores previos. Además utiliza las variables de control \emph{ir} y \emph{npa} de los bloques \textsc{do} exteriores donde está anidado el bloque de código, utilizadas para recorrer los arreglos indicados en la Fig. \ref{codEstela}. Podemos ver esto en la tabla \ref{tab:tabVar}.
 
 \begin{table}[htb]
 \begin{center}
@@ -675,7 +703,7 @@ En el bloque de código observamos que para realizar el cálculo de los arrays son
 \hline 
 \hline
 \rule[-1ex]{0pt}{2.5ex}  & pcx, pcy, pcz \\
-\rule[-1ex]{0pt}{2.5ex} Arrays & xe, ye, ze \\
+\rule[-1ex]{0pt}{2.5ex} arreglos & xe, ye, ze \\
 \rule[-1ex]{0pt}{2.5ex}  & re, fi \\
 \hline
 \rule[-1ex]{0pt}{2.5ex} Variable float & c0 \\
@@ -688,13 +716,13 @@ En el bloque de código observamos que para realizar el cálculo de los arrays son
 \end{center}
 \end{table}
 
-El primer interrogante era saber si los datos se deben compartir entre todos los threads o deben ser privados. Si observamos todos los arrays y variables externos que se utilizan para el cálculo, los threads deben compartir su valor; si los definiéramos como PRIVATE su valor sería indefinido para cada thread, y si fuera como FIRSTPRIVATE aun cuando los valores fueran correctos, la cantidad de recursos necesarios para la ejecución se multiplicaría por la cantidad de threads que estuvieran en ejecución, ya que cada uno tendría una copia de cada variable. 
+El primer interrogante era saber si los datos se deben compartir entre todos los hilos o deben ser privados. Si se ven todos los arreglos y variables externos que se utilizan para el cálculo, los hilos deben compartir su valor; si los definiéramos como \textsc{PRIVATE} su valor sería indefinido para cada hilo, y si fuera como \textsc{FIRSTPRIVATE} aun cuando los valores fueran correctos, la cantidad de recursos necesarios para la ejecución se multiplicaría por la cantidad de hilos que estuvieran en ejecución, ya que cada uno tendría una copia de cada variable. 
 
-Luego, los arrays modificados dentro del bloque son escritos por cada thread, pero cada thread accede a las posiciones definidas por la variable de control del bloque DO que estamos paralelizando, ik, la cual tendrá un valor para cada thread específico; por ejemplo si dividimos un DO de 100 iteraciones en 2 threads, la variable de control ik tendrá valor inicial de 0 para un thread y 50 para el otro.
+Además se observó que los arreglos modificados dentro del bloque son escritos por cada hilo, pero cada hilo accede a las posiciones definidas por la variable de control del bloque \textsc{do} que estamos paralelizando, \emph{ik}, la cual tendrá un valor para cada hilo específico; por ejemplo si se divide un \textsc{DO} de 100 iteraciones en 2 hilos, la variable de control \emph{ik} tendrá valor inicial de 0 para un hilo y 50 para el otro.
 
-Esto nos lleva a que los arrays modificados dentro del bloque también puedan ser compartidos por todos los threads, ya que sólo son accedidos indexados por la variable ik la cual, como indicamos, será distinta para cada thread, con lo cual cada uno accederá a modificar posiciones de los arrays distintas.
+Esto nos lleva a que los arreglos modificados dentro del bloque también puedan ser compartidos por todos los hilos, ya que sólo son accedidos indexados por la variable \emph{ik}, la cual, como se indicó, será distinta para cada hilo, con lo cual cada uno accederá a modificar posiciones de los arreglos distintas.
 
-Por todo esto, concluimos que la gran mayoría de arrays y variables son compartidas por todos los threads, y la dependencia de datos entre éstos es inexistente (los arrays escritos no son leídos, los arrays y variables leídas no son modificadas), con lo cual definimos en la instrucción OpenMP de inicio del bloque paralelo como DEFAULT(SHARED) para todas las variables utilizadas dentro. Si bien éste es el comportamiento por defecto que asume el estándar OpenMP, lo dejamos declarado explícitamente, no sólo por legibilidad, sino para evitar que una eventual implementación de OpenMP de un compilador genere resultados incorrectos, por ejemplo como ocurre con la variable ``cero'' que vimos en el problema explicado previamente en esta misma sección. Definimos entonces el bloque de código paralelo de la siguiente manera: 
+Por todo esto, se concluyo que la gran mayoría de arreglos y variables son compartidas por todos los hilos, y la dependencia de datos entre éstos no existe (los arreglos escritos no son leídos, los arreglos y variables leídas no son modificadas), con lo cual definimos en la instrucción OpenMP de inicio del bloque paralelo como DEFAULT(SHARED) para todas las variables utilizadas dentro. Si bien éste es el comportamiento por defecto que asume el estándar OpenMP, se lo dejó declarado explícitamente, no sólo por legibilidad, sino para evitar que una implementación particular de OpenMP de un compilador genere resultados incorrectos, por ejemplo como ocurre con la variable \emph{cero}, problema que se explicó previamente en esta misma sección. Se definió entonces el bloque de código paralelo de la siguiente manera: 
 \begin{lstlisting}[style=For, numbers=none]
 !$OMP PARALLEL DEFAULT(SHARED)
 !$OMP DO
@@ -704,11 +732,11 @@ Por todo esto, concluimos que la gran mayoría de arrays y variables son comparti
 !$OMP END DO
 !$OMP END PARALLEL
 \end{lstlisting}
-Con esta definición tenemos que todas las variables (arrays y variables comunes) serán compartidas por todos los threads. 
+Con esta definición tenemos que todas las variables (arreglos y variables comunes) serán compartidas por todos los hilos. 
 
-En un siguiente nivel de análisis, vemos que hay variables que necesitan definirse privadas de cada thread, principalmente la variable dist2 que es calculada dentro de cada thread en cada una de las iteraciones. Si fuera una variable compartida, todos los threads escribirían en ella en orden impredecible, llevando a resultados erróneos. Sólo para ejemplificar, supongamos que el thread 1 calcula la variable dist2 en una iteración, luego escribe el valor de dista(ik) con dist2; en ese momento el thread 4 calcula y escribe dist2. Cuando el thread 1 va a escribir el valor de denom(ik), dist2 ya tiene un valor completamente distinto al que había calculado el thread 1 previamente. Por esto declaramos a dist2 como PRIVATE.
+En un siguiente nivel de análisis, se vio que hay variables que necesitan definirse privadas de cada hilo, principalmente la variable \emph{dist2} que es calculada dentro de cada hilo en cada una de las iteraciones. Si fuera una variable compartida, todos los hilos escribirían en ella en orden impredecible, llevando a resultados erróneos. Por ejemplo, si el hilo 1 calcula la variable \emph{dist2} en una iteración, luego escribe el valor de \textsc{dista(ik)} con \emph{dist2}; en ese momento el hilo 4 calcula y escribe \emph{dist2}. Cuando el hilo 1 va a escribir el valor de \textsc{denom(ik)}, \emph{dist2} ya tiene un valor completamente distinto al que había calculado el hilo 1 previamente. Por esto se declaró a \emph{dist2} como \textsc{PRIVATE}.
 
-Para evitar un problema similar al de la variable ``cero'' decidimos declarar las variables de control ir y npa, y la variable ncapa como FIRSTPRIVATE, de manera que sean privadas de cada thread y tengan desde el principio su valor original. El código resultante es el siguiente:
+Para evitar una indeterminación en los datos se decidió declarar las variables de control \emph{ir} y \emph{npa}, y la variable \emph{ncapa} como \textsc{FIRSTPRIVATE}, de manera que sean privadas de cada hilo y tengan desde el principio su valor original. El código resultante es el siguiente:
 \begin{lstlisting}[style=For, numbers=none]
 !$OMP PARALLEL DEFAULT(SHARED)
 !$OMP DO FIRSTPRIVATE(ir,npa,ncapa) PRIVATE(dist2)
@@ -718,6 +746,6 @@ Para evitar un problema similar al de la variable ``cero'' decidimos declarar la
 !$OMP END DO
 !$OMP END PARALLEL
 \end{lstlisting}
-Luego de estos cambios, la ejecución del nuevo código dio resultados correctos comparados con la ejecución original. Nuevamente comparamos con \emph{diff} o \emph{vimdiff} los archivos de salida de la aplicación original con la nueva versión. De esta manera paralelizamos parte del bloque de código que más tiempo consumía de toda la aplicación. 
+Luego de estos cambios, la ejecución del nuevo código dio resultados correctos. Nuevamente se compararon con \emph{diff} o \emph{vimdiff} los archivos de salida de la aplicación original con la nueva versión para verificar el determinismo de la misma. De esta manera se paralelizó parte del bloque de código que más tiempo consumía de toda la aplicación. 
 
-En el capítulo 4 consideraremos la comparación de tiempos obtenidos para cada uno de los códigos y soluciones a pequeños contratiempos encontrados.
+En el Capítulo 4 se comparan los tiempos obtenidos para cada una de las versiones de la aplicación, y se muestran soluciones a pequeños contratiempos encontrados.

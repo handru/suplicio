@@ -1,7 +1,7 @@
 \select@language {spanish}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Modelo fork-join\relax }}{14}{figure.caption.4}
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Modelo fork-join\relax }}{13}{figure.caption.4}
 \contentsline {figure}{\numberline {2.2}{\ignorespaces Representaci\'on de la Regi\'on Paralela. Fuente: \citep {Her}.\relax }}{16}{figure.caption.5}
 \contentsline {figure}{\numberline {2.3}{\ignorespaces Representaci\'on gr\'afica de la directiva OMP DO. Fuente: \citep {Her}.\relax }}{18}{figure.caption.6}
 \contentsline {figure}{\numberline {2.4}{\ignorespaces Representaci\'on gr\'afica de la cl\'ausula PRIVATE. Fuente: \citep {Her}.\relax }}{19}{figure.caption.7}
@@ -14,24 +14,23 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {3.1}{\ignorespaces Salida de \emph {gprof} en el primer equipo.\relax }}{31}{figure.caption.14}
 \contentsline {figure}{\numberline {3.2}{\ignorespaces Salida de \emph {gprof} en el segundo equipo.\relax }}{31}{figure.caption.15}
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Salida de \emph {gprof}. Aplicaci\'on para problema de tama\~no 80x80.\relax }}{32}{figure.caption.16}
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Salida de \emph {gprof}. Aplicaci\'on para problema de tama\~no \textsc {T80x80}.\relax }}{32}{figure.caption.16}
 \contentsline {figure}{\numberline {3.4}{\ignorespaces Listado del directorio luego de la ejecuci\'on del programa\relax }}{33}{figure.caption.17}
 \contentsline {figure}{\numberline {3.5}{\ignorespaces Ejemplo de c\'odigo sin modificar\relax }}{35}{figure.caption.19}
 \contentsline {figure}{\numberline {3.6}{\ignorespaces Ejemplo de c\'odigo modificado para utilizar archivo interno\relax }}{35}{figure.caption.20}
 \contentsline {figure}{\numberline {3.7}{\ignorespaces Resultado de \emph {gprof} en el c\'odigo optimizado serialmente.\relax }}{41}{figure.caption.23}
-\contentsline {figure}{\numberline {3.8}{\ignorespaces Pseudoc\'odigo de la subrutina \emph {estela}.\relax }}{42}{figure.caption.24}
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Pseudoc\'odigo de la subrutina \emph {estela}.\relax }}{43}{figure.caption.25}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Tiempos de la versi\'on serial original.\relax }}{50}{figure.caption.26}
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Comando \emph {top}: Aplicaci\'on original en subrutina \emph {estela}.\relax }}{50}{figure.caption.27}
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Problema tama\~no 50x50 - Original: Lista de archivos y tama\~no del directorio por equipo.\relax }}{51}{figure.caption.28}
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Informaci\'on del comando \emph {pmap} en cada equipo.\relax }}{51}{figure.caption.29}
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Tiempo de la versi\'on optimizada serialmente.\relax }}{53}{figure.caption.31}
-\contentsline {figure}{\numberline {4.6}{\ignorespaces Comando \emph {top}: Aplicaci\'on opt. serialmente en subrutina \emph {estela}.\relax }}{53}{figure.caption.32}
-\contentsline {figure}{\numberline {4.7}{\ignorespaces Problema tama\~no 50x50 - Opt. Serial: Lista de archivos y tama\~no del directorio por equipo.\relax }}{54}{figure.caption.33}
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Comando \emph {pmap} con la aplicaci\'on optimizada serialmente (fuera de \emph {solgauss}).\relax }}{54}{figure.caption.34}
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Tiempo de la versi\'on optimizada paralelamente con OpenMP.\relax }}{55}{figure.caption.36}
-\contentsline {figure}{\numberline {4.10}{\ignorespaces Comando \emph {top}: Aplicaci\'on optimizada con OpenMP en subrutina \emph {estela}.\relax }}{56}{figure.caption.37}
-\contentsline {figure}{\numberline {4.11}{\ignorespaces Comando \emph {pmap} sobre aplicaci\'on optimizada con OpenMP (fuera de \emph {solgauss}).\relax }}{56}{figure.caption.38}
-\contentsline {figure}{\numberline {4.12}{\ignorespaces Resumen datos totales de las aplicaciones.\relax }}{57}{figure.caption.39}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Tiempos de la versi\'on serial original.\relax }}{52}{figure.caption.27}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Comando \emph {top}: Aplicaci\'on original en subrutina \emph {estela}.\relax }}{52}{figure.caption.28}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Tama\~no \textsc {T50x50} - Aplicaci\'on Original: Lista de archivos y tama\~no del directorio por equipo.\relax }}{53}{figure.caption.29}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Informaci\'on del comando \emph {pmap} en cada equipo.\relax }}{53}{figure.caption.30}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Tiempo de la versi\'on optimizada serialmente.\relax }}{55}{figure.caption.32}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Comando \emph {top}: Aplicaci\'on opt. serialmente en subrutina \emph {estela}.\relax }}{55}{figure.caption.33}
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Tama\~no \textsc {T50x50} - Opt. Serial: Lista de archivos y tama\~no del directorio por equipo.\relax }}{56}{figure.caption.34}
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Comando \emph {pmap} con la aplicaci\'on optimizada serialmente (fuera de \emph {solgauss}).\relax }}{56}{figure.caption.35}
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Tiempo de la versi\'on optimizada paralelamente con OpenMP.\relax }}{58}{figure.caption.37}
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Comando \emph {top}: Aplicaci\'on optimizada con OpenMP en subrutina \emph {estela}.\relax }}{59}{figure.caption.38}
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Comando \emph {pmap} sobre aplicaci\'on optimizada con OpenMP (fuera de \emph {solgauss}).\relax }}{59}{figure.caption.39}
 \addvspace {10\p@ }
 \addvspace {10\p@ }

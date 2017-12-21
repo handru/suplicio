@@ -1,5 +1,5 @@
 \label{pagcap2}
-\chapter{Analisis conceptual}\label{cap2} %Bases? Conceptos?
+\chapter{Procesamiento Paralelo}\label{cap2} %Bases? Conceptos?
 
 \section{Introducción}
 En el pasado reciente, la herramienta más común para la solución de problemas de las ciencias computacionales fue la programación en lenguajes orientados al cómputo científico, como Fortran. Cuando los recursos de computación (por ejemplo, con la aparición de la computadora personal) se hicieron accesibles a los investigadores individualmente y a grupos de investigación de modestos presupuestos, esta herramienta se hizo popular y creó un modo de trabajo estándar de facto, ampliamente extendido, en las ciencias e ingenierías.  
@@ -8,7 +8,7 @@ Con frecuencia, las soluciones producidas por este modo de trabajo eran programa
 
 La evolución técnica y económica de los sistemas disponibles para los investigadores permitió la incorporación de plataformas paralelas, primero con la posibilidad de distribuir el cómputo entre varios equipos de computación a través de una red, luego con diferentes formas de arquitecturas paralelas de hardware. En estas plataformas, la multiplicidad de los recursos enfrenta al programador con un problema de programación y de administración de recursos aún más complejo.
 
-En este capítulo se presenta el tratamiento de estos problemas mediante la utilización de programación paralela. En la sección \ref{sec:n1} se explicará en qué consiste la programación paralela, explicando sintéticamente cómo funciona un programa paralelo, cuáles son las plataformas  más utilizadas de computación paralela y sus modelos de comunicación (memoria compartida, pasaje de mensajes). En la sección \ref{sec:n2} se explicará brevemente el Cómputo de Altas Prestaciones. En la sección \ref{sec:n3} se presentará brevemente el lenguaje de programación Fortran y se explicará su uso a nivel científico. En las secciones \ref{sec:n4} y \ref{sec:n5} se presentan la interfaz de programación de aplicaciones OpenMP y su implementación en Fortran respectivamente. En la sección \ref{sec:n6} se mostrará en qué consiste el proceso de optimización para paralelizar una aplicación y por último en la sección \ref{sec:n7} se presentará la aplicación científica núcleo de esta Tesis y se describirá muy brevemente el problema que resuelve.
+En este capítulo se presenta el tratamiento de estos problemas mediante la utilización de programación paralela. En la sección \ref{sec:n1} se explicará en qué consiste la programación paralela, explicando sintéticamente cómo funciona un programa paralelo, cuáles son las plataformas  más utilizadas de computación paralela y sus modelos de comunicación (memoria compartida, pasaje de mensajes). En la sección \ref{sec:n2} se explicará brevemente el Cómputo de Altas Prestaciones. En la sección \ref{sec:n3} se presentará brevemente el lenguaje de programación Fortran y se explicará su uso a nivel científico. En las secciones \ref{sec:n4} y \ref{sec:n5} se presentan la interfaz de programación de aplicaciones OpenMP y su implementación en Fortran respectivamente. En la sección \ref{sec:n6} se mostrará en qué consiste el proceso de optimización para paralelizar una aplicación.
 
 \section{Visión general del procesamiento paralelo}\label{sec:n1}
 La fuerza impulsora detrás del procesamiento paralelo es lograr completar un trabajo mucho más rápidamente, al desempeñar múltiples tareas simultáneamente. La taxonomía de Flynn \citep{Wad} es un modelo simple para considerar las arquitecturas de computadoras capaces de procesamiento paralelo.\\
@@ -41,32 +41,32 @@ Para este trabajo de tesis utilizamos el término ``procesamiento paralelo'' para
 Si bien se puede obtener paralelismo con múltiples procesos, existen al menos dos razones potenciales para considerar paralelismo de hilos: conservación de recursos del sistema y ejecución más rápida. Los hilos comparten acceso a los datos del proceso, archivos abiertos y otros atributos del proceso. Compartir datos e instrucciones puede reducir los requerimientos de recursos para un trabajo en particular. Por el contrario, una colección de procesos a menudo deberá duplicar las áreas de datos e instrucciones en memoria para un trabajo.
 
 \subsubsection{Conceptos básicos de hilos}
-La administración de hilos es más simple que la de los procesos, ya que los hilos no poseen todos los atributos de un proceso. Pueden ser creados y destruidos mucho más rápidamente que un proceso. Los hilos tienen otros atributos importantes, relacionados con el desempeño \citep{Wad}.\\
+La administración de hilos es más simple que la de los procesos, ya que los hilos no poseen todos los atributos de un proceso. Pueden ser creados y destruidos mucho más rápidamente que un proceso. Los hilos tienen otros atributos importantes, relacionados con el desempeño \citep{Wad}.
 
-Un hilo ocioso es aquel que no tiene procesamiento para hacer y está esperando su próximo conjunto de tareas. Por lo general el hilo es puesto en estado de espera (wait) de acuerdo con una variable de control, que puede tener dos valores, bloqueado o desbloqueado (debe esperar o puede continuar procesando, respectivamente).\\
+Un hilo ocioso es aquel que no tiene procesamiento para hacer y está esperando su próximo conjunto de tareas. Por lo general el hilo es puesto en estado de espera (wait) de acuerdo con una variable de control, que puede tener dos valores, bloqueado o desbloqueado (debe esperar o puede continuar procesando, respectivamente).
 
-Los hilos ociosos pueden ser suspendidos o quedar en espera activa (``spinning'' o ``busy waiting'') \citep{Wad}. Los hilos suspendidos liberan el procesador donde se estaban ejecutando. Los que están en espera activa comprobarán repetidamente la variable para ver si ya están desbloqueados, sin liberar el procesador para otros procesos. Como resultado de esto el rendimiento del sistema puede degradarse drásticamente. Sin embargo, reiniciar un hilo suspendido puede llevar cientos, si no miles, de ciclos de procesador.\\
+Los hilos ociosos pueden ser suspendidos o quedar en espera activa (``spinning'' o ``busy waiting'') \citep{Wad}. Los hilos suspendidos liberan el procesador donde se estaban ejecutando. Los que están en espera activa comprobarán repetidamente la variable para ver si ya están desbloqueados, sin liberar el procesador para otros procesos. Como resultado de esto el rendimiento del sistema puede degradarse drásticamente. Sin embargo, reiniciar un hilo suspendido puede llevar cientos, si no miles, de ciclos de procesador.
 
 Otro atributo de los hilos es la afinidad, que consiste en la posibilidad de ligar un hilo con un mismo procesador al ser reiniciado luego de una suspensión \citep{Wad}. La capacidad de manejar la afinidad permite mantener al hilo, siempre que sea posible, ejecutando sobre el mismo dispositivo de cómputo cada vez que vuelve al modo activo. De esta manera el hilo aprovecha los datos que habían sido puestos en cache durante su ejecución previa. De otro modo, debería volver a cargar todos los datos necesarios para reanudar su ejecución desde la memoria a la cache del nuevo procesador, con el costo de sobrecarga correspondiente.
 
 \subsubsection{Hilos POSIX}
-Recién en 1995 se estableció un estándar para la programación de hilos, a pesar de que los sistemas operativos ya venían implementando hilos. El estándar es parte de la normativa ``POSIX (Portable Operating System Interface)'', en particular la porción POSIX 1003.1c\footnote{\url{http://http://www.unix.org/version3/ieee_std.html}} incluye las funciones y las Interfaces de Programación de Aplicación (``APIs'') que soportan múltiples flujos de control dentro de un proceso. Los hilos creados y manipulados vía este estándar son generalmente indicados como ``pthreads''. Con anterioridad al establecimiento de este estándar, las APIs de hilos eran específicas del fabricante del hardware, lo que hacía muy difícil la portabilidad de las aplicaciones paralelas con hilos. Combinado con la complejidad de reescribir aplicaciones para utilizar y aprovechar el control explícito de hilos, el resultado era que muy pocas aplicaciones paralelas utilizaban el modelo de hilos \citep{Wad}.
+Recién en 1995 se establece un estándar para la programación de hilos, a pesar de que los sistemas operativos ya venían implementando hilos. El estándar es parte de la normativa POSIX (Portable Operating System Interface), en particular la porción POSIX 1003.1c\footnote{\url{http://http://www.unix.org/version3/ieee_std.html}} incluye las funciones y las Interfaces de Programación de Aplicación (APIs) que soportan múltiples flujos de control dentro de un proceso. Los hilos creados y manipulados vía este estándar son generalmente indicados como \emph{pthreads}. Con anterioridad al establecimiento de este estándar, las APIs de hilos eran específicas del fabricante del hardware, lo que hacía muy difícil la portabilidad de las aplicaciones paralelas con hilos. Combinado con la complejidad de reescribir aplicaciones para utilizar y aprovechar el control explícito de hilos, el resultado era que muy pocas aplicaciones paralelas utilizaban el modelo de hilos \citep{Wad}.
  
 \subsubsection{Paralelismo basado en directivas del compilador}
 El uso de directivas del compilador para conseguir paralelismo tiene el fin de aliviar la complejidad y los problemas de la portabilidad. En el paralelismo orientado a directivas, la mayoría de los mecanismos paralelos se ponen en marcha a través del compilador (generación de hilos, generación de construcciones de sincronización, etc.). Es decir, el compilador traduce las directivas de compilador en las llamadas al sistema necesarias para la administración de los hilos, y realiza cualquier reestructuración del código que sea necesaria. Estas directivas proveen una manera simple de lograr paralelismo.
 
-El estándar ``OpenMP'' \citep{openmp} para directivas de compilador paralelas ha promovido el uso de esta forma de programación paralela. Antes de la aparición de este estándar, las directivas de compilador eran específicas del fabricante del hardware, lo que dificultaba la portabilidad. 
-Tanto la implementación explícita de hilos paralelos (como pthreads) como el paralelismo basado en directivas (como OpenMP) se benefician del uso de memoria compartida.
+El estándar OpenMP \citep{openmp} para directivas de compilador paralelas ha promovido el uso de esta forma de programación paralela. Antes de la aparición de este estándar, las directivas de compilador eran específicas del fabricante del hardware, lo que dificultaba la portabilidad. 
+Tanto la implementación explícita de hilos paralelos (\emph{pthreads}) como el paralelismo basado en directivas (OpenMP) se benefician del uso de memoria compartida.
 
 \subsubsection{Paralelismo de memoria compartida}
-El paralelismo de hilos depende de la existencia de la memoria compartida para la comunicación entre hilos. Otro modelo paralelo anterior también utiliza memoria compartida, pero entre procesos. Este paralelismo de procesos típicamente se logra a través del uso de las llamadas al sistema ``fork()'' y ``exec()''  o sus análogas. Por ello se lo denomina generalmente como el modelo ``fork/exec''. La memoria es compartida entre los procesos en virtud de las llamadas al sistema ``mmap()'' (derivada de Berkeley UNIX) o ``shmget()'' (de System V UNIX) \citep{Wad}.
+El paralelismo de hilos depende de la existencia de la memoria compartida para la comunicación entre hilos. Otro modelo paralelo anterior también utiliza memoria compartida, pero entre procesos. Este paralelismo de procesos típicamente se logra a través del uso de las llamadas al sistema \emph{fork()} y \emph{exec()} o sus análogas. Por ello se lo denomina generalmente como el modelo \emph{fork/exec}. La memoria es compartida entre los procesos en virtud de las llamadas al sistema \emph{mmap()} (derivada de Berkeley UNIX) o \emph{shmget()} (de System V UNIX) \citep{Wad}.
 
 \subsubsection{Pasaje de Mensajes}
-El modelo fork/exec no implica la existencia de memoria compartida. Los procesos pueden comunicarse a través de interfaces de E/S tales como las llamadas al sistema ``read()'' y ``write()''. Esto puede darse a través de archivos regulares o a través de alguna otra forma estándar de comunicación entre procesos como los ``sockets''.  La comunicación a través de archivos resulta fácil entre procesos que comparten un sistema de archivos, pudiendo extenderse a varios sistemas al utilizar un sistema de archivos compartido como NFS. Los sockets son usualmente un medio de comunicación más eficiente entre procesos ya que eliminan gran parte del costo de realizar operaciones sobre un sistema de archivos.
+El modelo \emph{fork/exec} no implica la existencia de memoria compartida. Los procesos pueden comunicarse a través de interfaces de E/S tales como las llamadas al sistema \emph{read()} y \emph{write()}. Esto puede darse a través de archivos regulares o a través de alguna otra forma estándar de comunicación entre procesos como los \emph{sockets}.  La comunicación a través de archivos resulta fácil entre procesos que comparten un sistema de archivos, pudiendo extenderse a varios sistemas al utilizar un sistema de archivos compartido como NFS. Los \emph{sockets} son usualmente un medio de comunicación más eficiente entre procesos ya que eliminan gran parte del costo de realizar operaciones sobre un sistema de archivos.
 
-Estas dos técnicas comunes dependen de que el proceso escriba, o envíe, el dato a ser comunicado hacia un archivo o socket. Este acto de comunicación se considera un mensaje, esto es, el proceso emisor está enviando un mensaje al proceso receptor. De ahí el nombre de pasaje de mensajes para este modelo.
+Estas dos técnicas comunes dependen de que el proceso escriba, o envíe, el dato a ser comunicado hacia un archivo o \emph{socket}. Este acto de comunicación se considera un mensaje, esto es, el proceso emisor está enviando un mensaje al proceso receptor. De ahí el nombre de pasaje de mensajes para este modelo.
 
-Han existido diferentes implementaciones de bibliotecas de pasaje de mensajes, como PAR-MACS (para macros paralelas) y PVM (Parallel Virtual Machine) \citep{Wad,Grama}. Luego, en 1994, surge ``MPI'' \citep{mpi} en un intento de brindar una API estándar de pasaje de mensajes. MPI pronto desplazó a PVM y fue adoptando algunas de las ventajas de ésta. Aun cuando fue pensada principalmente para máquinas de memoria distribuida, tiene la ventaja de que puede ser aplicada también en máquinas de memoria compartida. MPI está destinado a paralelismo de procesos, no paralelismo de hilos.
+Han existido diferentes implementaciones de bibliotecas de pasaje de mensajes, como PAR-MACS (para macros paralelas) y PVM (Parallel Virtual Machine) \citep{Wad,Grama}. Luego, en 1994, surge MPI \citep{mpi} en un intento de brindar una API estándar de pasaje de mensajes. MPI pronto desplazó a PVM y fue adoptando algunas de las ventajas de ésta. Aun cuando fue pensada principalmente para máquinas de memoria distribuida, tiene la ventaja de que puede ser aplicada también en máquinas de memoria compartida. MPI está destinado a paralelismo de procesos, no paralelismo de hilos.
 
 \subsection{Infraestructuras de hardware para paralelismo}
 Históricamente, las arquitecturas de computadoras paralelas han sido muy diversas. Existen aún diversas arquitecturas disponibles comercialmente hoy en día. En las siguientes secciones se dará un panorama general de las arquitecturas paralelas.
@@ -74,11 +74,11 @@ Históricamente, las arquitecturas de computadoras paralelas han sido muy diversa
 \subsubsection{Clusters}
 Un cluster es una colección interconectada de equipos independientes que son utilizadas como un solo recurso de computación. Un ejemplo común de cluster es simplemente un conjunto de estaciones de trabajo conectadas por una red de área local \citep{Wad}.
 
-Un aspecto positivo de un cluster es que en general cada nodo está de por sí bien balanceado en términos de procesador, sistema de memoria y capacidades de E/S (ya que cada nodo es una computadora). Otra ventaja es el costo: un cluster puede consistir de estaciones de trabajo estándar, de fácil adquisición. Del mismo modo, la interconexión de los nodos puede ser resuelta con tecnologías de red local estándar como Ethernet, FDDI, etc. Los clusters también resultan escalables.\\
+Un aspecto positivo de un cluster es que en general cada nodo está de por sí bien balanceado en términos de procesador, sistema de memoria y capacidades de E/S (ya que cada nodo es una computadora). Otra ventaja es el costo: un cluster puede consistir de estaciones de trabajo estándar, de fácil adquisición. Del mismo modo, la interconexión de los nodos puede ser resuelta con tecnologías de red local estándar como Ethernet, FDDI, etc. Los clusters también resultan escalables.
 
-La capacidad y el desempeño de las interconexiones son dos puntos críticos de los clusters. Las operaciones que acceden a datos residentes en el mismo nodo donde está ejecutándose la aplicación serán relativamente rápidas; acceder a datos residentes en otros nodos resulta algo muy diferente. Los datos remotos deberán ser transferidos vía llamadas al sistema para pasaje de mensajes. Esto implica los costos de la sobrecarga del mecanismo de llamadas al sistema y de la latencia de las comunicaciones, que dependen de la tecnología de la red subyacente.\\
+La capacidad y el desempeño de las interconexiones son dos puntos críticos de los clusters. Las operaciones que acceden a datos residentes en el mismo nodo donde está ejecutándose la aplicación serán relativamente rápidas; acceder a datos residentes en otros nodos resulta algo muy diferente. Los datos remotos deberán ser transferidos vía llamadas al sistema para pasaje de mensajes. Esto implica los costos de la sobrecarga del mecanismo de llamadas al sistema y de la latencia de las comunicaciones, que dependen de la tecnología de la red subyacente.
 
-La administración del sistema presenta otro problema. Sin software especial para esta tarea, es complejo administrar el sistema. El software debe instalarse en cada nodo individual, lo cual puede ser un proceso lento y costoso (por ejemplo, si se necesita una licencia por cada nodo).\\
+La administración del sistema presenta otro problema. Sin software especial para esta tarea, es complejo administrar el sistema. El software debe instalarse en cada nodo individual, lo cual puede ser un proceso lento y costoso (por ejemplo, si se necesita una licencia por cada nodo).
 
 \subsubsection{Multiprocesadores}
 Las computadoras multiprocesador suponen un complemento para los clusters como también una arquitectura para programación paralela. En un multiprocesador, todos los procesadores acceden a todos los recursos de la máquina \citep{Wad}.
@@ -90,7 +90,7 @@ Al proveer un solo espacio de direcciones para las aplicaciones, un sistema mult
 \section{Cómputo de Altas Prestaciones}\label{sec:n2}
 Luego de revisar el concepto de la computación paralela, las formas en que se categoriza y sus distintos modelos, definimos lo que podría llamarse una consecuencia de su evolución: el cómputo de altas prestaciones.
 
-Un gran problema transversal a las Ciencias e Ingenierías Computacionales es la aplicación eficiente de modernas herramientas de cómputo paralelo y distribuido. La respuesta a este problema está condensada en el concepto de Computación de Altas Prestaciones (High Performance Computing, o HPC) que abarca todos aquellos principios, métodos y técnicas que permiten abordar problemas con estructuras de datos complejas y con gran utilización de recursos (tiempo de CPU, memoria, disco).
+Un gran problema transversal a las Ciencias e Ingenierías Computacionales es la aplicación eficiente de modernas herramientas de cómputo paralelo y distribuido. La respuesta a este problema está condensada en el concepto de Computación de Altas Prestaciones (\emph{High Performance Computing}, o HPC) que abarca todos aquellos principios, métodos y técnicas que permiten abordar problemas con estructuras de datos complejas y con gran utilización de recursos (tiempo de CPU, memoria, disco).
 
 Tradicionalmente, el ámbito donde surgían los productos de la ciencia y de la ingeniería eran los laboratorios. Combinando la teoría y la experimentación, con cálculos hechos a mano o apoyándose en herramientas de cálculo rudimentarias, se aplicaba el conocimiento de la física, la matemática, la biología, para obtener y validar nuevos conocimientos. La aparición de las computadoras ofreció una nueva y potente forma de hacer ciencia e ingeniería: la ejecución de programas que utilizan modelos matemáticos y soluciones numéricas para resolver los problemas.
 
@@ -135,12 +135,12 @@ A estos métodos, cuya aplicación hoy ya es corriente en las ciencias e ingenierí
 La resolución de estos problemas involucra conjuntos masivos de datos, una gran cantidad de variables y complejos procesos de cálculo; por otro lado, es de carácter abierto, en el sentido de que siempre aparecerán escenarios de mayor porte o mayor complejidad para cada problema. Estos métodos y sus técnicas particulares exigen la utilización de recursos de computación hasta hoy excepcionales, como lo han sido las supercomputadoras, los multiprocesadores y la colaboración de una gran cantidad de computadoras a través de las redes, en diferentes niveles de agregación como clusters, multiclusters y grids.
 
 \section{Fortran}\label{sec:n3}
-Muy popular en la programación científica y la computación de alto desempeño (HPC), el lenguaje Fortran surge a mediados de la década de 1950, siendo uno de los lenguajes de programación más antiguos utilizados aún hoy por científicos de todo el mundo. Se lo clasifica como un lenguaje de programación de alto nivel (considerado el primero de ellos en aparecer), de propósito general e imperativo. La programación imperativa describe un programa en términos del estado del programa y las sentencias que cambian dicho estado, como descripto por una máquina de Turing.  
+Muy popular en la programación científica y el computo de altas prestaciones (HPC), el lenguaje Fortran surge a mediados de la década de 1950, siendo uno de los lenguajes de programación más antiguos utilizados aún hoy por científicos de todo el mundo. Se lo clasifica como un lenguaje de programación de alto nivel (considerado el primero de ellos en aparecer), de propósito general e imperativo. La programación imperativa describe un programa en términos del estado del programa y las sentencias que cambian dicho estado, como descrito por una máquina de Turing.  
 
 Fue desarrollado para aplicaciones científicas y de ingeniería, campos que dominó rápidamente, siendo durante todo este tiempo ampliamente utilizado en áreas de cómputo intensivo, tales como el análisis de elementos finitos, predicción numérica del clima, dinámica de fluidos computacional o física computacional. 
 Ampliamente adoptado por científicos para escribir programas numéricamente intensivos, impulsó a los constructores de compiladores a generar código más rápido y eficiente. La inclusión de un tipo de dato complejo (COMPLEX) lo hizo especialmente apto para aplicaciones técnicas como la Ingeniería Eléctrica. 
 
-En las áreas científicas, con típicos problemas de cálculo intensivo, una vez que un programa alcanza un estado de computación correcta (i.e. arroja los resultados deseados), no suelen ocurrir modificaciones del código. En el caso de Fortran, su adopción por la comunidad científica derivó en la construcción de programas que permanecen vigentes tras 20, 30 y hasta 40 años. Estos constituyen lo que denominamos  ``Legacy Software''. Se ha definido al Legacy Software como:
+En las áreas científicas, con típicos problemas de cálculo intensivo, una vez que un programa alcanza un estado de computación correcta (i.e. arroja los resultados deseados), no suelen ocurrir modificaciones del código. En el caso de Fortran, su adopción por la comunidad científica derivó en la construcción de programas que permanecen vigentes tras 20, 30 y hasta 40 años. Estos constituyen lo que denominamos Software Heredado (\emph{Legacy Software}). Se ha definido al Software Heredado como:
 
 \begin{itemize}
 \item Software crítico que no puede ser modificado eficientemente \citep{Gold}.
@@ -159,26 +159,26 @@ Es común hallar software hecho en Fortran que ha estado ejecutándose en ambiente
 Debido a que Fortran ha estado tantos años vigente, ha pasado por un proceso particular de estandarización en el cual cada versión previa del estándar cumple con el vigente. Este proceso de estandarización permite que un programa en Fortran 77 compile en los compiladores modernos de Fortran 2008 \citep{MMen}. Gracias a estas características es que el lenguaje está, aún hoy y a pesar de ser relativamente poco visible, en una posición sólida y bien definida. Actualmente hay un gran conjunto de programas Fortran ejecutándose en ambientes productivos de universidades, empresas e instituciones de gobierno. Algunos buenos ejemplos son programas de modelo climático, simulaciones de terremotos, simulaciones magnetohidrodinámicas, etc. La mayoría de estos programas han sido construidos años o décadas atrás y sus usuarios necesitan que sean modernizados, mejorados y/o actualizados. Esto también implica que estos programas sean capaces de aprovechar las arquitecturas de procesadores modernas y específicamente, el equipamiento para procesamiento numérico.
 
 \subsection{Evolución del lenguaje}
-Fortran ha evolucionado de una versión inicial con 32 sentencias para la IBM 704, entre los que estaban el condicional IF y el IF aritmético de 3 vías, el salto GO TO, el bucle DO, comandos para E/S tanto formateada como sin formato (FORMAT, READ, WRITE, PRINT, READ TAPE, READ DRUM, etc), y de control del programa (PAUSE, STOP, CONTINUE), y tipos de datos todos numéricos, hasta llegar al último estandar Fortran, ISO/IEC 1539-1:2010, conocido informalmente como Fortran 2008, donde fueron incorporándose características como tipos de datos CHARACTER, definición de arrays, subrutinas, funciones, recursividad, modularidad, hasta nuevas sentencias que soportan la ejecución de alta performance como DO CONCURRENT, coarrays (un modelo de ejecución paralela). La definición del estándar Fortran se encuentra en el sitio de NAG (The Numerical Algorithms Group)\footnote{\url{http://www.nag.co.uk/sc22wg5/}}.
+Fortran ha evolucionado de una versión inicial con 32 sentencias para la IBM 704, entre los que estaban el condicional IF y el IF aritmético de 3 vías, el salto GO TO, el bucle DO, comandos para E/S tanto formateada como sin formato (FORMAT, READ, WRITE, PRINT, READ TAPE, READ DRUM, etc), y de control del programa (PAUSE, STOP, CONTINUE), y tipos de datos todos numéricos, hasta llegar al último estandar Fortran, ISO/IEC 1539-1:2010, conocido informalmente como Fortran 2008, donde fueron incorporándose características como tipos de datos CHARACTER, definición de arrays, subrutinas, funciones, recursividad, modularidad, hasta nuevas sentencias que soportan la ejecución de alta performance como DO CONCURRENT, coarrays (un modelo de ejecución paralela). La definición del estándar Fortran se encuentra en el sitio de NAG (\emph{The Numerical Algorithms Group})\footnote{\url{http://www.nag.co.uk/sc22wg5/}}.
 
-El lenguaje utilizado en el programa de estudio de este trabajo de tesis está basado en el estándar Fortran 77, aunque presenta libertades presentes en Fortran 90, como la utilización de minúsculas indiferentemente y el formato libre de escritura. Esto es posible, como explicamos en la sección previa, gracias a que cada versión nueva del compilador soporta los estándares previos. Se presentan en el anexo A las sentencias de Fortran más utilizadas en la aplicación objeto de estudio.
+El lenguaje utilizado en el programa de estudio de este trabajo de tesis está basado en el estándar Fortran 77, aunque presenta libertades presentes en Fortran 90, como la utilización de minúsculas indiferentemente y el formato libre de escritura. Esto es posible, como se explicó en la sección previa, gracias a que cada versión nueva del compilador soporta los estándares previos. Se presentan en el anexo A las sentencias de Fortran más utilizadas en la aplicación objeto de estudio.
 
 \section{OpenMP}\label{sec:n4}
 OpenMP es una Interfaz de Programación de Aplicaciones, o API por sus siglas en inglés, la cual provee un modelo portable y escalable para el desarrollo de aplicaciones paralelas de memoria compartida. La API soporta C/C++ y Fortran en una gran variedad de arquitecturas. Es utilizada para aplicar de manera directa multithreads en memoria compartida\footnote{\url{https://computing.llnl.gov/tutorials/openMP/}}.
 
-La especificación de OpenMP \citep{openmp} pertenece, es escrita y mantenida por la OpenMP Architecture Review Board, que es la unión de las compañías que tienen participación activa en el desarrollo del estándar para la interfaz de programación en memoria compartida \citep{Her}.
+La especificación de OpenMP \citep{openmp} pertenece, es escrita y mantenida por la \emph{OpenMP Architecture Review Board}, que es la unión de las compañías que tienen participación activa en el desarrollo del estándar para la interfaz de programación en memoria compartida \citep{Her}.
 
 No es un nuevo lenguaje de programación, sino que es una notación que puede ser agregada a un programa secuencial en Fortran, C o C++ para describir cómo el trabajo debe ser compartido entre los hilos que se ejecutarán en diferentes procesadores o núcleos y para organizar el acceso a los datos compartidos cuando sea necesario.
 La inserción apropiada de las características de OpenMP en un programa secuencial permitirá a muchas, si no a la mayoría de las aplicaciones, beneficiarse de una arquitectura de memoria compartida, a menudo con mínimas modificaciones al código.
 Uno de los factores del éxito de OpenMP es que es comparativamente sencillo de usar, ya que el trabajo más complicado de armar los detalles del programa paralelo son dejados para el compilador. Tiene además la gran ventaja de ser ampliamente adoptado, de manera que una aplicación OpenMP va a poder ejecutarse en muchas plataformas diferentes \citep{Chap}.
 
-Las directivas de OpenMP permiten al usuario indicarle al compilador cuales instrucciones ejecutar en paralelo y como distribuir las mismas entre los hilos que van a ejecutar el código.
+Las directivas de OpenMP permiten al usuario indicarle al compilador cuales instrucciones ejecutar en paralelo y cómo distribuir las mismas entre los hilos que van a ejecutar el código.
 Una de estas directivas es una instrucción en un formato especial que es entendido por compiladores OpenMP solamente. De hecho luce como un comentario para un compilador Fortran regular, o una directiva pragma para un compilador C/C++, de manera que el programa puede ejecutarse como lo hacía previamente si el compilador no conoce OpenMP.
 Generalmente se puede rápida y fácilmente crear programas paralelos confiando en la implementación para que trabaje los detalles de la ejecución paralela. Pero no siempre es posible obtener alta performance con una inserción sencilla, incremental de directivas OpenMP en un código secuencial. Por esta razón OpenMP incluye varias características que habilitan al programador a especificar más detalle en el código paralelo.
 
 \subsection{La idea de OpenMP}
-Un hilo es una entidad en tiempo de ejecución que es capaz de ejecutar independientemente un flujo de instrucciones. OpenMP trabaja en un cuerpo más grande de trabajo que soporta la especificación de programas para ser ejecutados por una colección de hilos cooperativos. El sistema operativo crea un proceso para ejecutar un programa: reservará algunos recursos para este proceso, incluyendo páginas de memoria y registros para almacenar valores de objetos. Si múltiples hilos colaboran para ejecutar un programa, compartirán los recursos, incluyendo el espacio de direcciones, del correspondiente proceso. Los hilos individuales necesitan muy pocos recursos por si mismos: un contador de programa y un área de memoria para guardar variables especificas del hilo (incluyendo registros y una pila) \citep{Chap}.
-OpenMP intenta proveer facilidad de programación y ayudar al usuario a evitar un número de potenciales errores de programación, ofreciendo un enfoque estructurado para la programación multithread. Soporta el modelo de programación llamado fork-join, el cual podemos ver en la Fig. \ref{figFork1}.
+Un hilo es una entidad en tiempo de ejecución que es capaz de ejecutar independientemente un flujo de instrucciones. OpenMP permite la especificación de programas que pueden ser ejecutados cooperativamente por un conjunto de hilos. El sistema operativo crea un proceso para ejecutar un programa: reservará algunos recursos para este proceso, incluyendo páginas de memoria y registros para almacenar valores de objetos. Si múltiples hilos colaboran para ejecutar un programa, compartirán los recursos, incluyendo el espacio de direcciones, del correspondiente proceso. Los hilos individuales necesitan muy pocos recursos por si mismos: un contador de programa y un área de memoria para guardar variables especificas del hilo (incluyendo registros y una pila) \citep{Chap}.
+OpenMP intenta proveer facilidad de programación y ayudar al usuario a evitar un número de potenciales errores de programación, ofreciendo un enfoque estructurado para la programación multihilo. Soporta el modelo de programación llamado \emph{fork-join}, el cual podemos ver en la Fig. \ref{figFork1}.
 
 \begin{figure}[h!]%[htp]
   \centering
@@ -187,33 +187,35 @@ OpenMP intenta proveer facilidad de programación y ayudar al usuario a evitar un
    \label{figFork1}
 \end{figure}
 
-Bajo este enfoque, el programa inicia como un solo hilo de ejecución (denominado hilo inicial), igual que un programa secuencial. Siempre que se encuentre una construcción paralela de OpenMP por el hilo mientras ejecuta su programa, se crea un equipo de hilos (ésta es la parte fork), se convierte en el maestro del equipo, y colabora con los otros miembros del mismo para ejecutar el código dinámicamente encerrado por la construcción. Al final de ésta, sólo el hilo original, o maestro del equipo, continúa; todos los demás terminan (ésta es la parte join). Cada porción del código encerrada por una construcción paralela es llamada una región paralela.
+Bajo este enfoque, el programa inicia como un solo hilo de ejecución (denominado hilo maestro), igual que un programa secuencial. Siempre que se encuentre una construcción paralela de OpenMP por el hilo mientras ejecuta su programa, se crea un equipo de hilos (ésta es la parte \emph{fork}), se convierte en el maestro del equipo, y colabora con los otros miembros del mismo para ejecutar el código dinámicamente encerrado por la construcción. Al final de ésta, sólo el hilo original, o maestro del equipo, continúa; todos los demás terminan (ésta es la parte \emph{join}). Cada porción del código encerrada por una construcción paralela es llamada una región paralela.
 
 \subsection{Conjunto de construcciones paralelas}
 La API OpenMP comprende un conjunto de directivas del compilador, rutinas de bibliotecas de tiempo de ejecución, y variables de ambiente para especificar paralelismo de memoria compartida. Muchas de las directivas son aplicadas a un bloque estructurado de código, una secuencia de sentencias ejecutables con una sola entrada en la parte superior y una sola salida en la parte inferior en los programas Fortran, y una sentencia ejecutable en C/C++ (que puede ser una composición de sentencias con una sola entrada y una sola salida). En otras palabras, el programa no puede ramificarse dentro o fuera de los bloques de código asociados con directivas. En Fortran el inicio y el final del bloque aplicable de código son marcados explícitamente por una directiva OpenMP \citep{Chap}.
 
 \subsubsection{Crear equipos de Hilos}
-Un equipo de hilos es creado para ejecutar el código en una región paralela de un programa OpenMP. El programador simplemente especifica la región paralela insertando una directiva \emph{parallel} inmediatamente antes del código que debe ser ejecutado en paralelo para marcar su inicio; en los programas Fortran el final también es indicado por una directiva end parallel. Información adicional puede ser provista junto con la directiva \emph{parallel}, como habilitar a los hilos a tener copias privadas de algún dato por la duración de la región paralela. El final de una región paralela es una barrera de sincronización implícita: esto significa que ningún hilo puede progresar hasta que todos los demás hilos del equipo hayan alcanzado este punto del programa \citep{Chap}. Es posible realizar anidado de regiones paralelas.
+Un equipo de hilos es creado para ejecutar el código en una región paralela de un programa OpenMP. El programador simplemente especifica la región paralela insertando una directiva \emph{parallel} inmediatamente antes del código que debe ser ejecutado en paralelo para marcar su inicio; en los programas Fortran el final también es indicado por una directiva \emph{end parallel}. Información adicional puede ser provista junto con la directiva \emph{parallel}, como habilitar a los hilos a tener copias privadas de algún dato por la duración de la región paralela. El final de una región paralela es una barrera de sincronización implícita: esto significa que ningún hilo puede progresar hasta que todos los demás hilos del equipo hayan alcanzado este punto del programa \citep{Chap}. Es posible realizar anidado de regiones paralelas.
 
 \subsubsection{Compartir trabajo entre Hilos}
-Si el programador no especifica como se compartirá el trabajo en una región paralela, todos los hilos ejecutarán el código completo redundantemente, sin mejorar los tiempos del programa. Para ello OpenMP cuenta con directivas para compartir trabajo que permiten indicar como se distribuirá el cómputo en un bloque de código estructurado entre los hilos. A menos que el programador lo indique explícitamente, una barrera de sincronización existe implícitamente al final de las construcciones de trabajo compartido \citep{Chap}.
+Si el programador no especifica cómo se compartirá el trabajo en una región paralela, todos los hilos ejecutarán el código completo redundantemente, sin mejorar los tiempos del programa. Para ello OpenMP cuenta con directivas para compartir trabajo que permiten indicar cómo se distribuirá el cómputo en un bloque de código estructurado entre los hilos. A menos que el programador lo indique explícitamente, una barrera de sincronización existe implícitamente al final de las construcciones de trabajo compartido \citep{Chap}.
 
-Probablemente el método más común de trabajo compartido sea distribuir el trabajo en un bucle DO (Fortran) o for (C/C++) entre los distintos hilos de un equipo. El programador inserta la directiva apropiada inmediatamente antes de los bucles que vayan a ser compartidos entre los hilos dentro de una región paralela.
+Probablemente el método más común de trabajo compartido sea distribuir el trabajo en un bucle \emph{DO} (Fortran) o \emph{for} (C/C++) entre los distintos hilos de un equipo. El programador inserta la directiva apropiada inmediatamente antes de los bucles que vayan a ser compartidos entre los hilos dentro de una región paralela.
 Todas las estrategias de OpenMP para compartir el trabajo en un bucle asignan uno o más conjuntos disjuntos de iteraciones a cada hilo. El programador puede, si así lo desea, especificar el método para particionar el conjunto de iteración.
 
 \subsubsection{Modelo de memoria de OpenMP}
-OpenMP se basa en el modelo de memoria compartida, por ello, por defecto los datos son compartidos por todos los hilos y son visibles para todos. A veces es necesario tener variables que poseen valores específicos por hilo. Cuando cada hilo tiene una copia propia de una variable, donde potencialmente tenga valores distintos en cada uno de ellos, decimos que la variable es privada; por ejemplo, cuando un equipo de hilos ejecuta un bucle paralelo  cada hilo necesita su propio valor de la variable de control de iteración. Este caso es tan importante que el propio compilador fuerza que así sea; en otros casos el programador es quien debe determinar cuales variables son compartidas y cuales privadas \citep{Chap}.
+OpenMP se basa en el modelo de memoria compartida, por ello, por defecto los datos son compartidos por todos los hilos y son visibles para todos, pero como implementa un modelo de memoria de consistencia relajada, no garantiza que los hilos estén al tanto inmediatamente de los cambios hechos a una variable por otro hilo, de acuerdo al estándar el estado de dicha variable no está definido. Por ello OpenMP ofrece directivas para forzar la sincronización de los hilos si fuera necesario.
+
+A veces es necesario tener variables que poseen valores específicos por hilo. Cuando cada hilo tiene una copia propia de una variable, donde potencialmente tenga valores distintos en cada uno de ellos, decimos que la variable es privada; por ejemplo, cuando un equipo de hilos ejecuta un bucle paralelo  cada hilo necesita su propio valor de la variable de control de iteración. Este caso es tan importante que el propio compilador fuerza que así sea; en otros casos el programador es quien debe determinar cuales variables son compartidas y cuales privadas \citep{Chap}.
 
 \subsubsection{Sincronización de Hilos}
 En ocasiones es necesario sincronizar los hilos para asegurar el acceso en orden a los datos compartidos y prevenir corrupción de éstos. Asegurar la coordinación de hilos necesaria, es uno de los desafíos más fuertes de la programación de memoria compartida \citep{Chap}. OpenMP provee, por defecto, sincronización implícita haciendo que los mismos esperen al final de una construcción de trabajo compartido o región paralela hasta que todos los hilos en el equipo terminan su porción de trabajo. Más difícil de conseguir en OpenMP es coordinar las acciones de un subconjunto de los hilos ya que no hay soporte explícito para esto.
-Otras veces es necesario asegurar que solo un hilo a la vez trabaja en un bloque de código. OpenMP  tiene varios mecanismos que soportan este tipo de sincronización.
+Otras veces es necesario asegurar que sólo un hilo a la vez trabaja en un bloque de código. OpenMP  tiene varios mecanismos que soportan este tipo de sincronización.
 
 \subsubsection{Otras características}
-Subrutinas y funciones pueden complicar la utilización de APIs de Programación Paralela. Una de las características innovadoras de OpenMP, es el hecho de que las directivas pueden ser insertadas dentro de procedimientos que son invocados desde dentro de una región paralela.\\
+Subrutinas y funciones pueden complicar la utilización de APIs de Programación Paralela. Una de las características innovadoras de OpenMP, es el hecho de que las directivas pueden ser insertadas dentro de procedimientos que son invocados desde dentro de una región paralela.
 Para algunas aplicaciones puede ser necesario controlar el número de hilos que ejecutan la región paralela. OpenMP permite al programador especificar este número previo a la ejecución del programa a través de una variable de ambiente, luego de que el cómputo ha iniciado a través de una librería de rutinas, o al comienzo de regiones paralelas. Si no se hace esto, la implementación de OpenMP utilizada elegirá el número de hilos a utilizar \citep{Chap}.
 
 \section{OpenMP en Fortran}\label{sec:n5}
-Fueron presentados Fortran y OpenMP, en esta sección se ve como se complementan, mostrando cual es el formato de las directivas de OpenMP en Fortran.
+Fueron presentados Fortran y OpenMP, en esta sección se ve cómo se complementan, mostrando cual es el formato de las directivas de OpenMP en Fortran.
 
 \subsection{Centinelas para directivas de OpenMP y compilación condicional}
 
@@ -223,7 +225,7 @@ El estándar OpenMP ofrece la posibilidad de usar el mismo código fuente con un c
 
  !$
 \end{lstlisting}
-Como el primer caracter es un signo de exclamación ``!'', un compilador normal va a interpretar las líneas como comentarios y va a ignorar su contenido. Pero un compilador compatible con OpenMP identificará la sentencia y procederá como sigue \citep{Her}
+Como el primer caracter es un signo de exclamación ``!'', un compilador normal va a interpretar las líneas como comentarios y va a ignorar su contenido. Pero un compilador compatible con OpenMP identificará la sentencia y procederá de la siguiente manera \citep{Her}:
 \begin{itemize}
 \item !\$OMP : el compilador compatible con OpenMP sabe que la información que sigue en la línea es una directiva OpenMP. Se puede extender una directiva en varias líneas utilizando el mismo centinela frente a las siguientes líneas y usando el método estándar de Fortran para partir líneas de código:
    \begin{lstlisting}[style=For, numbers=none]
@@ -231,7 +233,7 @@ Como el primer caracter es un signo de exclamación ``!'', un compilador normal v
         !$OMP REDUCTION(+:A)
    \end{lstlisting}
 \end{itemize}
-Es obligatorio incluir un espacio en blanco entre la directiva centinela y la directiva OpenMP que le sigue, sino la línea será interpretada como un comentario.
+Es obligatorio incluir un espacio en blanco entre la directiva centinela y la directiva OpenMP que le sigue; de otro modo, la línea será interpretada como un comentario.
 \begin{itemize}
 \item !\$ : la línea correspondiente se dice que está afectada por una compilación condicional. Quiere decir que su contenido estará disponible para el compilador en caso de que sea compatible con OpenMP. Si esto ocurre, los dos caracteres del centinela son reemplazados por dos espacios en blanco para que el compilador tenga en cuenta la línea. Como en el caso anterior, podemos extender la línea en varias líneas como sigue:
    \begin{lstlisting}[style=For, numbers=none]
@@ -242,7 +244,8 @@ Es obligatorio incluir un espacio en blanco entre la directiva centinela y la di
 Nuevamente el espacio en blanco es obligatorio entre la directiva de compilación condicional y el código fuente que le sigue.
 
 \subsection{El constructor de región paralela}
-La directiva más importante en OpenMP es la que define las llamadas regiones paralelas. Para entender mejor qué es la región paralela se puede observar una representación en la Fig. \ref{figRegpar}.\\
+La directiva más importante en OpenMP es la que define las llamadas regiones paralelas. Para entender mejor qué es la región paralela se puede observar una representación en la Fig. \ref{figRegpar}.
+
 Podemos definir que cuando se crea la región paralela, se crean los hilos que ejecutarán paralelamente el código que esté definido dentro de la misma.
 
 \begin{figure}[h!]%[htp]
@@ -252,7 +255,7 @@ Podemos definir que cuando se crea la región paralela, se crean los hilos que ej
   \label{figRegpar}
 \end{figure}
 
-Ya que la región paralela necesita ser creada/abierta y destruida/cerrada, dos directivas son necesarias en Fotran: !\$OMP PARALLEL / !\$OMP END PARALLEL.
+Ya que la región paralela necesita ser creada/abierta y destruida/cerrada, dos directivas son necesarias en Fortran: !\$OMP PARALLEL / !\$OMP END PARALLEL.
 El código de la Fig. \ref{figRegpar} se puede ver a continuación:
 
 \begin{lstlisting}[style=For, numbers=none]
@@ -279,7 +282,7 @@ Las cláusulas permitidas en la directiva de apertura !\$OMP PARALLEL son las sig
 \item IF(expresión\_escalar\_lógica)
 \item NUM\_THREADS(expresión\_escalar\_entera)
 \end{itemize}
-La directiva !\$OMP END PARALLEL indica el final de la región paralela, la barrera implícita mencionada antes en el capitulo. En este punto es donde ocurre la sincronización entre el equipo de hilos y son terminados todos excepto el hilo maestro que continua con la ejecución del programa.
+La directiva !\$OMP END PARALLEL indica el final de la región paralela, la barrera implícita mencionada antes en el capítulo. En este punto es donde ocurre la sincronización entre el equipo de hilos y son terminados todos excepto el hilo maestro que continúa con la ejecución del programa.
 
 \subsection{Directiva !\$OMP DO}
 Es una directiva de trabajo compartido, por lo cual al encontrarla en el código el trabajo es distribuido en un equipo de hilos. Debe ser ubicada dentro del alcance de una región paralela para ser efectiva, si no, la directiva aún funcionará pero el equipo será de un solo hilo. Esto se debe a que la creación de nuevos hilos es una tarea reservada a la directiva de creación de la región paralela.
@@ -292,7 +295,7 @@ Por ejemplo:
 	  1 continue
 	!$OMP END DO
 \end{lstlisting}
-distribuye el bucle \emph{Do} entre los diferentes hilos, cada hilo computa una parte de las iteraciones.
+Este ejemplo distribuye el bucle \emph{Do} entre los diferentes hilos, cada hilo computa una parte de las iteraciones.
 Por ejemplo si usamos 10 hilos, entonces generalmente cada hilo computa 100 iteraciones del bucle do. El hilo 0 desde 1 a 100, el hilo 1 desde 101 a 200 y así sucesivamente. Podemos ver esto en la Fig. \ref{figRegparDo}.
 
 \begin{figure}[h!]%[htp]
@@ -319,7 +322,7 @@ Las cláusulas de inicio pueden ser cualquiera de las siguientes:
 \item SCHEDULE(tipo, pedazo)
 \item ORDERED
 \end{itemize}
-Adicionalmente a estas cláusulas de inicio, se puede agregar a la directiva de cierre la cláusula NOWAIT para evitar la sincronización implícita. También se evita el refresco de las variables compartidas, implícito en la directiva de cierre, por lo que se debe tener cuidado de cuando utilizar la cláusula NOWAIT. Se pueden evitar problemas con la directiva de OpenMP !\$OMP FLUSH que fuerza el refresco de las variables compartidas en memoria por los hilos.
+Adicionalmente a estas cláusulas de inicio, se puede agregar a la directiva de cierre la cláusula NOWAIT para evitar la sincronización implícita. También se evita el refresco de las variables compartidas, implícito en la directiva de cierre, por lo que se debe tener cuidado de cuando utilizar la cláusula NOWAIT. Se pueden evitar problemas con la directiva !\$OMP FLUSH que fuerza el refresco de las variables compartidas en memoria por los hilos.
 
 \subsection{Clausulas Atributo de Alcance de Datos}
 \subsubsection{PRIVATE(lista)}
@@ -329,14 +332,6 @@ A veces, ciertas variables van a tener valores diferentes en cada hilo. Esto sól
     !$OMP PARALLEL PRIVATE(a, b)
 \end{lstlisting}
 
-%\begin{figure}[h!]%[htp][style=For, numbers=none]
-%  \centering
-%    \begin{lstlisting}[style=For, numbers=none]
-%        		!$OMP PARALLEL PRIVATE(a, b)
-%    \end{lstlisting}
-%  \caption{Ejemplo cláusula PRIVATE.} %
-%  \label{figPriv1}
-%\end{figure}
 
 Cuando una variable se declara como privada, un nuevo objeto del mismo tipo es declarado por cada hilo del equipo y usado por cada hilo dentro del alcance de la directiva que lo declare (la región paralela en el ejemplo anterior) en lugar de la variable original. El código anterior se representa en la Fig. \ref{figRegparPriv}.
 
@@ -366,7 +361,7 @@ Contrario a lo visto en la situación previa, a veces hay variables que deben est
   \label{figRegparShar}
 \end{figure}
 
-Una variable declarada como compartida (shared) no consume recursos extras, ya que no se reserva nueva memoria y su valor antes de la directiva inicial es conservado. Es decir que todos los hilos acceden a la misma ubicación de memoria para leer y escribir la variable.
+Una variable declarada como compartida (\emph{shared}) no consume recursos extras, ya que no se reserva nueva memoria y su valor antes de la directiva inicial es conservado. Es decir que todos los hilos acceden a la misma ubicación de memoria para leer y escribir la variable.
 Debido a que más de un hilo puede escribir en la misma ubicación de memoria al mismo tiempo, resulta en un valor indefinido de la variable. A esto se lo llama una condición de carrera, y debe ser siempre evitado por el programador. 
 
 \subsubsection{DEFAULT ( PRIVATE \textbar SHARED \textbar NONE )}
@@ -374,11 +369,11 @@ Cuando la mayoría de las variables dentro del alcance de una directiva va a ser 
 \begin{lstlisting}[style=For, numbers=none]
       !$OMP PARALLEL DEFAULT(PRIVATE) SHARED(a)
 \end{lstlisting}
-\noindent indica que todas las variables excepto ``a'' van a ser privadas, mientras que ``a'' será compartida por todos los hilos dentro del alcance de la región paralela. Si no se especifica ninguna cláusula DEFAULT, el comportamiento por defecto es como si DEFAULT(SHARED) fuera especificado. Como veremos en el capitulo 3 de este trabajo de tesis, esto puede variar en implementaciones y debe ser investigado más a fondo.
+\noindent indica que todas las variables excepto ``a'' van a ser privadas, mientras que ``a'' será compartida por todos los hilos dentro del alcance de la región paralela. Si no se especifica ninguna cláusula DEFAULT, el comportamiento por defecto es como si DEFAULT(SHARED) fuera especificado. Como veremos en el Capítulo 3 de este trabajo de tesis, esto puede variar en implementaciones y debe ser investigado más a fondo.
 A las opciones PRIVATE y SHARED se le agrega una tercera: NONE. Especificando DEFAULT(NONE) requiere que cada variable en el alcance de la directiva debe ser explícitamente listada en una de las cláusulas PRIVATE o SHARED al principio del alcance de la directiva (exceptuando variables declaradas THREADPRIVATE o los contadores de los bucles).
 
 \subsubsection{FIRSTPRIVATE(lista)}
-Como mencionamos previamente, las variables privadas tienen un valor indefinido al comienzo del alcance de un par de directivas de inicio y cierre. Pero a veces es de interés que esas variables locales tengan el valor de la variable original antes de la directiva de inicio. Esto se consigue incluyendo la variable en una cláusula FIRSTPRIVATE como:
+Como se mencionó previamente, las variables privadas tienen un valor indefinido al comienzo del alcance de un par de directivas de inicio y cierre. Pero a veces es de interés que esas variables locales tengan el valor de la variable original antes de la directiva de inicio. Esto se consigue incluyendo la variable en una cláusula FIRSTPRIVATE:
 \begin{lstlisting}[style=For, numbers=none]
 	a = 2
 	b = 1
@@ -400,15 +395,16 @@ Al igual que con las variables PRIVATE debe tenerse en cuenta el costo de la ope
 Existen más construcciones de trabajo compartido, de sincronización y de ambiente de datos, y más cláusulas en OpenMP, las cuales exceden el alcance de este trabajo de tesis y que pueden ser consultadas en el estándar OpenMP \citep{openmp} o en \citep{Her}.
 
 \section{Proceso de optimización}\label{sec:n6}
-Dependiendo del propósito de una aplicación y de la forma como será utilizada, suelen considerarse tres principios de optimización del desempeño \citep{Garg}
+Dependiendo del propósito de una aplicación y de la forma cómo será utilizada, suelen considerarse tres principios de optimización del desempeño \citep{Garg}
 \begin{itemize}
 \item Resolver el problema más rápidamente
 \item Resolver un problema más grande en el mismo tiempo
 \item Resolver el mismo problema en el mismo tiempo, pero utilizando una cantidad menor de recursos del sistema
 \end{itemize}
+
 En aplicaciones de HPC, obtener resultados más rápidamente es crucial para los usuarios. Por ejemplo, para un ingeniero, representa una diferencia considerable poder repetir una simulación en el transcurso de una noche en lugar de esperar varios días para que la simulación termine. El tiempo ganado puede ser aprovechado para modificar el diseño, correr experimentos de mayor tamaño, resolver problemas con conjuntos de datos más grandes, u obtener resultados más precisos. Por otro lado, cuando el tamaño del problema y el tiempo de ejecución se mantengan constantes, una aplicación optimizada consumirá menos recursos para completar su ejecución \citep{Garg}.
 
-El proceso de optimización tiene algunas etapas fundamentales: ``desarrollo de la aplicación, optimización serial, y optimización paralela''.  La primera etapa abarca el diseño, programación y consideraciones de portabilidad de la aplicación, es decir, elección de algoritmos y estructuras de datos para resolver el problema. En el caso de este trabajo de tesis, esa etapa fue llevada a cabo por el autor de la aplicación en que basamos nuestro estudio. Las etapas de optimización serial y optimización paralela son parte de este trabajo de tesis. En la Fig. \ref{figGySEtapas}, podemos observar las etapas del proceso de optimización.
+El proceso de optimización tiene algunas etapas fundamentales: desarrollo de la aplicación, optimización serial, y optimización paralela. La primera etapa abarca el diseño, programación y consideraciones de portabilidad de la aplicación, es decir, elección de algoritmos y estructuras de datos para resolver el problema. En el caso de este trabajo de tesis, esa etapa fue llevada a cabo por el autor de la aplicación en que basamos nuestro estudio. Las etapas de optimización serial y optimización paralela son parte de este trabajo de tesis. En la Fig. \ref{figGySEtapas}, podemos observar las etapas del proceso de optimización.
 
 Una decisión importante para el proceso de optimización es contemplar en qué plataforma o conjunto de ellas se implementará la aplicación. Esta decisión incluye seleccionar sistema operativo y arquitectura de ejecución. La optimización será más focalizada mientras más puntuales sean las decisiones tomadas, limitando el rango de plataformas en las cuales el programa puede ejecutarse \citep{Garg}. Una vez que el programa produzca resultados correctos, estará listo para ser optimizado. Se seleccionarán un conjunto de casos de test para validar que el programa continúe arrojando resultados correctos y se los utilizará repetidamente en el transcurso de la optimización.
 
@@ -419,7 +415,7 @@ Una decisión importante para el proceso de optimización es contemplar en qué pla
    \label{figGySEtapas}
 \end{figure}
 
-También se debe seleccionar un conjunto de casos para llevar a cabo pruebas de tiempo. Puede ser necesario que este conjunto sea diferente a los utilizados para validar el programa. Los casos de test para el cronometraje de tiempo podrían ser varios ``benchmarks'' que representen adecuadamente el uso del programa. Se utilizarán estos benchmarks para medir el nivel de desempeño básico o ``línea de base'', de manera de disponer de datos fiables para utilizar más tarde en las comparaciones de código optimizado y código original. De esta manera, se puede medir el efecto de la optimización.
+También se debe seleccionar un conjunto de casos para llevar a cabo pruebas de tiempo. Puede ser necesario que este conjunto sea diferente a los utilizados para validar el programa. Los casos de test para el cronometraje de tiempo podrían ser varios \emph{benchmarks} que representen adecuadamente el uso del programa. Se utilizarán estos \emph{benchmarks} para medir el nivel de desempeño base, de manera de disponer de datos fiables para utilizar más tarde en las comparaciones de código optimizado y código original. De esta manera, se puede medir el efecto de la optimización.
 
 \subsection{Optimización Serial}
 La Optimización Serial es un proceso iterativo que involucra medir repetidamente un programa seguido por la optimización de sus partes críticas de rendimiento. La Fig. \ref{figGySSerial} resume las tareas de optimización y da un diagrama de flujo simplificado para el proceso de optimización serial.
@@ -431,22 +427,22 @@ La Optimización Serial es un proceso iterativo que involucra medir repetidamente
   \label{figGySSerial}
 \end{figure}
 
-Una vez que las mediciones de rendimiento de la línea de base se han obtenido, el esfuerzo de optimización debe iniciarse mediante la compilación de todo el programa con opciones seguras. Lo siguiente sería enlazar librerías optimizadas. (Este enlace es una manera sencilla de llevar implementaciones altamente optimizadas de operaciones estándar en un programa)
-Luego de esto se debe verificar que los resultados preservan la correctitud del programa. Este paso incluye verificar que el programa realiza llamadas a las Interfaces de Programación de Aplicación (APIs sus siglas en inglés) adecuadas en las librerías optimizadas. Además, es recomendable que sea medido el desempeño del programa para verificar que es lo que ha mejorado.
+Una vez que se obtienen las mediciones de rendimiento base, se inicia la optimización mediante la compilación de todo el programa con opciones seguras. Lo siguiente sería enlazar librerías optimizadas. (Este enlace es una manera sencilla de llevar implementaciones altamente optimizadas de operaciones estándar en un programa)
+Luego de esto se debe verificar que los resultados preservan la correctitud del programa. Este paso incluye verificar que el programa realiza llamadas a las APIs adecuadas en las librerías optimizadas. Además, es recomendable que sea medido el desempeño del programa para verificar que es lo que ha mejorado.
 
-El siguiente paso es identificar partes de desempeño críticas en el código. El perfilado (profiling en inglés) del código fuente puede ser usado para determinar cuales partes del código son las que toman más tiempo para ejecutarse. Las partes identificadas son excelentes objetivos para enfocar el esfuerzo de optimización, y las mejoras resultantes de desempeño pueden ser significativas. Otra técnica muy útil para identificar estas partes de código críticas es el monitoreo de la actividad del sistema y el uso de los recursos del sistema \citep{Garg}. 
+El siguiente paso es identificar partes de desempeño críticas en el código. El perfilado (profiling) del código fuente puede ser usado para determinar cuales partes del código son las que toman más tiempo para ejecutarse. Las partes identificadas son excelentes objetivos para enfocar el esfuerzo de optimización, y las mejoras resultantes de desempeño pueden ser significativas. Otra técnica muy útil para identificar estas partes de código críticas es el monitoreo de la actividad del sistema y el uso de los recursos del sistema \citep{Garg}. 
 
 \subsubsection{Metodología de medición}
 Al trabajar en optimizar la performance de una aplicación, es esencial usar varias herramientas y técnicas que sugieran qué partes del programa necesitan ser optimizadas, comparar el desempeño antes y luego de la optimización y mostrar que tan eficientes han sido los recursos del sistema  utilizados por el código optimizado \citep{Garg}.
 
 El primer paso en el proceso de afinación de la aplicación es cuantificar su desempeño. Este paso es alcanzado usualmente estableciendo un desempeño base y fijando expectativas apropiadas de cuanta mejora en el desempeño es razonable alcanzar.
 Para programas científicos, las métricas de mayor interés son usualmente el tiempo reloj (tiempo de respuesta) de un solo trabajo y aquellos que relacionan el desempeño de la aplicación a picos teóricos de desempeño de la CPU \citep{Garg}.
-A través de benchmarks es que podemos realizar análisis de la performance de la aplicación. Una guía importante a seguir es que las mediciones deben ser reproducibles dentro de un rango de tolerancia esperado. Establecido esto se definen las siguientes reglas generales:
+A través de \emph{benchmarks} es que podemos realizar análisis de la performance de la aplicación. Una guía importante a seguir es que las mediciones deben ser reproducibles dentro de un rango de tolerancia esperado. Establecido esto se definen las siguientes reglas generales:
 \begin{itemize}
 \item Seleccionar cuidadosamente los conjuntos de datos a utilizar. Deben representar adecuadamente el uso de la aplicación.
 \item Al igual que en las mediciones en otros campos de la ingeniería, la incertidumbre también se aplica a las mediciones de desempeño de programas de computadora. El simple hecho de tratar de medir un programa se entromete en su ejecución y posiblemente lo afecta de manera incierta.
-\item Siempre que sea posible, ejecutar los benchmarks desde un sistema de archivos tipo tmpfs (/tmp) o algún sistema de archivos montado localmente. Ejecutar una aplicación desde un sistema de archivos montado por red introduce efectos de red irreproducibles en el tiempo de ejecución.
-\item Actividades de paginado e intercambio a disco deben ser monitoreadas mientras se ejecuta el benchmark, ya que éstas pueden desvirtuar completamente la medición.
+\item Siempre que sea posible, ejecutar los \emph{benchmarks} desde un sistema de archivos tipo \emph{tmpfs} (/tmp) o algún sistema de archivos montado localmente. Ejecutar una aplicación desde un sistema de archivos montado por red introduce efectos de red irreproducibles en el tiempo de ejecución.
+\item Actividades de paginado e intercambio a disco deben ser monitoreadas mientras se ejecuta el \emph{benchmark}, ya que éstas pueden desvirtuar completamente la medición.
 \item Las mediciones de ``respuesta del programa'' deben ser desempeñadas en una manera dedicada, sin otros programas o aplicaciones ejecutándose.
 \item Las características del sistema deben ser registradas y guardadas.
 \end{itemize}
@@ -459,6 +455,8 @@ Las herramientas de medición de desempeño pueden ser divididas en tres grupos \c
 \item Herramientas de perfilado, que utilizan resultados de tiempo para identificar las partes de mayor utilización de una aplicación.
 \item Herramientas de monitoreo, que miden la utilización de varios recursos del sistema para identificar ``cuellos de botella'' que ocurren durante la ejecución.
 \end{itemize}
+En este trabajo utilizamos herramientas pertenecientes a los tres grupos descritos, tanto para el análisis de la aplicación en el Capítulo 3 como para las mediciones de tiempo y el monitoreo de recursos en el Capítulo 4.
+
 Existen otras formas de categorizar estas herramientas, como puede ser basados en los requerimientos para su uso (herramientas que operan con binarios optimizados, o que requieren insertarse en el código fuente, etc), o incluso dividirlas en dos grupos:
 \begin{itemize}
 \item Herramientas de medición de desempeño serial.
@@ -467,11 +465,11 @@ Existen otras formas de categorizar estas herramientas, como puede ser basados e
 
 \subsubsection{Herramientas de medición de tiempo}
 El paso fundamental para evaluar comparativamente y poner a punto el desempeño de un programa, es medir con precisión la cantidad de tiempo utilizado ejecutando el código. Generalmente uno está interesado en el tiempo total utilizado para correr un programa, así como en el tiempo utilizado en porciones del programa.
-Para medir el programa completo es necesario usar herramientas que midan con precisión el tiempo transcurrido desde el comienzo de la ejecución del mismo. En GNU/Linux utilizamos la herramienta ``time'' para dicho propósito. La forma de utilizar time es ejecutarlo desde una terminal de GNU/Linux pasando como parámetro el comando que debe medir tal cual como el comando es ejecutado normalmente. Por ejemplo:
+Para medir el programa completo es necesario usar herramientas que midan con precisión el tiempo transcurrido desde el comienzo de la ejecución del mismo. En GNU/Linux utilizamos la herramienta \emph{time} para dicho propósito. La forma de utilizar \emph{time} es ejecutarlo desde una terminal de GNU/Linux, pasando como parámetro el comando que debe medir tal cual como el comando es ejecutado normalmente. Por ejemplo:
 \begin{lstlisting}[style=For, numbers=none]
 	$ time  find / -name ``syslog''
 \end{lstlisting}
-El comando siendo medido realiza su ejecución normalmente. Al finalizar su ejecución, el comando time muestra por salida estándar tres valores (Fig. \ref{figTime}):
+El comando siendo medido realiza su ejecución normalmente. En la Fig. \ref{figTime} podemos ver un ejemplo de ejecución con \emph{time}. Al finalizar la ejecución, el comando \emph{time} muestra por salida estándar tres valores:
 \begin{itemize}
 \item ``real'': el tiempo real transcurrido entre el inicio y la finalización de la ejecución.
 \item ``user'': el tiempo de usuario del procesador.
@@ -496,18 +494,20 @@ El comando siendo medido realiza su ejecución normalmente. Al finalizar su ejecu
 
 \subsubsection{Herramientas de perfilado de programa}
 El perfilado muestra cuales funciones son las más costosas en las ejecuciones de una aplicación. Es necesario utilizar para la medición casos de test representativos y múltiples, de manera de obtener resultados significativos.
-En GNU/Linux se cuenta con la herramienta ``gprof'' para realizar perfilado de aplicaciones. Para utilizarla, un programa debe estar compilado con la opción ``-pg''. Luego se ejecuta el programa una vez y genera un archivo llamado gmon.out en el directorio de ejecución el cual es utilizado por el comando gprof para generar el reporte de perfilado para esa ejecución. La sintaxis de gprof es:
+En GNU/Linux se cuenta con la herramienta \emph{gprof} para realizar perfilado de aplicaciones. Para utilizarla, un programa debe estar compilado con la opción ``-pg''. Luego se ejecuta el programa una vez y genera un archivo llamado gmon.out en el directorio de ejecución el cual es utilizado por el comando gprof para generar el reporte de perfilado para esa ejecución. La sintaxis de \emph{gprof} es:
 \begin{lstlisting}[style=For, numbers=none]
     $ gprof  <programa_ejecutable>  [<ruta_a_gmon.out>]
 \end{lstlisting}
-Si no se le pasa la ruta a gmon.out, por defecto utiliza el directorio desde donde es invocado gprof. Un ejemplo de este proceso puede verse a continuación: 
+Si no se le pasa la ruta donde está ubicado \emph{gmon.out}, por defecto utiliza el directorio desde donde es invocado \emph{gprof}. Un ejemplo de este proceso puede verse a continuación: 
 
 \begin{lstlisting}[style=For, numbers=none]
     $ gfortran -pg foo.for -o foo
     $ foo
     $ gprof foo
 \end{lstlisting}
-La salida de gprof es por salida estándar y bastante extensa, por lo cual es aconsejable redirigirla a un archivo. Consta de tres partes: la primera parte lista las funciones ordenadas de acuerdo al tiempo que consumen, junto con sus descendientes (tiempo inclusivo). La segunda parte lista el tiempo exclusivo para las funciones (tiempo empleado ejecutando la función) junto con los porcentajes de tiempo total de ejecución y número de llamadas. La última parte da un índice de todas las llamadas realizadas en la ejecución.
+La salida de \emph{gprof} es por salida estándar y bastante extensa, por lo cual es aconsejable redireccionarla a un archivo. Consta de tres partes: la primera parte lista las funciones ordenadas de acuerdo al tiempo que consumen, junto con sus descendientes (tiempo inclusivo). La segunda parte lista el tiempo exclusivo para las funciones (tiempo empleado ejecutando la función) junto con los porcentajes de tiempo total de ejecución y número de llamadas. La última parte da un índice de todas las llamadas realizadas en la ejecución.
+
+A partir de la información suministrada por \emph{gprof} se analizan las distintas funciones de la aplicación para buscar las candidatas a ser optimizadas, ya sea serial o paralelamente.
 
 \subsection{Optimización Paralela}
 Luego de que la aplicación está optimizada para procesamiento serial, su tiempo de ejecución puede ser reducido aún más permitiendo que se ejecute en varios procesadores. Las técnicas más usadas comúnmente para paralelización son el uso explícito de hilos, el uso de directivas al compilador y el pasaje de mensajes \citep{Garg}. En la Fig. \ref{figGySParalel} se ve ilustrado el proceso de optimización paralela.
@@ -519,15 +519,8 @@ Luego de que la aplicación está optimizada para procesamiento serial, su tiempo 
   \label{figGySParalel}
 \end{figure}
 
-El primer paso es elegir un modelo, identificar que partes del programa deben ser paralelizadas y determinar como dividir la carga de trabajo computacional entre los diferentes procesadores. Dividir la carga de trabajo computacional es crucial para el desempeño, ya que determina los gastos generales de comunicación, sincronización y de desequilibrios de carga resultantes en un programa paralelizado. Generalmente, una división de trabajo de ``nivel grueso'' es recomendada debido a que minimiza la comunicación entre las tareas paralelas, pero en algunos casos, un enfoque de este tipo lleva a un balanceo de carga muy pobre; un nivel más fino en la división de la carga de trabajo puede llevar a un mejor balanceo de carga y desempeño de la aplicación.
+El primer paso es elegir un modelo, identificar que partes del programa deben ser paralelizadas y determinar cómo dividir la carga de trabajo computacional entre los diferentes procesadores. Dividir la carga de trabajo computacional es crucial para el desempeño, ya que determina los gastos generales de comunicación, sincronización y de desequilibrios de carga resultantes en un programa paralelizado. Generalmente, una división de trabajo de ``nivel grueso'' es recomendada debido a que minimiza la comunicación entre las tareas paralelas, pero en algunos casos, un enfoque de este tipo lleva a un balanceo de carga muy pobre; un nivel más fino en la división de la carga de trabajo puede llevar a un mejor balanceo de carga y desempeño de la aplicación.
 
-Luego de seleccionado un modelo de paralelización e implementado, lo siguiente es optimizar su desempeño. Similar a la optimización serial, este proceso es iterativo e involucra mediciones repetidas seguidas de aplicar una o más técnicas de optimización para mejorar el desempeño del programa. Las aplicaciones paralelas, sin importar el modelo utilizado, necesitan que exista comunicación entre los procesos o hilos concurrentes. Se debe tener cuidado de minimizar los gastos extras en comunicación y asegurar una sincronización eficiente en la implementación; también se debe minimizar el desequilibrio de cargas entre las tareas paralelas, ya que esto degrada la escalabilidad del programa. También es necesario considerar temas como migración y programación de procesos, y coherencia de cache. Las librerías del compilador pueden ser utilizadas para implementar versiones paralelas de funciones usadas comúnmente, tanto en aplicaciones multithread como multiproceso.
+Luego de seleccionado un modelo de paralelización e implementado, lo siguiente es optimizar su desempeño. Similar a la optimización serial, este proceso es iterativo e involucra mediciones repetidas seguidas de aplicar una o más técnicas de optimización para mejorar el desempeño del programa. Las aplicaciones paralelas, sin importar el modelo utilizado, necesitan que exista comunicación entre los procesos o hilos concurrentes. Se debe tener cuidado de minimizar los gastos extras en comunicación y asegurar una sincronización eficiente en la implementación; también se debe minimizar el desequilibrio de cargas entre las tareas paralelas, ya que esto degrada la escalabilidad del programa. También es necesario considerar temas como migración y programación de procesos, y coherencia de cache. Las librerías del compilador pueden ser utilizadas para implementar versiones paralelas de funciones usadas comúnmente, tanto en aplicaciones multihilos como multiproceso.
 
 Los cuellos de botella de un programa paralelo pueden ser muy diferentes de los presentes en una versión secuencial del mismo programa. Además de gastos extra específicos de la paralelización, las porciones lineales (o secuenciales) de un programa paralelo pueden limitar severamente la ganancia de velocidad de la paralelización. En tales situaciones , hay que prestar atención a esas porciones secuenciales para mejorar el desempeño total de la aplicación paralela. Por ejemplo, consideremos la solución directa de N ecuaciones lineales. El costo computacional escala en el orden de $O(N^3)$ en la etapa de descomposición de la matriz y en el orden de $O(N^2)$ en la etapa de sustitución inversa. En consecuencia, la etapa de sustitución inversa apenas se nota en el programa secuencial, y el desarrollador paralelizando el programa justificadamente se enfoca en la etapa de descomposición de la matriz. Posiblemente, como resultado del trabajo de paralelización, la etapa de descomposición de la matriz se vuelve más eficiente que la etapa de sustitución inversa. El desempeño total y velocidad del programa de resolución directa ahora está limitado por el desempeño de la etapa de sustitución inversa. Para mejorar aún más el desempeño, la etapa de sustitución inversa debería convertirse en el foco de optimización y posiblemente un trabajo de paralelización \citep{Garg}.
-
-%\section{Caso de Estudio: Modelización del Flujo Invíscido}\label{sec:n7}
-%El programa objeto de optimización de esta tesis es de autoría de Ricardo A. Prado, docente e investigador de la Universidad Nacional del Comahue, y fue utilizado para obtener resultados para su trabajo de tesis de doctorado \citep[Mayo 2007]{Prado} en el área de Ingeniería presentado en la Universidad de Buenos Aires en 2007. Como se expone en dicho trabajo, la tesis ``analiza el comportamiento fluidodinámico de una turbomáquina particular: la turbina eólica''. La creación del programa se justifica en el mismo trabajo porque ``debido a la complejidad de las ecuaciones de gobierno en ambas zonas del campo fluidodinámico, como así también de la geometría de la turbina y de sus condiciones de operación, se requiere de procesos de resolución numérica adecuados, los cuales se incorporaron en los códigos computacionales que se desarrollaron a tal efecto''.
-
-%El modelo matemático que implementa el programa es la ``Ley de Biot-Savart''\footnote{\url{https://es.wikipedia.org/wiki/Ley_de_Biot-Savart}}, que indica el campo magnético creado por corrientes eléctricas estacionarias. Es una de las leyes fundamentales de la magnetoestática. En particular, en el trabajo de Prado se aplica a una modelización del flujo invíscido (de viscosidad despreciable, casi nula) alrededor de la pala de la turbina. El modelo numérico se formula a través del método de los paneles. El objetivo de la aplicación de la Ley de Biot-Savart en el trabajo es el cálculo de las velocidades de flujo inducidas en un punto para cada panel de la pala. 
-
-%El programa realiza el cálculo de una integración por el método de Simpson. La regla o método de Simpson es un método de integración numérica que se utiliza para obtener la aproximación de una integral en un intervalo definido, al dividir ese intervalo en subintervalos y aproximar cada subintervalo con un polinomio de segundo grado. 
